@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Your Intro Video — GripTape Learning Challenge</title>
+  <style>
+    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    p { line-height: 1.6; color: #444; }
+    label { display: block; margin-top: 20px; font-weight: 600; }
+    input[type="url"] { width: 100%; margin-top: 6px; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { margin-top: 20px; padding: 12px 24px; font-size: 1rem; background: #1a1a1a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #status { margin-top: 16px; font-size: 0.95rem; }
+    .error { color: #c00; }
+    .success { color: #060; }
+    #loading, #form-section, #invalid-section { display: none; }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><p>Verifying your link…</p></div>
+
+  <div id="invalid-section">
+    <h1>Link invalid or expired</h1>
+    <p>This link is invalid or expired. If you believe this is a mistake, please contact us.</p>
+  </div>
+
+  <div id="form-section">
+    <h1>Submit Your Intro Video</h1>
+    <p>Hi <span id="first-name"></span>! Please paste the YouTube link to your intro video below.</p>
+
+    <form id="video-form">
+      <label for="video_url">YouTube Video URL</label>
+      <input type="url" id="video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=..." required />
+      <button type="submit" id="submit-btn">Submit Video</button>
+    </form>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    async function init() {
+      document.getElementById('loading').style.display = 'block';
+
+      if (!token) {
+        showInvalid();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/check-token?token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+
+        if (!data.valid) {
+          showInvalid();
+          return;
+        }
+
+        document.getElementById('first-name').textContent = data.first_name;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('form-section').style.display = 'block';
+      } catch {
+        showInvalid();
+      }
+    }
+
+    function showInvalid() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('invalid-section').style.display = 'block';
+    }
+
+    document.getElementById('video-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const video_url = document.getElementById('video_url').value.trim();
+      const btn = document.getElementById('submit-btn');
+      const status = document.getElementById('status');
+
+      btn.disabled = true;
+      status.textContent = 'Validating your video…';
+      status.className = '';
+
+      try {
+        const res = await fetch('/api/validate-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, video_url }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById('video-form').style.display = 'none';
+          status.textContent = "You're all set! We'll be in touch soon.";
+          status.className = 'success';
+        } else if (data.error === 'invalid_video') {
+          status.textContent = "That doesn't look like a valid YouTube video. Please check the link and try again.";
+          status.className = 'error';
+          btn.disabled = false;
+        } else {
+          status.textContent = 'Something went wrong. Please try again.';
+          status.className = 'error';
+          btn.disabled = false;
+        }
+      } catch {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.className = 'error';
+        btn.disabled = false;
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

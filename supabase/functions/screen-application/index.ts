@@ -78,14 +78,21 @@ serve(async (req) => {
       : decision === 'rejected' ? 'rejected'
       : 'flagged';
 
+    const accessToken = decision === 'accepted' ? crypto.randomUUID() : null;
+
+    const updatePayload: Record<string, unknown> = {
+      screening_status: newStatus,
+      ai_decision: decision,
+      ai_reasoning: reasoning,
+      failed_criteria: failed_criteria ?? null,
+    };
+    if (accessToken) {
+      updatePayload.access_token = accessToken;
+    }
+
     const { error: updateError } = await supabase
       .from('applications')
-      .update({
-        screening_status: newStatus,
-        ai_decision: decision,
-        ai_reasoning: reasoning,
-        failed_criteria: failed_criteria ?? null,
-      })
+      .update(updatePayload)
       .eq('id', application.id);
 
     if (updateError) {
@@ -93,17 +100,18 @@ serve(async (req) => {
     }
 
     if (decision === 'accepted') {
+      const videoLink = `https://learning-challenge-legacy.vercel.app/video?token=${accessToken}`;
       await sendEmail({
         to: application.email,
         subject: "You're accepted — submit your intro video",
         html: `<p>Hi ${application.first_name},</p>
                <p>You've been accepted to the GripTape Learning Challenge!</p>
                <p>Submit your intro video within 10 days to secure your spot.</p>
-               <p><em>Placeholder — replace with content.js copy before pilot launch.</em></p>`,
+               <p><a href="${videoLink}">Click here to submit your video</a></p>`,
       });
       await sendSMS({
         to: application.phone,
-        body: `Hi ${application.first_name}! You're accepted to GripTape. Submit your video: [link] (placeholder)`,
+        body: `Hi ${application.first_name}! You're accepted to GripTape. Submit your video: ${videoLink}`,
       });
 
     } else if (decision === 'rejected') {
