@@ -27,7 +27,7 @@ serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_KEY')!,
+      Deno.env.get('DB_SERVICE_KEY')!,
     );
 
     // Idempotency guard — only update if still submitted
