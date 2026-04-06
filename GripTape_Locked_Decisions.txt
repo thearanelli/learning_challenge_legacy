@@ -1,0 +1,71 @@
+GripTape Locked Decisions (MVP)
+
+1.  Source of Truth Supabase is the only source of truth. Airtable is
+    read-only.
+
+2.  Canonical Program State youth.status is the single source of truth
+    for participant progress. applications is screening-only.
+
+3.  Status Model (MVP) Working states:
+
+-   submitted
+-   screening
+-   video_pending
+-   video_review
+-   onboarding
+-   mentor_pending
+
+Terminal states: - rejected - removed - completed
+
+Additional fields: - exit_stage - exit_reason
+
+Rules: - status drives workflow - exit fields are metadata only - exit
+fields written on terminal transition
+
+4.  Status Transitions Use a central helper to enforce valid
+    transitions. Staff overrides allowed but must be logged.
+
+5.  Tables (MVP) Only build:
+
+-   applications
+-   youth
+
+All other tables deferred.
+
+6.  Applications Table (locked)
+
+Fields: - id - program_id - first_name - last_name - birthdate - email -
+phone - address - screening_status - ai_decision - ai_reasoning -
+failed_criteria - submitted_at - application_responses (jsonb)
+
+7.  Youth Table (locked)
+
+Fields: - id - program_id - application_id - first_name - last_name -
+email - phone - status - video_url - access_token - token_expires_at -
+accepted_at - completed_at - exit_stage - exit_reason -
+orientation_call_completed_at - end_call_completed_at
+
+8.  Naming Rules
+
+-   Do not rename columns after build
+-   Do not rename status values
+-   Copy fields intentionally duplicated from applications → youth
+
+9.  Config vs Code Must live in config/content:
+
+-   deadlines
+-   program duration
+-   eligibility rules
+-   messaging copy
+-   AI prompts
+
+10. Deferred Decisions
+
+-   champion system
+-   grants/payment
+-   meetings/check-ins
+-   events/showcase
+-   prior participation eligibility
+
+Build Scope: Start with: application → screening → youth creation →
+video_pending
