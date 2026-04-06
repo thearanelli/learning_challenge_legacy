@@ -9,7 +9,7 @@ genuine interest in the program. Check three criteria:
 3. Passion answer is real and specific — not gibberish, not copy-pasted,
    shows the applicant actually cares about something
 
-Respond ONLY in valid JSON. No commentary outside the JSON.
+You must respond with raw JSON only. Do not use markdown formatting. Do not wrap your response in code fences or backticks. Do not include any text before or after the JSON object. Your entire response must be directly parseable by JSON.parse() with no preprocessing.
 Schema: { "decision": "accepted" | "rejected" | "flagged", "reasoning": "string", "failed_criteria": "string | null" }
 Rules:
 - decision is "accepted" only if ALL three criteria pass

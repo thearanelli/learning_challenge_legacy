@@ -64,9 +64,13 @@ serve(async (req) => {
     const claudeData = await claudeRes.json();
     const rawText = claudeData.content[0]?.text || '';
 
+    const cleaned = rawText
+      .replace(/```json\n?/gi, '')
+      .replace(/```\n?/g, '')
+      .trim();
     let aiResult: { decision: string; reasoning: string; failed_criteria: string | null };
     try {
-      aiResult = JSON.parse(rawText);
+      aiResult = JSON.parse(cleaned);
     } catch {
       throw new Error(`Claude returned invalid JSON: ${rawText}`);
     }
