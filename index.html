@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Learning Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --lime: #C8F135;
+  --lime-dark: #A8D020;
+  --lime-glow: rgba(200,241,53,0.12);
+  --purple: #7B2FFF;
+  --purple-light: #9B5FFF;
+  --coral: #FF5C5C;
+  --sky: #38CFFF;
+  --bg: #0D0D0D;
+  --bg2: #161616;
+  --bg3: #1F1F1F;
+  --bg4: #2A2A2A;
+  --white: #F5F5F0;
+  --gray: #777;
+  --border: rgba(255,255,255,0.08);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BG GRID */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(200,241,53,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,241,53,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* FLOATING BLOBS */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: blobFloat 8s ease-in-out infinite;
+}
+.blob1 { width: 400px; height: 400px; background: rgba(123,47,255,0.15); top: -100px; right: -100px; animation-delay: 0s; }
+.blob2 { width: 300px; height: 300px; background: rgba(200,241,53,0.08); bottom: 100px; left: -80px; animation-delay: -3s; }
+.blob3 { width: 200px; height: 200px; background: rgba(56,207,255,0.08); top: 50%; left: 40%; animation-delay: -5s; }
+
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -30px) scale(1.05); }
+  66% { transform: translate(-15px, 20px) scale(0.95); }
+}
+
+/* ── LANDING ── */
+#landing { min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--lime);
+  border-radius: 50%;
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(200,241,53,0.4); }
+  50% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(200,241,53,0); }
+}
+
+.nav-pills { display: flex; gap: 0.5rem; }
+.nav-pill {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--gray);
+}
+.nav-pill.active { background: var(--lime); color: #000; border-color: var(--lime); }
+
+.hero {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 55% 45%;
+  min-height: calc(100vh - 65px);
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 3.5rem 5rem 2.5rem;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+
+.tag-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.tag {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.9rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--gray);
+}
+.tag.lime { background: var(--lime-glow); border-color: rgba(200,241,53,0.3); color: var(--lime); }
+.tag.purple { background: rgba(123,47,255,0.15); border-color: rgba(123,47,255,0.3); color: #b490ff; }
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.5rem, 7vw, 6.5rem);
+  line-height: 0.93;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.75rem;
+}
+
+.highlight {
+  color: var(--lime);
+  position: relative;
+  display: inline-block;
+}
+
+.highlight::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--lime);
+  border-radius: 2px;
+  animation: underlineSlide 0.8s ease both;
+  animation-delay: 0.5s;
+}
+
+@keyframes underlineSlide {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.hero-desc {
+  font-size: 1.05rem;
+  color: var(--gray);
+  line-height: 1.7;
+  max-width: 440px;
+  margin-bottom: 2.5rem;
+}
+
+.cta-group { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+
+.btn-main {
+  background: var(--lime);
+  color: #000;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.2);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.btn-main:hover::before { transform: translateX(0); }
+.btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200,241,53,0.3); }
+
+.btn-outline {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--white); color: var(--white); }
+
+/* STATS GRID */
+.hero-right {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  background: var(--border);
+  gap: 1px;
+}
+
+.stat-card {
+  background: var(--bg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 0;
+  background: var(--lime);
+  transition: height 0.4s ease;
+}
+
+.stat-card:hover { background: var(--bg2); }
+.stat-card:hover::before { height: 100%; }
+
+.stat-emoji { font-size: 2rem; line-height: 1; filter: saturate(1.2); }
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2.8rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--lime);
+}
+
+.stat-desc { font-size: 0.85rem; color: var(--gray); line-height: 1.5; max-width: 260px; }
+
+.stat-card.featured { background: var(--purple); border: none; }
+.stat-card.featured:hover { background: var(--purple-light); }
+.stat-card.featured::before { background: var(--lime); }
+.stat-card.featured .stat-num { color: var(--lime); }
+.stat-card.featured .stat-desc { color: rgba(255,255,255,0.7); }
+
+/* ── APP SCREEN ── */
+#app-screen { display: none; min-height: 100vh; flex-direction: column; position: relative; z-index: 1; }
+#app-screen.active { display: flex; }
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(13,13,13,0.9);
+  gap: 1rem;
+}
+
+.app-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: -0.02em; white-space: nowrap; }
+
+.progress-section { flex: 1; max-width: 380px; }
+
+.progress-meta { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.progress-step { font-size: 0.72rem; color: var(--gray); letter-spacing: 0.05em; }
+.progress-pct { font-size: 0.72rem; color: var(--lime); font-weight: 600; letter-spacing: 0.05em; }
+
+.progress-track { height: 4px; background: var(--bg3); border-radius: 100px; overflow: hidden; }
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--lime));
+  border-radius: 100px;
+  width: 0%;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  background: var(--lime);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--lime);
+}
+
+.exit-btn {
+  font-size: 0.78rem;
+  color: var(--gray);
+  background: none;
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.9rem;
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: 'Instrument Sans', sans-serif;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.exit-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+
+/* CHAT */
+.chat-wrap { flex: 1; overflow-y: auto; padding: 2rem 1rem; scroll-behavior: smooth; }
+.chat-wrap::-webkit-scrollbar { width: 3px; }
+.chat-wrap::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 100px; }
+
+.chat-inner { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* AI MESSAGE */
+.ai-msg { display: flex; gap: 0.85rem; align-items: flex-start; animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1) both; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--purple), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+}
+
+.ai-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 10px; height: 10px;
+  background: var(--lime);
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+}
+
+.ai-content { flex: 1; }
+
+.ai-name { font-size: 0.7rem; font-weight: 500; color: var(--purple-light); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+
+.ai-bubble {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px 16px 16px 16px;
+  padding: 1rem 1.2rem;
+  font-size: 0.97rem;
+  line-height: 1.65;
+  color: var(--white);
+}
+
+/* USER MESSAGE */
+.user-msg { display: flex; gap: 0.85rem; align-items: flex-start; flex-direction: row-reverse; animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+
+.user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.user-content { flex: 1; display: flex; flex-direction: column; align-items: flex-end; }
+.user-name { font-size: 0.7rem; font-weight: 500; color: var(--gray); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+
+.user-bubble {
+  background: var(--lime);
+  border-radius: 16px 4px 16px 16px;
+  padding: 1rem 1.2rem;
+  font-size: 0.97rem;
+  line-height: 1.65;
+  color: #0D0D0D;
+  font-weight: 500;
+  max-width: 80%;
+  word-break: break-word;
+}
+
+/* TYPING */
+.typing-msg { display: flex; gap: 0.85rem; align-items: flex-start; animation: slideUp 0.3s ease both; }
+
+.typing-bubble {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px 16px 16px 16px;
+  padding: 1rem 1.2rem;
+  display: flex; gap: 5px; align-items: center;
+}
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray); animation: dotBounce 1.3s ease-in-out infinite; }
+.dot:nth-child(2) { animation-delay: 0.18s; background: var(--purple-light); }
+.dot:nth-child(3) { animation-delay: 0.36s; background: var(--lime); }
+
+@keyframes dotBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-7px); }
+}
+
+/* REACTION CARDS */
+.reaction-card {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.5rem 0.85rem;
+  font-size: 0.8rem; color: var(--gray);
+  margin-top: 0.6rem;
+  animation: slideUp 0.4s ease both; animation-delay: 0.3s;
+}
+.reaction-card.good { border-color: rgba(200,241,53,0.3); color: var(--lime); background: var(--lime-glow); }
+.reaction-card.warn { border-color: rgba(255,188,64,0.3); color: #FFB840; background: rgba(255,184,64,0.08); }
+
+/* INPUT ZONE */
+.input-zone {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  background: rgba(13,13,13,0.95);
+  backdrop-filter: blur(12px);
+}
+
+.input-inner { max-width: 680px; margin: 0 auto; display: flex; gap: 0.75rem; align-items: flex-end; }
+
+.textarea-wrap {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 0.9rem 1rem 0.6rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.textarea-wrap:focus-within {
+  border-color: rgba(200,241,53,0.5);
+  box-shadow: 0 0 0 3px rgba(200,241,53,0.08);
+}
+
+#answer-input {
+  width: 100%; background: none; border: none; outline: none;
+  color: var(--white);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.97rem;
+  resize: none; min-height: 24px; max-height: 120px; line-height: 1.5;
+}
+#answer-input::placeholder { color: var(--gray); }
+
+.input-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
+.word-count { font-size: 0.65rem; color: var(--gray); }
+.word-count.low { color: #FFB840; }
+.word-count.good { color: var(--lime); }
+.key-hint { font-size: 0.65rem; color: var(--gray); opacity: 0.6; }
+
+.send-btn {
+  width: 48px; height: 48px;
+  background: var(--lime);
+  border: none; border-radius: 12px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.send-btn:hover { background: var(--lime-dark); transform: scale(1.05); box-shadow: 0 4px 20px rgba(200,241,53,0.3); }
+.send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+.send-btn svg { width: 18px; height: 18px; fill: #000; }
+
+/* ── SUCCESS ── */
+#success-screen {
+  display: none;
+  min-height: 100vh;
+  align-items: center; justify-content: center; flex-direction: column;
+  text-align: center; padding: 2rem;
+  position: relative; z-index: 1;
+}
+#success-screen.active { display: flex; }
+
+.success-ring {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 2px solid var(--lime);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  animation: ringPulse 2.5s ease-in-out infinite;
+}
+
+.success-ring::before {
+  content: ''; position: absolute; inset: -12px;
+  border-radius: 50%; border: 1px solid rgba(200,241,53,0.2);
+  animation: ringExpand 2.5s ease-in-out infinite;
+}
+
+.success-ring::after {
+  content: ''; position: absolute; inset: -24px;
+  border-radius: 50%; border: 1px solid rgba(200,241,53,0.1);
+  animation: ringExpand 2.5s ease-in-out infinite 0.3s;
+}
+
+@keyframes ringPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200,241,53,0.3); }
+  50% { box-shadow: 0 0 30px rgba(200,241,53,0.2); }
+}
+@keyframes ringExpand {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.success-label { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lime); font-weight: 600; margin-bottom: 1rem; }
+
+.success-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(3rem, 8vw, 6rem); line-height: 0.93; letter-spacing: -0.03em; margin-bottom: 1.25rem; }
+.success-title em { font-style: normal; color: var(--lime); display: block; }
+
+.success-body { font-size: 1rem; color: var(--gray); max-width: 420px; line-height: 1.7; margin-bottom: 0.5rem; }
+.success-sub { font-size: 0.8rem; color: var(--bg4); margin-bottom: 2.5rem; }
+
+.success-stats { display: flex; gap: 1rem; margin-bottom: 2.5rem; flex-wrap: wrap; justify-content: center; }
+
+.success-stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; text-align: center; }
+.success-stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; color: var(--lime); }
+.success-stat-label { font-size: 0.75rem; color: var(--gray); margin-top: 0.2rem; }
+
+/* CONFETTI */
+.confetti-piece { position: fixed; pointer-events: none; z-index: 999; animation: confettiFall linear forwards; }
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(600deg) scale(0.5); opacity: 0; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  nav { padding: 1rem 1.25rem; }
+  .hero-left { padding: 3rem 1.25rem; }
+  .chat-wrap { padding: 1.5rem 0.75rem; }
+  .input-zone { padding: 1rem; }
+  .app-header { padding: 0.75rem 1rem; }
+  .progress-section { max-width: 160px; }
+  h1 { font-size: 3.2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<!-- ── LANDING ── -->
+<div id="landing">
+  <nav>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      The Learning Challenge
+    </div>
+    <div class="nav-pills">
+      <div class="nav-pill active">NYC</div>
+      <div class="nav-pill">Ages 15–19</div>
+      <div class="nav-pill">Free</div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="tag-row">
+        <span class="tag lime">Applications Open</span>
+        <span class="tag purple">8–10 Week Program</span>
+        <span class="tag">Summer 2025</span>
+      </div>
+
+      <h1>Turn Your <span class="highlight">Passion</span><br>Into Something<br>Real.</h1>
+
+      <p class="hero-desc">Stop waiting for "someday." NYC's most ambitious teens are building, creating, and launching right now — with funding, a mentor, and a crew behind them.</p>
+
+      <div class="cta-group">
+        <button class="btn-main" onclick="startApp()">
+          Apply Now
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn-outline">See past projects ↗</button>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="stat-card featured">
+        <div class="stat-emoji">💸</div>
+        <div class="stat-num">$250</div>
+        <div class="stat-desc">Project funding — no strings attached. Your vision, your call.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">🧭</div>
+        <div class="stat-num">1:1</div>
+        <div class="stat-desc">A personal mentor (we call them Champions) who actually shows up for you.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">🏙️</div>
+        <div class="stat-num" style="font-size:1.8rem;letter-spacing:-0.02em">NYC<br>Community</div>
+        <div class="stat-desc">Real people, real meetups, real connections. Manhattan HQ.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SCREEN ── -->
+<div id="app-screen">
+  <div class="app-header">
+    <div class="app-logo">The Learning Challenge</div>
+    <div class="progress-section">
+      <div class="progress-meta">
+        <span class="progress-step" id="step-label">Step 1 of 8</span>
+        <span class="progress-pct" id="pct-label">0% there 🔥</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+    <button class="exit-btn" onclick="saveExit()">Save & exit</button>
+  </div>
+
+  <div class="chat-wrap" id="chat-wrap">
+    <div class="chat-inner" id="chat"></div>
+  </div>
+
+  <div class="input-zone">
+    <div class="input-inner">
+      <div class="textarea-wrap">
+        <textarea id="answer-input" rows="1" placeholder="Type your answer here..." onkeydown="handleKey(event)" oninput="handleInput(this)"></textarea>
+        <div class="input-footer">
+          <span class="word-count" id="word-count"></span>
+          <span class="key-hint">Enter to send · Shift+Enter for new line</span>
+        </div>
+      </div>
+      <button class="send-btn" id="send-btn" onclick="sendAnswer()" disabled>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUCCESS ── -->
+<div id="success-screen">
+  <div class="success-ring">🚀</div>
+  <div class="success-label">Application received</div>
+  <div class="success-title">You're In<br><em>The Running.</em></div>
+  <p class="success-body">We'll review your application and reach out soon. In the meantime — keep building. That's what we're about.</p>
+  <p class="success-sub">📱 Watch your email and phone for updates.</p>
+  <div class="success-stats">
+    <div class="success-stat">
+      <div class="success-stat-num">$250</div>
+      <div class="success-stat-label">You could win</div>
+    </div>
+    <div class="success-stat">
+      <div class="success-stat-num">10</div>
+      <div class="success-stat-label">Weeks of support</div>
+    </div>
+    <div class="success-stat">
+      <div class="success-stat-num">1:1</div>
+      <div class="success-stat-label">Your Champion</div>
+    </div>
+  </div>
+  <button class="btn-main" onclick="location.reload()">Back to home</button>
+</div>
+
+<script>
+// ── CONFIG ──
+// No API tokens live here. All secrets are in Vercel environment variables.
+// The form posts to /api/submit which handles Airtable + Supabase writes.
+
+const QUESTIONS = [
+  { key: 'first_name', q: "Hey! 👋 What's your first name?",                                                                                                         hint: null },
+  { key: 'last_name',  q: "Nice to meet you, {name}! And your last name?",                                                                                           hint: null },
+  { key: 'birthdate',  q: "What's your date of birth? 🎂",                                                                                                           hint: 'Format: MM/DD/YYYY' },
+  { key: 'address',    q: "What's your full home address? 📍",                                                                                                       hint: 'Street address, city, state, zip' },
+  { key: 'passion',    q: "Here's the big one 🔥 — what are you passionate about? The teens who get accepted really go deep. Don't hold back — tell us everything.", deepDive: true, hint: 'Aim for 40+ words — more detail = better chance' },
+  { key: 'why_join',   q: "Why The Learning Challenge specifically? What do you want to get out of this?",                                                            hint: null },
+  { key: 'email',      q: "Almost there! What's your email address? 📧",                                                                                             hint: null },
+];
+
+const answers = {};
+let step = 0;
+let awaitingDeepDive = false;
+let passionDraft = '';
+let contactStep = 0; // 0 = email, 1 = phone
+let userName = '';
+
+function getTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function wordCount(str) {
+  return str.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function setProgress(s, total) {
+  const pct = Math.round((s / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('step-label').textContent = `Step ${Math.min(s + 1, total)} of ${total}`;
+  const emoji = pct === 100 ? '🎉' : pct > 60 ? '⚡' : pct > 30 ? '🔥' : '✨';
+  document.getElementById('pct-label').textContent = `${pct}% there ${emoji}`;
+}
+
+function setEnabled(val) {
+  document.getElementById('answer-input').disabled = !val;
+  document.getElementById('send-btn').disabled = !val;
+  if (val) setTimeout(() => document.getElementById('answer-input').focus(), 100);
+}
+
+function scrollBottom() {
+  const w = document.getElementById('chat-wrap');
+  setTimeout(() => { w.scrollTop = w.scrollHeight; }, 60);
+}
+
+function addAiMsg(text, reaction) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'ai-msg';
+  el.innerHTML = `
+    <div class="ai-avatar">🤖</div>
+    <div class="ai-content">
+      <div class="ai-name">TLC · Just now</div>
+      <div class="ai-bubble">${text}</div>
+      ${reaction ? `<div class="reaction-card ${reaction.type}">${reaction.icon} ${reaction.text}</div>` : ''}
+    </div>`;
+  chat.appendChild(el);
+  scrollBottom();
+}
+
+function addUserMsg(text) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'user-msg';
+  el.innerHTML = `
+    <div class="user-avatar">😊</div>
+    <div class="user-content">
+      <div class="user-name">You · ${getTime()}</div>
+      <div class="user-bubble">${escHtml(text)}</div>
+    </div>`;
+  chat.appendChild(el);
+  scrollBottom();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showTyping() {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'typing-msg';
+  el.id = 'typing-indicator';
+  el.innerHTML = `
+    <div class="ai-avatar">🤖</div>
+    <div class="typing-bubble">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>`;
+  chat.appendChild(el);
+  scrollBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAnswer(); }
+}
+
+function handleInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  const val = el.value.trim();
+  document.getElementById('send-btn').disabled = !val;
+  const wc = val ? wordCount(val) : 0;
+  const wcEl = document.getElementById('word-count');
+  const q = QUESTIONS[step];
+  if (q && q.deepDive && !awaitingDeepDive) {
+    wcEl.textContent = `${wc} words`;
+    wcEl.className = 'word-count' + (wc >= 40 ? ' good' : wc > 15 ? ' low' : '');
+  } else {
+    wcEl.textContent = '';
+    wcEl.className = 'word-count';
+  }
+}
+
+function startApp() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app-screen').classList.add('active');
+  setProgress(0, 8);
+  setTimeout(() => askQ(0), 700);
+}
+
+function askQ(idx) {
+  setEnabled(false);
+  showTyping();
+  const delay = 800 + Math.random() * 500;
+  setTimeout(() => {
+    hideTyping();
+    let text = QUESTIONS[idx].q.replace('{name}', userName || 'you');
+    const hint = QUESTIONS[idx].hint;
+    const reaction = hint ? { type: 'warn', icon: '💡', text: hint } : null;
+    addAiMsg(text, reaction);
+    setEnabled(true);
+  }, delay);
+}
+
+function sendAnswer() {
+  const input = document.getElementById('answer-input');
+  const val = input.value.trim();
+  if (!val) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('word-count').textContent = '';
+  document.getElementById('send-btn').disabled = true;
+  addUserMsg(val);
+  setEnabled(false);
+
+  // Phone step (after email — email is index 6, phone follows)
+  if (step === 6) {
+    if (contactStep === 0) {
+      answers['email'] = val;
+      contactStep = 1;
+      showTyping();
+      setTimeout(() => {
+        hideTyping();
+        addAiMsg("Perfect! Last one — what's your phone number? 📱", null);
+        setEnabled(true);
+      }, 700);
+      return;
+    } else {
+      answers['phone'] = val;
+      setProgress(8, 8);
+      submitApp();
+      return;
+    }
+  }
+
+  // Deep dive passion
+  if (QUESTIONS[step].deepDive && !awaitingDeepDive) {
+    passionDraft = val;
+    const wc = wordCount(val);
+    if (wc < 40) {
+      awaitingDeepDive = true;
+      showTyping();
+      setTimeout(() => {
+        hideTyping();
+        addAiMsg(
+          "We love that! 🙌 But can you go deeper? The teens who make it in always paint a picture. What does this passion look like in your actual day-to-day life?",
+          { type: 'warn', icon: '✍️', text: `You wrote ${wc} words — try to hit 40+` }
+        );
+        setEnabled(true);
+      }, 1000);
+      return;
+    }
+  }
+
+  if (awaitingDeepDive) {
+    answers['passion'] = passionDraft + '\n\n' + val;
+    awaitingDeepDive = false;
+    const wc = wordCount(passionDraft + val);
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addAiMsg("That's what we're talking about! 🔥", { type: 'good', icon: '✅', text: `${wc} words — strong answer` });
+      step++;
+      setProgress(step, 8);
+      setTimeout(() => askQ(step), 600);
+    }, 600);
+    return;
+  } else {
+    const key = QUESTIONS[step].key;
+    answers[key] = val;
+    if (key === 'first_name') userName = val.trim();
+  }
+
+  step++;
+  setProgress(step, 8);
+  if (step < QUESTIONS.length) {
+    setTimeout(() => askQ(step), 450);
+  }
+}
+
+async function submitApp() {
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addAiMsg("Sending your application... ⚡ One moment.", null);
+  }, 400);
+
+  const payload = {
+    first_name:   answers['first_name']  || '',
+    last_name:    answers['last_name']   || '',
+    birthdate:    answers['birthdate']   || '',
+    address:      answers['address']     || '',
+    email:        answers['email']       || '',
+    phone:        answers['phone']       || '',
+    application_responses: {
+      passion:  answers['passion']  || '',
+      why_join: answers['why_join'] || '',
+    },
+  };
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: payload }),
+    });
+    const data = await res.json();
+
+    // Success: Supabase returns { id: '...' } or Airtable returns { id: 'rec...' }
+    if (data.id) {
+      setTimeout(() => showSuccess(), 800);
+    } else {
+      addAiMsg(`Something went wrong — ${JSON.stringify(data.error || data)}. Please try again or email us directly.`, null);
+      setEnabled(true);
+    }
+  } catch (e) {
+    addAiMsg("Connection issue — check your internet and hit the send button again to retry.", null);
+    setEnabled(true);
+  }
+}
+
+function showSuccess() {
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('success-screen').classList.add('active');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const shapes = ['circle', 'square', 'rect'];
+  const colors = ['#C8F135', '#7B2FFF', '#38CFFF', '#FF5C5C', '#FFB840', '#FFFFFF'];
+  for (let i = 0; i < 100; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = 5 + Math.random() * 9;
+      el.style.cssText = `
+        left:${Math.random()*100}vw; top:-20px;
+        width:${size}px; height:${shape==='rect'?size*0.4:size}px;
+        background:${color};
+        border-radius:${shape==='circle'?'50%':'2px'};
+        animation-duration:${2.2+Math.random()*2.8}s;
+        animation-delay:${Math.random()*0.8}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 6000);
+    }, i * 25);
+  }
+}
+
+function saveExit() {
+  try {
+    localStorage.setItem('tlc_draft', JSON.stringify({ answers, step, contactStep, userName }));
+    alert('Saved! Come back any time to finish your application. 💾');
+  } catch(e) {
+    alert('Could not save — please finish your application in one go.');
+  }
+}
+
+// Restore draft on load
+window.addEventListener('load', () => {
+  try {
+    const d = localStorage.getItem('tlc_draft');
+    if (d) {
+      const parsed = JSON.parse(d);
+      if (parsed.step > 0 && confirm(`Welcome back${parsed.userName ? ', ' + parsed.userName : ''}! Continue your application?`)) {
+        Object.assign(answers, parsed.answers);
+        step = parsed.step;
+        contactStep = parsed.contactStep || 0;
+        userName = parsed.userName || '';
+        startApp();
+      }
+    }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>
