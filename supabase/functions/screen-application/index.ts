@@ -10,6 +10,7 @@ import {
   screenApplicationSystemPrompt,
   buildScreenApplicationPrompt,
 } from '../_shared/prompts.ts';
+import { content, renderContent } from '../_shared/content.ts';
 
 serve(async (req) => {
   try {
@@ -105,30 +106,27 @@ serve(async (req) => {
 
     if (decision === 'accepted') {
       const videoLink = `https://learning-challenge-legacy.vercel.app/video?token=${accessToken}`;
+      const vars = { first_name: application.first_name, link: videoLink };
       await sendEmail({
         to: application.email,
-        subject: "You're accepted — submit your intro video",
-        html: `<p>Hi ${application.first_name},</p>
-               <p>You've been accepted to the GripTape Learning Challenge!</p>
-               <p>Submit your intro video within 10 days to secure your spot.</p>
-               <p><a href="${videoLink}">Click here to submit your video</a></p>`,
+        subject: content.video_pending.email_subject,
+        html: renderContent(content.video_pending.email_body, vars),
       });
       await sendSMS({
         to: application.phone,
-        body: `Hi ${application.first_name}! You're accepted to GripTape. Submit your video: ${videoLink}`,
+        body: renderContent(content.video_pending.sms, vars),
       });
 
     } else if (decision === 'rejected') {
+      const vars = { first_name: application.first_name };
       await sendEmail({
         to: application.email,
-        subject: 'Your GripTape Learning Challenge application',
-        html: `<p>Hi ${application.first_name},</p>
-               <p>Thank you for applying. Unfortunately we're unable to move forward at this time.</p>
-               <p><em>Placeholder — replace with content.js copy before pilot launch.</em></p>`,
+        subject: content.rejected.email_subject,
+        html: renderContent(content.rejected.email_body, vars),
       });
       await sendSMS({
         to: application.phone,
-        body: `Hi ${application.first_name}, thanks for applying to GripTape. We're unable to move forward at this time.`,
+        body: renderContent(content.rejected.sms, vars),
       });
 
     } else {
@@ -136,7 +134,11 @@ serve(async (req) => {
       const staffPhone = Deno.env.get('STAFF_PHONE') || '';
       await sendSMS({
         to: staffPhone,
-        body: `[FLAGGED] ${application.first_name} ${application.last_name} needs review. ${reasoning}`,
+        body: renderContent(content.flagged.staff_sms, {
+          first_name: application.first_name,
+          last_name: application.last_name,
+          reasoning,
+        }),
       });
     }
 
