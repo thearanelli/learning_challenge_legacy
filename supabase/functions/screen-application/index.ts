@@ -6,6 +6,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendNotification, sendStaffNotification } from '../_shared/dispatcher.ts';
 import { config } from '../_shared/config.ts';
+import { generateToken } from '../_shared/tokens.ts';
 import {
   screenApplicationSystemPrompt,
   buildScreenApplicationPrompt,
@@ -83,16 +84,18 @@ serve(async (req) => {
       : decision === 'rejected' ? 'rejected'
       : 'flagged';
 
-    const accessToken = decision === 'accepted' ? crypto.randomUUID() : null;
-
+    const tokenData = decision === 'accepted'
+      ? generateToken(config.STAGES.video_pending.deadline_days)
+      : null;
     const updatePayload: Record<string, unknown> = {
       screening_status: newStatus,
       ai_decision: decision,
       ai_reasoning: reasoning,
       failed_criteria: failed_criteria ?? null,
     };
-    if (accessToken) {
-      updatePayload.access_token = accessToken;
+    if (tokenData) {
+      updatePayload.access_token = tokenData.access_token;
+      updatePayload.stage_deadline_at = tokenData.stage_deadline_at;
     }
 
     const { error: updateError } = await supabase
@@ -105,7 +108,7 @@ serve(async (req) => {
     }
 
     if (decision === 'accepted') {
-      const videoLink = `${config.BASE_URL}/video?token=${accessToken}`;
+      const videoLink = `${config.BASE_URL}/video?token=${tokenData!.access_token}`;
       await sendNotification('video_pending', application, { link: videoLink });
 
     } else if (decision === 'rejected') {

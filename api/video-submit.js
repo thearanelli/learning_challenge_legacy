@@ -2,6 +2,14 @@
 // Receives { token, video_url }, stores video_url on the application row.
 // Validation (oEmbed) is handled by the validate-video Edge Function via DB webhook.
 
+// Token validation — mirrors isTokenValid in _shared/tokens.ts
+// Cannot import directly — this is a Vercel Node function
+function isTokenValid(application, token) {
+  if (!application.access_token || application.access_token !== token) return false;
+  if (!application.stage_deadline_at) return false;
+  return new Date(application.stage_deadline_at) > new Date();
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -20,7 +28,7 @@ export default async function handler(req, res) {
 
   // Look up application by access_token
   const lookupRes = await fetch(
-    `${supabaseUrl}/rest/v1/applications?access_token=eq.${encodeURIComponent(token)}&select=id,screening_status`,
+    `${supabaseUrl}/rest/v1/applications?access_token=eq.${encodeURIComponent(token)}&select=id,screening_status,access_token,stage_deadline_at`,
     {
       headers: {
         'apikey': supabaseKey,
@@ -34,11 +42,17 @@ export default async function handler(req, res) {
   }
 
   const rows = await lookupRes.json();
-  if (!rows.length || rows[0].screening_status !== 'video_pending') {
+  if (!rows.length) {
     return res.status(200).json({ success: false, error: 'invalid_token' });
   }
-
   const application = rows[0];
+  const validStatuses = ['video_pending', 'video_resubmit'];
+  if (!validStatuses.includes(application.screening_status)) {
+    return res.status(200).json({ success: false, error: 'invalid_token' });
+  }
+  if (!isTokenValid(application, token)) {
+    return res.status(200).json({ success: false, error: 'expired_token' });
+  }
 
   // Store video_url — webhook fires validate-video Edge Function
   const patchRes = await fetch(
@@ -50,7 +64,7 @@ export default async function handler(req, res) {
         'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`,
       },
-      body: JSON.stringify({ video_url }),
+      body: JSON.stringify({ video_url, access_token: null, stage_deadline_at: null }),
     }
   );
 

@@ -1,7 +1,12 @@
 // OWNER: video_pending -> accepted | video_resubmit transition
 // Triggered by: Supabase database webhook on UPDATE to applications table
+// next stage per config.STAGES.video_pending.next
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { config } from '../_shared/config.ts';
+import { generateToken } from '../_shared/tokens.ts';
+import { sendNotification } from '../_shared/dispatcher.ts';
 
 serve(async (req) => {
   try {
@@ -22,17 +27,48 @@ serve(async (req) => {
       return new Response('No video_url', { status: 200 });
     }
 
-    // Check YouTube oEmbed
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('DB_SERVICE_KEY')!,
+    );
+
     const oEmbedRes = await fetch(
       `https://www.youtube.com/oembed?url=${encodeURIComponent(record.video_url)}&format=json`
     );
 
     if (oEmbedRes.ok) {
-      console.log('[validate-video] VIDEO VALID — would set accepted and create youth record for:', record.id);
-      console.log('[validate-video] would send acceptance comms to:', record.email);
+      // Valid — accept, clear token and deadline
+      await supabase
+        .from('applications')
+        .update({
+          screening_status: 'accepted',
+          access_token: null,
+          stage_deadline_at: null,
+        })
+        .eq('id', record.id)
+        .eq('screening_status', 'video_pending');
+
+      console.log('[validate-video] accepted:', record.id);
+      await sendNotification('video_accepted', record);
+
     } else {
-      console.log('[validate-video] VIDEO INVALID — would set video_resubmit for:', record.id);
-      console.log('[validate-video] would send resubmit comms to:', record.email);
+      // Invalid — open 48hr resubmit window
+      // duration from config.VIDEO_RESUBMIT_HOURS
+      const tokenData = generateToken(config.VIDEO_RESUBMIT_HOURS / 24);
+      const resubmitLink = `${config.BASE_URL}/video?token=${tokenData.access_token}`;
+
+      await supabase
+        .from('applications')
+        .update({
+          screening_status: 'video_resubmit',
+          access_token: tokenData.access_token,
+          stage_deadline_at: tokenData.stage_deadline_at,
+        })
+        .eq('id', record.id)
+        .eq('screening_status', 'video_pending');
+
+      console.log('[validate-video] video_resubmit, new token generated:', record.id);
+      await sendNotification('video_resubmit', record, { link: resubmitLink });
     }
 
     return new Response(JSON.stringify({ success: true }), {
