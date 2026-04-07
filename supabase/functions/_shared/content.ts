@@ -4,6 +4,7 @@ export const content = {
     email_body: `<p>Hi {{first_name}},</p>
       <p>You've been accepted to the GripTape Learning Challenge!</p>
       <p>Submit your intro video within 10 days to secure your spot.</p>
+      <p><a href="{{link}}">Click here to submit your video</a></p>
       <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
     sms: 'Hi {{first_name}}! You\'re accepted to GripTape. Submit your video: {{link}} (placeholder)',
   },
