@@ -4,7 +4,7 @@ YOUTH DRIVING LEARNING
 
 Full System Spec — MVP
 Tech Spec + Architecture + Build Plan
-Last updated: April 2026 (rev 6 — added section 2.4 mandatory state transition pattern: Vercel owns presentation, Supabase Edge Functions own all logic, one pattern for every funnel stage)
+Last updated: April 2026
 ================================================================================
 
 This is the single document that governs building the GripTape Learning
@@ -24,7 +24,7 @@ PART 1 — WHAT WE ARE BUILDING
 --------------------------------------------------------------------------------
 
 GripTape runs a passion-based learning program for NYC teenagers ages 15-19.
-Youth apply, get accepted, receive a learning stipend of up to $250, get matched with
+Youth apply, get accepted, receive a $250 learning stipend, get matched with
 a mentor (Champion), meet with them bi-weekly over 8 weeks, and present their
 work at a Grand Showcase event.
 
@@ -74,40 +74,33 @@ What happens:
   Youth fills out the chat-style application form on the GripTape website.
 
 What they submit:
-  First name, last name, date of birth (MM/DD/YYYY), full home address,
-  passion (40+ words required), why they want to join, email, phone.
-  Free-text answers (passion + why_join) stored as application_responses
-  jsonb blob. No school field. No borough field.
+  Name, age, borough/neighborhood, school, passion (40+ words required),
+  why they want to join, email and phone number.
 
 AI check:
-  Claude reads the application_responses blob and checks three criteria:
-    1. Age is 15-19 (calculated from birthdate field)
-    2. Address is in an NYC borough or New Jersey
+  Claude checks three criteria:
+    1. Age is 15-19
+    2. Location is an NYC borough or New Jersey
     3. Passion answer is real and specific (not gibberish)
 
 If all pass:
-  screening_status -> video_pending (on applications table).
-  A youth record is created with status -> video_pending.
+  Status -> video_pending.
   Email + SMS sent inviting them to submit an intro video.
   10-day deadline starts. Magic link included in message.
 
 If any fail:
-  screening_status -> rejected (on applications table).
+  Status -> rejected.
   Kind rejection email + SMS sent immediately.
-  No youth record created.
 
 If unclear:
-  screening_status -> flagged (on applications table).
+  Status -> flagged.
   No message to youth.
   Staff notified via SMS immediately.
-  No youth record created until staff resolves.
 
 Tech:
-  HTML/JS form on Vercel — live at learning-challenge-legacy.vercel.app
-  Submits to /api/submit (Vercel serverless function).
-  Writes to Supabase applications table only. Supabase is source of truth.
-  Airtable sync is a separate job (api/sync-airtable.js) — not part of submit.
-  GitHub: github.com/thearanelli/learning_challenge_legacy
+  Existing HTML/JS form on Vercel.
+  Submits to /api/submit.
+  Writes to Supabase. Supabase webhook syncs to Airtable.
 
 
 ================================================
@@ -116,16 +109,6 @@ STAGE 2 — INTRO VIDEO SUBMISSION  [BUILD NEXT]
 
 What happens:
   Youth submits a YouTube link via their magic link form.
-  This is still part of the application funnel — youth are NOT accepted
-  until a valid video is confirmed. No youth record is created until
-  this stage completes successfully.
-
-Where data lives:
-  All video-related fields live on the applications table:
-  video_url, video_submitted_at, access_token, token_expires_at.
-  video_valid is inferred from screening_status.
-  video deadline is calculated from submitted_at + 10 days at runtime.
-  A youth record is created only when screening_status = 'accepted'.
 
 Deadline:
   10 days from acceptance message.
@@ -185,12 +168,6 @@ If deadline missed:
 If form submitted:
   Status -> grant_pending. W9 + grant request forms sent to youth.
 
-Orientation call:
-  After champion match is confirmed, an orientation call between staff
-  and youth is scheduled. Completion is tracked via
-  orientation_call_completed_at on the youth record.
-  This is a required milestone before the program is considered active.
-
 Tech:
   Supabase Edge Function (matching).
   forms/meeting/ — token-gated form for youth reflection.
@@ -204,7 +181,7 @@ STAGE 4 — GRANT REQUEST (W9 + FUNDS)  [BUILD NEXT]
 
 What happens:
   Youth receives W9 and grant request forms to complete so GripTape
-  can legally send the learning stipend (up to $250).
+  can legally send the $250 learning stipend.
 
 Deadline:
   Set in config.js (default: 14 days). Nudge at day 10.
@@ -278,10 +255,7 @@ Showcase RSVP:
   forms/rsvp/ — simple form. Stored in event_rsvps table.
 
 Completion:
-  After Showcase (or after staff confirms completion), status -> completed.
-  An end call between staff and youth is conducted before completion is
-  finalised. Tracked via end_call_completed_at on the youth record.
-  Certificate emailed after end call is logged.
+  After Showcase, status -> completed. Certificate emailed.
 
 Alumni:
   Completed youth optionally invited to become Champions.
@@ -296,34 +270,14 @@ PART 2 — HOW IT IS BUILT
 ================================================================================
 
 --------------------------------------------------------------------------------
-2.1 THE STATUS FIELDS
+2.1 THE STATUS FIELD
 --------------------------------------------------------------------------------
 
-There are TWO status fields in the system. They are separate and must never
-be confused:
+Every youth record has a `status` text field. This is the heart of the system.
+All Edge Functions read and write it. Airtable mirrors it. Nothing moves
+without it.
 
-  applications.screening_status
-    Tracks where an application is in the full pre-acceptance funnel.
-    Includes both written screening AND video submission stages.
-    Written by Edge Functions. A youth record is only created when
-    this reaches 'accepted'.
-    Valid values:
-      submitted       Written application received, awaiting AI screening
-      screening       AI checking written application
-      video_pending   Written app passed, awaiting video submission
-      video_review    Video submitted, checking validity via oEmbed
-      video_resubmit  Video invalid, 48-hour resubmit window open
-      accepted        Video valid. Youth record created.
-      rejected        Failed criteria (written or video). TERMINAL.
-      flagged         Uncertain — staff review needed. TERMINAL for now.
-      removed         Missed deadline. TERMINAL.
-
-  youth.status
-    Tracks where an accepted participant is in the full program journey.
-    Written only via advanceStatus() — never directly.
-    This is the heart of the system.
-
-YOUTH STATUS VALUES (defined in config.js — not a database enum):
+Valid status values (defined in config.js — not a database enum):
 
   submitted           Application received, awaiting AI screening
   screening           AI checking eligibility
@@ -340,12 +294,6 @@ YOUTH STATUS VALUES (defined in config.js — not a database enum):
   completed           Program complete. TERMINAL.
   removed             Missed deadline or removed. TERMINAL.
 
-EXIT FIELDS (on youth table — metadata only, not workflow drivers):
-  exit_stage          The status value at which youth exited (terminal only)
-  exit_reason         Free text reason for removal or rejection
-  These fields are written atomically when status moves to a terminal state.
-  They never drive workflow logic — status drives workflow.
-
 RULES:
   - Status only moves forward. Never backward except via staff override.
   - Terminal states: rejected, removed, completed. No automations fire
@@ -354,46 +302,6 @@ RULES:
   - Every status change triggers the Airtable sync webhook.
   - Status values are treated as permanent. Never rename them.
     Adding new values is fine. Renaming cascades everywhere.
-
-ENFORCED TRANSITION HELPER — advanceStatus()
-  No Edge Function or API route may write youth.status directly.
-  All status changes must go through advanceStatus() in lib/supabase.js.
-
-  Function signature:
-    advanceStatus(youthId, expectedCurrentStatus, nextStatus, additionalFields)
-
-  What it does:
-    1. Reads the current youth record from Supabase
-    2. If current status !== expectedCurrentStatus:
-         Throws a StatusConflictError
-         Logs the conflict to agent_log (triggered_by: 'system')
-         Aborts — no update is made
-    3. If status matches:
-         Updates status to nextStatus
-         Writes updated_at = now()
-         Writes the timestamp field for the new stage
-           (e.g. accepted_at, video_submitted_at, matched_at)
-         Writes any additionalFields atomically in the same operation
-         Triggers Airtable sync webhook
-    4. Returns the updated youth record
-
-  This prevents:
-    - Skipped states
-    - Double transitions (race conditions)
-    - Silent corruption from concurrent triggers
-
-  Example usage (inside an Edge Function):
-    await advanceStatus(
-      youth.id,
-      'video_pending',      // must be current status
-      'video_review',       // transition to this
-      { video_url: submittedUrl, video_submitted_at: new Date() }
-    )
-
-  Staff override:
-    Staff-initiated overrides (via SMS agent or dashboard) bypass the
-    expectedCurrentStatus check but still log the override to agent_log
-    with triggered_by: 'staff' and the reason for the override.
 
 
 --------------------------------------------------------------------------------
@@ -411,80 +319,45 @@ Get names right once.
 --
 
 TABLE: applications
-  Purpose: Every submission. Source of truth for the full application funnel
-  including video submission. screening_status tracks the complete pre-acceptance
-  journey. A youth record is ONLY created after a valid video is confirmed.
+  id                uuid, primary key
+  program_id        uuid
+  name              text
+  age               integer
+  email             text
+  phone             text
+  borough           text
+  school            text
+  passion           text
+  why_join          text
+  status            text    'pending' | 'accepted' | 'rejected' | 'flagged'
+  ai_decision       text    'accepted' | 'rejected' | 'flagged'
+  ai_reasoning      text
+  failed_criteria   text
+  submitted_at      timestamptz
 
-  id                    uuid, primary key
-  program_id            uuid              reserved for V2 multi-program support
-  first_name            text, not null
-  last_name             text, not null
-  birthdate             text, not null    stored as MM/DD/YYYY string
-  address               text, not null    full street address
-  email                 text, not null
-  phone                 text, not null
-  screening_status      text, not null    'submitted' | 'screening' |
-                                          'video_pending' | 'video_review' |
-                                          'video_resubmit' | 'accepted' |
-                                          'rejected' | 'flagged' | 'removed'
-  ai_decision           text              'accepted' | 'rejected' | 'flagged'
-  ai_reasoning          text
-  failed_criteria       text
-  submitted_at          timestamptz, not null
-  application_responses jsonb, not null   { passion: '...', why_join: '...' }
-                                          AI reads this blob for screening.
-                                          Never parse into individual columns.
-  video_url             text              YouTube link submitted by applicant
-  video_submitted_at    timestamptz       when video was submitted (audit trail)
-  access_token          text              magic link token for video form
-  token_expires_at      timestamptz       submitted_at + 10 days + buffer
-                                          video_valid inferred from screening_status
-                                          video deadline inferred from submitted_at
-
-  SCREENING STATUS VALUES:
-    submitted       Written application received, awaiting AI screening
-    screening       AI checking written application eligibility
-    video_pending   Written app accepted, awaiting video submission
-    video_review    Video submitted, AI checking validity via oEmbed
-    video_resubmit  Video invalid, one 48-hour resubmit window open
-    accepted        Video valid. Youth record created. Enters program.
-    rejected        Did not meet criteria (written or video). TERMINAL.
-    flagged         Uncertain — staff review required. No action to youth.
-    removed         Missed deadline. TERMINAL.
+  NOTE: applications.status is only about screening outcome.
+  It does not mirror the youth's current program stage.
+  Once accepted, track progress in the youth table.
 
 --
 
 TABLE: youth
-  Purpose: Accepted participants. Core program record.
-  Created ONLY when an applicant submits a valid video and is fully accepted.
-  status is the single source of truth for participant progress.
-
-  id                            uuid, primary key
-  program_id                    uuid
-  application_id                uuid, foreign key -> applications.id
-  first_name                    text
-  last_name                     text
-  email                         text
-  phone                         text
-  status                        text        see valid values in section 2.1
-  current_week                  integer     1-8, only relevant during 'active'
-  champion_id                   uuid, foreign key -> champions.id
-  stipend_sent                  boolean     default false
-  final_video_url               text        final showcase video YouTube link
-  accepted_at                   timestamptz when youth record was created
-  completed_at                  timestamptz
-  updated_at                    timestamptz set on every change — concurrency
-  exit_stage                    text        status value at exit (terminal only)
-  exit_reason                   text        free text reason for exit
-  orientation_call_completed_at timestamptz milestone: staff + youth orientation
-  end_call_completed_at         timestamptz milestone: staff + youth end call
-
-  NOTE: first_name and last_name are intentionally duplicated from
-  applications. Once a youth record exists, it is the source of truth
-  for participant identity. applications is the full application funnel record.
-  video_url lives on applications — it is part of the application funnel,
-  not the program itself. access_token and token_expires_at also live on
-  applications during the video submission window.
+  id                uuid, primary key
+  program_id        uuid
+  application_id    uuid, foreign key -> applications.id
+  name              text
+  email             text
+  phone             text
+  status            text        see valid values in section 2.1
+  current_week      integer     1-8, only relevant during 'active' stage
+  champion_id       uuid, foreign key -> champions.id
+  stipend_sent      boolean     default false
+  video_url         text        intro video YouTube link
+  final_video_url   text        final video YouTube link
+  access_token      text        current magic link token
+  token_expires_at  timestamptz token expires when stage deadline passes
+  accepted_at       timestamptz
+  completed_at      timestamptz
 
 --
 
@@ -590,10 +463,10 @@ TABLE: comms_log
 2.3 REPO FOLDER STRUCTURE
 --------------------------------------------------------------------------------
 
-learning_challenge_legacy/       github.com/thearanelli/learning_challenge_legacy
+griptapeclaudeapp/
 │
 ├── api/
-│   ├── submit.js               Application form -> Supabase only (Airtable via sync)
+│   ├── submit.js               Application form -> Supabase + Airtable
 │   └── sync-airtable.js        Supabase webhook -> Airtable sync
 │
 ├── supabase/
@@ -607,7 +480,7 @@ learning_challenge_legacy/       github.com/thearanelli/learning_challenge_legac
 ├── lib/
 │   ├── email.js                Resend wrapper
 │   ├── sms.js                  Twilio wrapper
-│   ├── supabase.js             Supabase client + helpers + advanceStatus()
+│   ├── supabase.js             Supabase client + helpers
 │   ├── youtube.js              oEmbed validation helper
 │   └── tokens.js               Magic link token generation + validation
 │
@@ -654,72 +527,7 @@ learning_challenge_legacy/       github.com/thearanelli/learning_challenge_legac
 
 
 --------------------------------------------------------------------------------
-2.4 STATE TRANSITION PATTERN — MANDATORY
---------------------------------------------------------------------------------
-
-This is the single approved pattern for every funnel stage. No exceptions.
-Every new stage built must follow this pattern exactly.
-
-THE PATTERN:
-
-  1. FORM (Vercel HTML)
-     Token-gated HTML page served by Vercel. Collects user input only.
-     Submits via POST to its corresponding thin Vercel API route.
-     No business logic. No Supabase calls. No comms.
-
-  2. THIN VERCEL API ROUTE (api/*.js)
-     Receives the form POST.
-     Validates the basic request (required fields present, auth token valid).
-     Writes the submitted data to the Supabase applications or youth table.
-     Returns a success/error response to the form.
-     NO status transitions here. NO comms here. NO Claude calls here.
-     Its only job is to get data into Supabase cleanly.
-
-  3. SUPABASE WEBHOOK
-     Fires automatically on INSERT or UPDATE to the relevant table/column.
-     Calls the corresponding Supabase Edge Function.
-     One webhook per stage transition.
-
-  4. SUPABASE EDGE FUNCTION (supabase/functions/*)
-     Owns ALL business logic for the stage transition.
-     Validates the submitted data (oEmbed check, AI screening, etc).
-     Calls Claude if needed.
-     Updates screening_status or youth.status via advance_status() RPC.
-     Sends all comms via _shared/email.ts and _shared/sms.ts.
-     Reads all copy from _shared/content.ts.
-     Reads all config from _shared/config.ts.
-     Logs everything needed for audit trail.
-
-EXAMPLE — Screen Application:
-  forms/apply/index.html          → POST → api/submit.js
-  api/submit.js                   → writes row to applications table
-  INSERT webhook                  → fires screen-application Edge Function
-  screen-application/index.ts     → screens, updates status, sends comms
-
-EXAMPLE — Validate Video:
-  forms/video/index.html          → POST → api/video-submit.js
-  api/video-submit.js             → writes video_url to applications table
-  UPDATE webhook (video_url)      → fires validate-video Edge Function
-  validate-video/index.ts         → oEmbed check, updates status, sends comms
-
-EXCEPTION — Scheduled jobs (daily-scheduler):
-  Not triggered by a form or webhook. Runs on a cron schedule.
-  Still a Supabase Edge Function. Still uses advance_status().
-  Still reads from _shared/content.ts and _shared/config.ts.
-
-RULES:
-  - Vercel owns presentation. Supabase owns logic. Never mix them.
-  - No Vercel API route may update screening_status or youth.status directly.
-  - No Vercel API route may send email or SMS.
-  - No Vercel API route may call Claude.
-  - All of the above belong exclusively in Supabase Edge Functions.
-  - Every Edge Function that transitions status must use advance_status() RPC.
-  - Adding a new funnel step = new form + new thin API route + new webhook
-    + new Edge Function. The pattern never changes, only the content does.
-
-
---------------------------------------------------------------------------------
-2.5 CONFIG.JS CONVENTIONS
+2.4 CONFIG.JS CONVENTIONS
 --------------------------------------------------------------------------------
 
 config.js is the control panel for the program. All deadline values,
@@ -748,8 +556,8 @@ export const config = {
 
   TERMINAL_STAGES: ['completed', 'rejected', 'removed'],
 
-  STIPEND_AMOUNT: 250,      // up to $250 — confirm exact amount per youth
-  PROGRAM_DURATION_WEEKS: 10,
+  STIPEND_AMOUNT: 250,
+  PROGRAM_DURATION_WEEKS: 8,
   MEETING_FREQUENCY_WEEKS: 2,
   DEFAULT_CHAMPION_CAPACITY: 3,
   TOKEN_BUFFER_HOURS: 24,   // extra time before token expires after deadline
@@ -769,7 +577,7 @@ RULES:
 
 
 --------------------------------------------------------------------------------
-2.6 CONTENT.JS CONVENTIONS
+2.5 CONTENT.JS CONVENTIONS
 --------------------------------------------------------------------------------
 
 content.js holds every piece of copy in the system. Organized by stage key.
@@ -795,7 +603,6 @@ export const content = {
 
 TEMPLATE VARIABLES:
   {{first_name}}      Youth's first name
-  {{last_name}}       Youth's last name
   {{champion_name}}   Matched Champion's name
   {{link}}            Unique magic link for this stage
   {{deadline_date}}   Human-readable deadline
@@ -812,7 +619,7 @@ RULES:
 
 
 --------------------------------------------------------------------------------
-2.7 PROMPT FILE CONVENTIONS
+2.6 PROMPT FILE CONVENTIONS
 --------------------------------------------------------------------------------
 
 Every Claude API call has its prompt in prompts/. Never write prompts
@@ -827,34 +634,23 @@ Example — prompts/screenApplication.js:
 
   export const systemPrompt = `
     You are screening applications for the GripTape Learning Challenge.
-    Your job is to verify the applicant is a real human (not a bot) and
-    has genuine interest in the program. Evaluate against the eligibility
-    criteria provided. Respond only in valid JSON. Do not add commentary
-    outside the JSON response.
+    Evaluate the application against the eligibility criteria provided.
+    Respond only in valid JSON. Be encouraging. This is for NYC teenagers.
   `;
 
-  export const buildUserPrompt = (application, config) => {
-    // Calculate age from birthdate (stored as MM/DD/YYYY)
-    const [month, day, year] = application.birthdate.split('/');
-    const birthDate = new Date(year, month - 1, day);
-    const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear()
-      - (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
-
-    return `
+  export const buildUserPrompt = (application, config) => `
     Eligibility criteria:
     - Age: ${config.AGE_MIN} to ${config.AGE_MAX}
     - Locations: ${config.ELIGIBLE_LOCATIONS.join(', ')}
     - Passion: minimum ${config.PASSION_MIN_WORDS} words, real and specific
 
     Application:
-    Name: ${application.first_name} ${application.last_name}
-    Age (calculated from birthdate): ${age}
-    Address: ${application.address}
-    Passion: ${application.application_responses?.passion || ''}
-    Why join: ${application.application_responses?.why_join || ''}
-    `;
-  };
+    Name: ${application.name}
+    Age: ${application.age}
+    Location: ${application.borough}
+    Passion: ${application.passion}
+    Why join: ${application.why_join}
+  `;
 
   export const outputSchema = {
     decision: "accepted | rejected | flagged",
@@ -870,7 +666,7 @@ RULES:
 
 
 --------------------------------------------------------------------------------
-2.8 MAGIC LINK SYSTEM
+2.7 MAGIC LINK SYSTEM
 --------------------------------------------------------------------------------
 
 Youth access all forms via unique magic links. No login, no password.
@@ -903,7 +699,7 @@ CHAMPION REGISTRATION:
 
 
 --------------------------------------------------------------------------------
-2.9 AIRTABLE SYNC
+2.8 AIRTABLE SYNC
 --------------------------------------------------------------------------------
 
 Airtable is a read-only mirror of Supabase for staff reporting.
@@ -935,7 +731,7 @@ RULES:
 
 
 --------------------------------------------------------------------------------
-2.10 STAFF NOTIFICATIONS (MVP)
+2.9 STAFF NOTIFICATIONS (MVP)
 --------------------------------------------------------------------------------
 
 The full staff AI agent is a V2 feature. For the MVP, staff are notified
@@ -963,56 +759,6 @@ ALL STAFF NOTIFICATIONS:
   - Come from a dedicated Twilio number (separate from youth SMS)
 
 
---------------------------------------------------------------------------------
-2.11 CONCURRENCY & IDEMPOTENCY
---------------------------------------------------------------------------------
-
-The system has three sources of writes that can collide: Supabase Edge
-Functions (triggered by webhooks), the daily-scheduler (triggered by cron),
-and inbound SMS handlers (triggered by Twilio). A youth submitting a form
-at the same moment the scheduler runs is a real race condition. This section
-defines how to prevent it.
-
-RULE: Every status update goes through advanceStatus() (see section 2.1).
-  advanceStatus() reads the current record, checks the expected status,
-  and only proceeds if it matches. This is optimistic locking — if two
-  processes try to advance the same youth simultaneously, the second one
-  will find the status already changed and abort cleanly.
-
-RULE: All scheduled jobs are idempotent.
-  Before sending any nudge, removal notice, or check-in prompt, the
-  scheduler checks a sent_at timestamp field on the relevant record.
-  If sent_at is already set, the job skips that record silently.
-  Running the same scheduled job twice must produce zero duplicate sends.
-
-  Fields used for idempotency:
-    nudge_sent_at       on youth record, per stage
-    prompt_sent_at      on check_ins record
-    removal_notified_at on youth record (add to youth table)
-
-RULE: Inbound SMS handler checks status before acting.
-  Before processing a Champion YES reply or any other inbound action,
-  the handler reads the current youth status and confirms the action
-  is still valid. If status has already advanced, the handler sends a
-  "got it, you're all set" reply and exits without making changes.
-
-RULE: Never use Edge Function triggers for writes that the scheduler
-  also owns. Pick one owner per transition. Document it in the function.
-  Example: deadline removal is owned by daily-scheduler only.
-  The Edge Function for video submission does NOT check for deadline
-  expiry — that is the scheduler's job.
-
-CONCURRENCY FAILURE MODE:
-  If advanceStatus() throws a StatusConflictError, the calling function
-  must catch it and:
-    1. Log to agent_log with issue_description = 'Status conflict on
-       [stage] transition for youth [id]'
-    2. Send a staff SMS alert
-    3. Take no further action — the youth record is not corrupted
-
-  This surfaces conflicts visibly instead of letting them fail silently.
-
-
 ================================================================================
 PART 3 — TECH STACK
 ================================================================================
@@ -1025,7 +771,7 @@ PART 3 — TECH STACK
   AI                 Claude (claude-sonnet-4-20250514) via Anthropic API.
   Video check        YouTube oEmbed API (free, no key required).
   Reporting          Airtable (read-only mirror).
-  Code               GitHub (github.com/thearanelli/learning_challenge_legacy).
+  Code               GitHub (github.com/thearanelli/griptapeclaudeapp).
                      Auto-deploys to Vercel on push to main.
 
 ENVIRONMENT VARIABLES (never hardcode any of these):
@@ -1049,31 +795,13 @@ PART 4 — BUILD PLAN
 4.1 WHAT IS ALREADY BUILT
 --------------------------------------------------------------------------------
 
-  - index.html — chat-style application form, live at:
-    https://learning-challenge-legacy.vercel.app
-    Collects: first_name, last_name, birthdate, address, passion,
-    why_join, email, phone. Posts to /api/submit.
+  - Public application form (index.html) — live on Vercel
+  - /api/submit serverless function — writes to Airtable
+  - AI screening via Airtable automation
+  - Basic acceptance/rejection emails via Airtable
 
-  - api/submit.js — Vercel serverless function.
-    Writes to Supabase applications table only.
-    Sets screening_status = 'submitted' on insert.
-    No Airtable write — sync is separate.
-
-  - schema/seed.sql — applications table created in Supabase.
-    Locked schema live. Indexes in place.
-
-  - vercel.json, package.json, README.md — deployment config.
-
-  - GitHub: github.com/thearanelli/learning_challenge_legacy
-    Connected to Vercel. Auto-deploys on push to main.
-
-WHAT IS NOT YET BUILT (build in this order):
-  - config.js
-  - prompts/screenApplication.js
-  - supabase/functions/screen-application/
-  - lib/email.js, lib/sms.js (stub SMS for now — Twilio TBD)
-  - youth table in Supabase
-  - Everything from Phase 2 onward
+These are being superseded. The new system replaces Airtable as the
+source of truth and moves all logic to Supabase Edge Functions.
 
 
 --------------------------------------------------------------------------------
@@ -1085,7 +813,7 @@ folder and placeholder file. This is Day 1. A clean structure from the start
 means every subsequent Claude Code prompt lands in the right place.
 
 Also before building:
-  - Confirm payment method for $100 stipend (check, ACH, Venmo, API?)
+  - Confirm payment method for $250 stipend (check, ACH, Venmo, API?)
   - Confirm W9 storage compliance with accountant/lawyer
   - Confirm Twilio account is set up with two numbers (youth + staff)
   - Confirm Resend account and sending domain is verified
@@ -1117,18 +845,12 @@ Day 2:
   [ ] Build api/sync-airtable.js — Supabase webhook -> Airtable
   [ ] Build lib/email.js — Resend wrapper
   [ ] Build lib/sms.js — Twilio wrapper
-  [ ] Build lib/supabase.js — Supabase client + advanceStatus() helper
-      advanceStatus() is the ONLY way any Edge Function changes youth.status.
-      Build and test this before building any Edge Function.
   [ ] Build supabase/functions/screen-application/
-      Reads config for eligibility criteria. Calls Claude.
-      Calculates age from birthdate. Reads passion + why_join from
-      application_responses jsonb blob.
-      Writes ai_decision + ai_reasoning + failed_criteria back to
-      applications table. Updates screening_status.
+      Reads config for eligibility criteria. Calls Claude. Writes
+      ai_decision + status back to applications table.
       On accepted: creates youth record, sends email + SMS via lib/
       On rejected: sends rejection email + SMS
-      On flagged: sends staff SMS alert (stubbed until Twilio confirmed)
+      On flagged: sends staff SMS alert
 
 Day 3:
   [ ] End-to-end test — submit application, confirm:
@@ -1259,39 +981,14 @@ Start every Claude Code prompt with this header:
 
 ADDITIONAL RULES:
   - The status field is sacred. Only move it forward. Never skip a state.
-  - NEVER write youth.status directly from an Edge Function or API route.
-    Always use advanceStatus() from lib/supabase.js. No exceptions.
   - Update status atomically with any other field changes in the same
-    database operation — advanceStatus() handles this.
+    database operation.
   - All scheduled jobs must be idempotent. Running twice must not send
     duplicate notifications. Use sent_at timestamp fields to check first.
-  - Each stage transition has exactly one owner (Edge Function or scheduler).
-    Document the owner in the function file header. Never have two functions
-    that can both trigger the same status change.
   - lib/tokens.js handles all magic link logic. Never implement token
     logic directly in a form or Edge Function.
   - Never write to Airtable from Edge Functions. All writes go to
     Supabase. Airtable receives changes via api/sync-airtable.js only.
-
-LOCKED SCHEMA FIELD RULES (never deviate from these):
-  - applications table fields: first_name, last_name, birthdate, address,
-    email, phone, screening_status, application_responses (jsonb),
-    ai_decision, ai_reasoning, failed_criteria, submitted_at, program_id,
-    video_url, video_submitted_at, access_token, token_expires_at.
-    NOT name, age, borough, school, passion, why_join, status,
-    video_valid (inferred from screening_status), video_deadline_at
-    (calculated from submitted_at + 10 days at runtime).
-  - youth table fields: first_name, last_name, status, final_video_url,
-    exit_stage, exit_reason, orientation_call_completed_at,
-    end_call_completed_at, plus all other fields in section 2.2.
-    NOT video_url, access_token, token_expires_at — those are on applications.
-  - screening_status is on applications only.
-    status is on youth only. Never mix them.
-  - Age is never stored. Always calculate from birthdate at runtime.
-  - Passion and why_join are never separate columns. Always read from
-    application_responses jsonb.
-  - Youth record is created ONLY when applications.screening_status
-    reaches 'accepted'. Never before.
 
 
 --------------------------------------------------------------------------------
@@ -1315,60 +1012,29 @@ These are explicitly out of scope for the MVP. Do not build them now.
 PART 5 — OPEN DECISIONS
 ================================================================================
 
-Decisions are grouped by status: resolved, deferred, and still open.
+Resolve these before building the relevant phase.
 
---------------------------------------------------------------------------------
-RESOLVED
---------------------------------------------------------------------------------
+Before Phase 3:
+  - Payment method for $250 stipend (check, ACH, Venmo, payment API?)
+  - W9 storage compliance — confirm with accountant/lawyer what data
+    must be collected and how to store it securely
 
-Stipend amount:
-  Up to $250 per youth. Updated in section 1.1, Stage 4, and config.js
-  (STIPEND_AMOUNT: 250). The word "up to" is intentional — individual
-  grant amounts may vary. The amount_requested field on grant_requests
-  handles per-youth variation. No further action needed.
-
-
---------------------------------------------------------------------------------
-DEFERRED (do not block the build on these)
---------------------------------------------------------------------------------
-
-Payment method for stipend:
-  Method TBD — check, ACH, Venmo, or payment API. Do not build Phase 3
-  disbursement logic until this is confirmed. The grant approval flow
-  (staff SMS -> staff_approved = true) can be built and tested without
-  a live payment method. Stub the disbursement step and replace it
-  when the method is decided.
-
-W9 storage compliance:
-  Confirm with accountant/lawyer what data must be collected and how
-  to store it securely before building the W9 form. The grant_requests
-  table schema (w9_url field) is in place. Do not build forms/grant/
-  until compliance requirements are confirmed.
-
-
---------------------------------------------------------------------------------
-STILL OPEN (resolve before the relevant phase)
---------------------------------------------------------------------------------
-
-Before Phase 2:
-  - Exact deadline windows for each stage. Defaults are in config.js
-    (video: 10 days, meeting: 14 days, grant: 14 days). Confirm these
-    are right for the program before going live with real youth.
-  - Video resubmission policy — one 48-hour resubmit chance is currently
-    specced. Confirm this is the intended policy.
-  - Champion registration approval — currently auto-active on form
-    submission. Confirm, or add a staff approval step before activation.
+Before Phase 4:
+  - Exact deadline windows for each stage (defaults are in config.js
+    but confirm these are right for the program)
+  - Video resubmission policy — one 48-hour chance confirmed?
 
 Before Pilot Launch:
-  - Replace ALL placeholder copy in content.js with real GripTape copy.
-  - Replace ALL placeholder email templates in templates/default/.
-  - Confirm Twilio numbers are set up (youth number + staff number).
-  - Confirm Resend sending domain is verified.
-  - Run full end-to-end test with fake youth before any real youth.
+  - Replace ALL placeholder copy in content.js with real GripTape copy
+  - Replace ALL placeholder email templates in templates/default/
+  - Confirm Twilio numbers are set up (youth number + staff number)
+  - Confirm Resend sending domain is verified
+  - Run full end-to-end test with fake youth before any real youth
 
-Post-Pilot (Phase 5):
-  - Staff AI agent SMS provider and dedicated number (separate from
-    youth Twilio number).
+Ongoing:
+  - Champion registration: currently auto-active on form submission.
+    Confirm this is the right policy or add a staff approval step.
+  - Staff agent SMS provider and number (Phase 5)
 
 
 ================================================================================
