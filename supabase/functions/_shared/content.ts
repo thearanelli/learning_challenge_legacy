@@ -31,9 +31,10 @@ export const content = {
   video_resubmit: {
     email_subject: 'We had trouble with your video — please resubmit',
     email_body: `<p>Hi {{first_name}},</p>
-      <p>We could not verify your video link. Please make sure your YouTube video is public and resubmit.</p>
+      <p>We could not verify your video link. Please make sure your YouTube video is public and try again.</p>
+      <p><a href="{{link}}">Click here to resubmit your video</a></p>
       <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
-    sms: 'Hi {{first_name}}, we could not verify your video. Make sure it is public on YouTube and resubmit.',
+    sms: 'Hi {{first_name}}, we could not verify your video. Resubmit here: {{link}}',
   },
 };
 
