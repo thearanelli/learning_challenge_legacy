@@ -78,6 +78,7 @@ serve(async (req) => {
     const { decision, reasoning, failed_criteria } = aiResult;
     console.log(`[SCREEN] ${application.id}: ${decision}`);
 
+    // next stage per config.STAGES.screening.next
     const newStatus = decision === 'accepted' ? 'video_pending'
       : decision === 'rejected' ? 'rejected'
       : 'flagged';
