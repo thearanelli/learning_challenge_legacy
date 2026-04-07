@@ -4,13 +4,12 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendEmail } from '../_shared/email.ts';
-import { sendSMS } from '../_shared/sms.ts';
+import { sendNotification, sendStaffNotification } from '../_shared/dispatcher.ts';
+import { config } from '../_shared/config.ts';
 import {
   screenApplicationSystemPrompt,
   buildScreenApplicationPrompt,
 } from '../_shared/prompts.ts';
-import { content, renderContent } from '../_shared/content.ts';
 
 serve(async (req) => {
   try {
@@ -105,40 +104,18 @@ serve(async (req) => {
     }
 
     if (decision === 'accepted') {
-      const videoLink = `https://learning-challenge-legacy.vercel.app/video?token=${accessToken}`;
-      const vars = { first_name: application.first_name, link: videoLink };
-      await sendEmail({
-        to: application.email,
-        subject: content.video_pending.email_subject,
-        html: renderContent(content.video_pending.email_body, vars),
-      });
-      await sendSMS({
-        to: application.phone,
-        body: renderContent(content.video_pending.sms, vars),
-      });
+      const videoLink = `${config.BASE_URL}/video?token=${accessToken}`;
+      await sendNotification('video_pending', application, { link: videoLink });
 
     } else if (decision === 'rejected') {
-      const vars = { first_name: application.first_name };
-      await sendEmail({
-        to: application.email,
-        subject: content.rejected.email_subject,
-        html: renderContent(content.rejected.email_body, vars),
-      });
-      await sendSMS({
-        to: application.phone,
-        body: renderContent(content.rejected.sms, vars),
-      });
+      await sendNotification('rejected', application);
 
     } else {
       // Flagged — notify staff only, no email to youth
-      const staffPhone = Deno.env.get('STAFF_PHONE') || '';
-      await sendSMS({
-        to: staffPhone,
-        body: renderContent(content.flagged.staff_sms, {
-          first_name: application.first_name,
-          last_name: application.last_name,
-          reasoning,
-        }),
+      await sendStaffNotification('flagged', {
+        first_name: application.first_name,
+        last_name: application.last_name,
+        reasoning,
       });
     }
 

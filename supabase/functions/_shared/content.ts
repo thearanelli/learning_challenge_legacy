@@ -18,6 +18,23 @@ export const content = {
   flagged: {
     staff_sms: '[CONTENT FLAG] {{first_name}} {{last_name}} needs review. {{reasoning}}',
   },
+
+  video_accepted: {
+    email_subject: 'Your video is in — welcome to GripTape!',
+    email_body: `<p>Hi {{first_name}},</p>
+      <p>We received your intro video and you are officially in the GripTape Learning Challenge.</p>
+      <p>Next steps coming soon.</p>
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+    sms: 'Hi {{first_name}}, your video is confirmed! You are officially in GripTape. Stay tuned for next steps.',
+  },
+
+  video_resubmit: {
+    email_subject: 'We had trouble with your video — please resubmit',
+    email_body: `<p>Hi {{first_name}},</p>
+      <p>We could not verify your video link. Please make sure your YouTube video is public and resubmit.</p>
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+    sms: 'Hi {{first_name}}, we could not verify your video. Make sure it is public on YouTube and resubmit.',
+  },
 };
 
 export function renderContent(template: string, vars: Record<string, string>): string {
