@@ -4,8 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Builder Profile — GripTape</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── SIMPLE LAYOUT (fallback) ───────────────────────────────────────── */
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -116,13 +121,159 @@
       font-size: 0.9rem;
       font-weight: 500;
     }
+
+    /* ── TRADING CARD LAYOUT ─────────────────────────────────────────────── */
+
+    .card-page {
+      --bg:     #0D0D0D;
+      --bg2:    #161616;
+      --bg3:    #1F1F1F;
+      --white:  #F5F5F0;
+      --gray:   #777;
+      --border: rgba(255,255,255,0.08);
+      /* --accent set inline from card.archetype_color */
+
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      font-family: 'Instrument Sans', -apple-system, sans-serif;
+    }
+
+    .card-page .wordmark-dark {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    .trading-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--accent);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 2rem;
+      max-width: 480px;
+    }
+
+    .card-badge {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-archetype {
+      font-size: 0.75rem;
+      font-variant: small-caps;
+      letter-spacing: 0.15em;
+      text-align: center;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: var(--white);
+      text-align: center;
+      margin: 0.5rem 0 1rem;
+      line-height: 1.2;
+    }
+
+    .card-bio {
+      font-style: italic;
+      color: var(--gray);
+      text-align: center;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-words-label {
+      font-size: 0.7rem;
+      font-variant: small-caps;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray);
+      margin: 1.25rem 0 0.75rem;
+    }
+
+    .card-quote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+      color: rgba(245,245,240,0.75);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .card-status-pill {
+      display: inline-block;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.85rem;
+      margin: 1.25rem 0 0;
+    }
+
+    /* Journey section */
+    .journey-heading {
+      font-size: 0.7rem;
+      font-variant: small-caps;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray);
+      margin: 2rem 0 0.75rem;
+    }
+
+    .journey-locked {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .journey-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 480px;
+    }
+
+    .journey-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .journey-item-right {
+      font-size: 0.75rem;
+      color: #444;
+    }
+
+    .card-member-since {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-top: 2rem;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="wordmark">GripTape</div>
-    <div id="app"></div>
-  </div>
+  <div id="app"></div>
 
   <script>
     function formatDate(isoString) {
@@ -138,50 +289,112 @@
     }
 
     function renderNotFound() {
+      document.body.style.background = '#f9f9f7';
       document.getElementById('app').innerHTML = `
-        <div class="not-found">
-          <h1>Profile not found</h1>
+        <div class="container">
+          <div class="wordmark">GripTape</div>
+          <div class="not-found">
+            <h1>Profile not found</h1>
+          </div>
         </div>`;
     }
 
-    function renderProfile(data) {
+    function renderProfile(data, card) {
       const { first_name, screening_status, submitted_at, application_responses } = data;
       const responses = application_responses || {};
 
       document.title = `${first_name}'s Builder Profile — GripTape`;
 
+      if (card) {
+        renderTradingCard(first_name, screening_status, submitted_at, responses, card);
+      } else {
+        renderSimple(first_name, screening_status, submitted_at, responses);
+      }
+    }
+
+    function renderTradingCard(first_name, screening_status, submitted_at, responses, card) {
+      const accent = card.archetype_color;
+      // Hex opacity suffixes: 26 ≈ 15%, 4D ≈ 30%
+      const statusBg     = accent + '26';
+      const statusBorder = accent + '4D';
+
       document.getElementById('app').innerHTML = `
-        <div class="profile-header">
-          <h1>${escapeHtml(first_name)}'s Builder Profile</h1>
-          <p class="member-since">Member since ${formatDate(submitted_at)}</p>
-        </div>
+        <div class="card-page" style="--accent: ${escapeAttr(accent)}">
+          <div class="wordmark-dark">GripTape</div>
 
-        <div class="section">
-          <div class="section-label">Passion</div>
-          <div class="section-body">${escapeHtml(responses.passion || '')}</div>
-        </div>
+          <div class="trading-card">
+            <div class="card-badge">${escapeHtml(card.badge)}</div>
+            <div class="card-archetype">${escapeHtml(card.archetype)}</div>
+            <div class="card-title">${escapeHtml(card.passion_title)}</div>
+            <div class="card-bio">${escapeHtml(card.bio)}</div>
 
-        <div class="section">
-          <div class="section-label">Why GripTape</div>
-          <div class="section-body">${escapeHtml(responses.why_join || '')}</div>
-        </div>
+            <hr class="card-divider" />
+            <div class="card-words-label">In Their Words</div>
+            <div class="card-quote">${escapeHtml(responses.passion || '')}</div>
+            <hr class="card-divider" style="margin-top: 1.5rem" />
 
-        <span class="status-badge">${escapeHtml(statusLabel(screening_status))}</span>
-
-        <hr class="divider" />
-
-        <div class="locked-list">
-          <div class="locked-item">
-            <span class="lock-icon">&#128274;</span>
-            <span class="locked-label">Declaration — coming soon</span>
+            <span class="card-status-pill" style="background:${statusBg}; color:${escapeAttr(accent)}; border: 1px solid ${statusBorder}">
+              ${escapeHtml(statusLabel(screening_status))}
+            </span>
           </div>
-          <div class="locked-item">
-            <span class="lock-icon">&#128274;</span>
-            <span class="locked-label">First Drop — coming soon</span>
+
+          <div class="journey-heading">Your Journey</div>
+          <div class="journey-locked">
+            <div class="journey-item">
+              <div class="journey-item-left"><span>&#128274;</span> Declaration</div>
+              <div class="journey-item-right">Coming soon</div>
+            </div>
+            <div class="journey-item">
+              <div class="journey-item-left"><span>&#128274;</span> First Drop</div>
+              <div class="journey-item-right">Coming soon</div>
+            </div>
+            <div class="journey-item">
+              <div class="journey-item-left"><span>&#128274;</span> Champion</div>
+              <div class="journey-item-right">Coming soon</div>
+            </div>
           </div>
-          <div class="locked-item">
-            <span class="lock-icon">&#128274;</span>
-            <span class="locked-label">Champion — coming soon</span>
+
+          <div class="card-member-since">Member since ${formatDate(submitted_at)}</div>
+        </div>`;
+    }
+
+    function renderSimple(first_name, screening_status, submitted_at, responses) {
+      document.getElementById('app').innerHTML = `
+        <div class="container">
+          <div class="wordmark">GripTape</div>
+
+          <div class="profile-header">
+            <h1>${escapeHtml(first_name)}'s Builder Profile</h1>
+            <p class="member-since">Member since ${formatDate(submitted_at)}</p>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Passion</div>
+            <div class="section-body">${escapeHtml(responses.passion || '')}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Why GripTape</div>
+            <div class="section-body">${escapeHtml(responses.why_join || '')}</div>
+          </div>
+
+          <span class="status-badge">${escapeHtml(statusLabel(screening_status))}</span>
+
+          <hr class="divider" />
+
+          <div class="locked-list">
+            <div class="locked-item">
+              <span class="lock-icon">&#128274;</span>
+              <span class="locked-label">Declaration — coming soon</span>
+            </div>
+            <div class="locked-item">
+              <span class="lock-icon">&#128274;</span>
+              <span class="locked-label">First Drop — coming soon</span>
+            </div>
+            <div class="locked-item">
+              <span class="lock-icon">&#128274;</span>
+              <span class="locked-label">Champion — coming soon</span>
+            </div>
           </div>
         </div>`;
     }
@@ -192,6 +405,10 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     async function init() {
@@ -214,7 +431,7 @@
           renderNotFound();
           return;
         }
-        renderProfile(json.data);
+        renderProfile(json.data, json.card);
       } catch {
         renderNotFound();
       }
