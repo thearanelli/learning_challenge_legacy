@@ -1,7 +1,7 @@
 // api/check-token.js
 // Gates the video submission form (forms/video/index.html).
 // Called on page load to verify the magic link token before showing the form.
-// Accepts both video_pending (first submission) and video_resubmit (48hr retry window).
+// Accepts video_pending only. One video submission chance — no resubmit window.
 // Validates token match AND deadline expiry via isTokenValid.
 // Future stage forms (meeting, grant) should have their own check-token files
 // following this same pattern — do not make this file generic.
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     }
 
     const application = rows[0];
-    const validStatuses = ['video_pending', 'video_resubmit'];
+    const validStatuses = ['video_pending'];
 
     if (!validStatuses.includes(application.screening_status)) {
       return res.status(200).json({ valid: false });

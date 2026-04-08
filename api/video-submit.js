@@ -1,6 +1,7 @@
 // api/video-submit.js
 // Receives { token, video_url }, stores video_url on the application row.
-// Validation (oEmbed) is handled by the validate-video Edge Function via DB webhook.
+// oEmbed validation is handled by the validate-video Edge Function via DB webhook.
+// One submission chance only — invalid video results in immediate rejection.
 
 // Token validation — mirrors isTokenValid in _shared/tokens.ts
 // Cannot import directly — this is a Vercel Node function
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, error: 'invalid_token' });
   }
   const application = rows[0];
-  const validStatuses = ['video_pending', 'video_resubmit'];
+  const validStatuses = ['video_pending'];
   if (!validStatuses.includes(application.screening_status)) {
     return res.status(200).json({ success: false, error: 'invalid_token' });
   }

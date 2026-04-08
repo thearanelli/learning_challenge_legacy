@@ -11,7 +11,6 @@ export const config = {
   MEETING_FREQUENCY_WEEKS: 2,
   DEFAULT_CHAMPION_CAPACITY: 3,
   TOKEN_BUFFER_HOURS: 24,
-  VIDEO_RESUBMIT_HOURS: 48,
   TERMINAL_STAGES: ['completed', 'rejected', 'removed'],
   STAGES: {
     submitted:           { next: 'screening',          deadline_days: null, nudge_day: null, auto_remove: false },

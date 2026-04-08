@@ -27,15 +27,6 @@ export const content = {
       <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
     sms: 'Hi {{first_name}}, your video is confirmed! You are officially in GripTape. Stay tuned for next steps.',
   },
-
-  video_resubmit: {
-    email_subject: 'We had trouble with your video — please resubmit',
-    email_body: `<p>Hi {{first_name}},</p>
-      <p>We could not verify your video link. Please make sure your YouTube video is public and try again.</p>
-      <p><a href="{{link}}">Click here to resubmit your video</a></p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
-    sms: 'Hi {{first_name}}, we could not verify your video. Resubmit here: {{link}}',
-  },
 };
 
 export function renderContent(template: string, vars: Record<string, string>): string {
