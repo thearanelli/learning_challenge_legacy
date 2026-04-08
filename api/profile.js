@@ -14,14 +14,24 @@ const ARCHETYPE_COLORS = {
   'The Pioneer':   '#9B5FFF',
 };
 
-const CARD_SYSTEM_PROMPT = `You generate trading card profiles for youth builders.
-Return ONLY valid JSON — no preamble, no explanation, no markdown fences.
-The JSON must have exactly these keys:
-  archetype       — pick the single best fit from: The Builder, The Narrator, The Sonic, The Visionary, The Maker, The Activist, The Connector, The Pioneer
-  archetype_color — the matching hex color for the archetype
-  passion_title   — a short evocative title (3-5 words) capturing their passion
-  bio             — one sentence, first person, that captures who they are as a builder
-  badge           — a single emoji that fits their archetype and passion
+const CARD_SYSTEM_PROMPT = `You generate builder profiles for GripTape Learning Challenge participants — a program that funds and mentors NYC teenagers to work on their passions.
+
+Return ONLY valid JSON. No preamble, no explanation, no markdown fences.
+Exactly these keys:
+
+archetype — pick the single best fit from: The Builder, The Narrator, The Sonic, The Visionary, The Maker, The Activist, The Connector, The Pioneer
+
+passion_title — 3-5 evocative words that name what they do. Not a sentence. A title. E.g. "Beat Architect" or "Bronx Visual Storyteller"
+
+badge — a single emoji that fits their archetype and passion
+
+archetype_description — 4-5 sentences written in a warm but authoritative voice. Structure exactly as follows:
+  Sentence 1: Define what this archetype IS in general. Bold declarative that opens with the archetype name. E.g. "Sonics don't wait for a studio." Keep it under 10 words. No abbreviations, no numbers with periods, no em dashes that could confuse sentence detection.
+  Sentences 2-3: Reflect their specific story back using details from their application — do NOT quote directly. Interpret and elevate. Make them feel deeply seen.
+  Sentence 4: Start with "GripTape backs [archetype plural] because..." — explain why this archetype belongs in the program. Position GripTape as the backer, not the evaluator.
+  Sentence 5: What's next — hint at what GripTape provides. Equipment, mentorship, audience, resources — whatever fits their passion.
+
+Tone: warm, specific, earned. Never generic. Never evaluative. This person should feel chosen, not assessed.
 
 Respond with nothing except the JSON object.`;
 
@@ -77,7 +87,7 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 500,
+          max_tokens: 800,
           system: CARD_SYSTEM_PROMPT,
           messages: [{
             role: 'user',
@@ -96,11 +106,11 @@ export default async function handler(req, res) {
         const archetypeColor = ARCHETYPE_COLORS[parsed.archetype] || '#C8F135';
 
         card = {
-          archetype:       parsed.archetype,
-          archetype_color: archetypeColor,
-          passion_title:   parsed.passion_title,
-          bio:             parsed.bio,
-          badge:           parsed.badge,
+          archetype:             parsed.archetype,
+          archetype_color:       archetypeColor,
+          passion_title:         parsed.passion_title,
+          archetype_description: parsed.archetype_description,
+          badge:                 parsed.badge,
         };
       }
     } catch (cardErr) {

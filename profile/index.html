@@ -6,23 +6,21 @@
   <title>Builder Profile — GripTape</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── SIMPLE LAYOUT (fallback) ───────────────────────────────────────── */
+    /* ── SHARED ──────────────────────────────────────────────────────────── */
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f9f9f7;
-      color: #1a1a1a;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-    }
+    body { font-family: 'DM Sans', sans-serif; background: #001722;
+      color: #fff; margin: 0; padding: 0; min-height: 100vh; }
+
+    /* ── SIMPLE LAYOUT (fallback) ───────────────────────────────────────── */
 
     .container {
       max-width: 640px;
       margin: 0 auto;
+      padding: 2rem 1rem;
     }
 
     .wordmark {
@@ -124,152 +122,86 @@
 
     /* ── TRADING CARD LAYOUT ─────────────────────────────────────────────── */
 
-    .card-page {
-      --bg:     #0D0D0D;
-      --bg2:    #161616;
-      --bg3:    #1F1F1F;
-      --white:  #F5F5F0;
-      --gray:   #777;
-      --border: rgba(255,255,255,0.08);
-      /* --accent set inline from card.archetype_color */
+    .card-page { max-width: 480px; margin: 0 auto; padding: 32px 24px;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; }
 
-      background: var(--bg);
-      color: var(--white);
-      min-height: 100vh;
-      padding: 2rem 1rem;
-      font-family: 'Instrument Sans', -apple-system, sans-serif;
-    }
+    .nav-row { width: 100%; display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 8px; }
 
-    .card-page .wordmark-dark {
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gray);
-      margin-bottom: 2rem;
-    }
+    .gt-logo { height: 22px; }
 
-    .trading-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-top: 4px solid var(--accent);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-top: 2rem;
-      max-width: 480px;
-    }
+    .program-label { font-size: 9px; letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.3); text-transform: uppercase; }
 
-    .card-badge {
-      font-size: 3rem;
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
+    .top-rule { width: 100%; border: none;
+      border-top: 1px solid rgba(255,255,255,0.07); margin: 16px 0 24px; }
 
-    .card-archetype {
-      font-size: 0.75rem;
-      font-variant: small-caps;
-      letter-spacing: 0.15em;
-      text-align: center;
-      color: var(--accent);
-      text-transform: uppercase;
-    }
+    .access-row { width: 100%; display: flex; align-items: center;
+      gap: 10px; margin-bottom: 24px; }
 
-    .card-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 1.6rem;
-      color: var(--white);
-      text-align: center;
-      margin: 0.5rem 0 1rem;
-      line-height: 1.2;
-    }
+    .access-line { flex: 1; height: 1px; background: rgba(234,83,41,0.3); }
 
-    .card-bio {
-      font-style: italic;
-      color: var(--gray);
-      text-align: center;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
-    }
+    .access-pill { background: rgba(234,83,41,0.12);
+      border: 1px solid rgba(234,83,41,0.35); color: #EA5329;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+      padding: 5px 12px; border-radius: 999px;
+      text-transform: uppercase; white-space: nowrap; }
 
-    .card-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-    }
+    .trading-card { background: #0a2230;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-top: 3px solid var(--accent); border-radius: 14px;
+      padding: 24px 22px; width: 100%; }
 
-    .card-words-label {
-      font-size: 0.7rem;
-      font-variant: small-caps;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--gray);
-      margin: 1.25rem 0 0.75rem;
-    }
+    .card-archetype { font-size: 9px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px; }
 
-    .card-quote {
-      border-left: 3px solid var(--accent);
-      padding-left: 1rem;
-      color: rgba(245,245,240,0.75);
-      font-size: 0.9rem;
-      line-height: 1.7;
-    }
+    .card-name { font-size: 26px; font-weight: 800; color: #fff;
+      font-family: 'Outfit', sans-serif; line-height: 1.05;
+      margin-bottom: 3px; }
 
-    .card-status-pill {
-      display: inline-block;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.3rem 0.85rem;
-      margin: 1.25rem 0 0;
-    }
+    .card-passion-title { font-size: 12px; color: #F79227;
+      font-weight: 500; margin-bottom: 16px; }
 
-    /* Journey section */
-    .journey-heading {
-      font-size: 0.7rem;
-      font-variant: small-caps;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--gray);
-      margin: 2rem 0 0.75rem;
-    }
+    .passion-row { display: flex; align-items: center; gap: 8px;
+      margin-bottom: 20px; }
 
-    .journey-locked {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+    .passion-label { font-size: 9px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3); }
 
-    .journey-item {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 480px;
-    }
+    .passion-val { font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      background: rgba(247,146,39,0.1);
+      border: 1px solid rgba(247,146,39,0.25);
+      padding: 3px 10px; border-radius: 999px; }
 
-    .journey-item-left {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      color: var(--gray);
-      font-size: 0.9rem;
-    }
+    .card-rule { border: none;
+      border-top: 1px solid rgba(255,255,255,0.07); margin: 0 0 18px; }
 
-    .journey-item-right {
-      font-size: 0.75rem;
-      color: #444;
-    }
+    .card-desc { font-size: 12px; color: rgba(255,255,255,0.6);
+      line-height: 1.75; font-style: italic; }
 
-    .card-member-since {
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--gray);
-      margin-top: 2rem;
-    }
+    .card-desc-opener { color: rgba(255,255,255,0.9);
+      font-style: normal; font-weight: 600; }
+
+    .journey-section { width: 100%; margin-top: 18px; }
+
+    .journey-label { font-size: 9px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.25);
+      margin-bottom: 8px; }
+
+    .journey-item { display: flex; justify-content: space-between;
+      align-items: center; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; padding: 9px 12px; margin-bottom: 5px; }
+
+    .journey-left { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+    .journey-right { font-size: 9px; color: rgba(255,255,255,0.18); }
+
+    .card-footer { text-align: center; margin-top: 20px; font-size: 8px;
+      letter-spacing: 0.12em; color: rgba(255,255,255,0.15);
+      text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -313,48 +245,64 @@
     }
 
     function renderTradingCard(first_name, screening_status, submitted_at, responses, card) {
-      const accent = card.archetype_color;
-      // Hex opacity suffixes: 26 ≈ 15%, 4D ≈ 30%
-      const statusBg     = accent + '26';
-      const statusBorder = accent + '4D';
+      document.title = first_name + "'s Builder Profile — GripTape";
+      document.body.style.background = '#001722';
+      document.body.style.setProperty('--accent', card.archetype_color);
+
+      // Split archetype_description into opener + rest
+      const desc = card.archetype_description || '';
+      const firstPeriod = desc.indexOf('. ');
+      let opener, rest;
+      if (firstPeriod !== -1) {
+        opener = desc.slice(0, firstPeriod + 1);
+        rest = desc.slice(firstPeriod + 2);
+      } else {
+        opener = desc;
+        rest = '';
+      }
 
       document.getElementById('app').innerHTML = `
-        <div class="card-page" style="--accent: ${escapeAttr(accent)}">
-          <div class="wordmark-dark">GripTape</div>
-
+        <div class="card-page">
+          <div class="nav-row">
+            <img class="gt-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="GripTape" />
+            <div class="program-label">Learning Challenge &middot; NYC 2026</div>
+          </div>
+          <hr class="top-rule" />
+          <div class="access-row">
+            <div class="access-line"></div>
+            <div class="access-pill">Builder Access Granted</div>
+            <div class="access-line"></div>
+          </div>
           <div class="trading-card">
-            <div class="card-badge">${escapeHtml(card.badge)}</div>
             <div class="card-archetype">${escapeHtml(card.archetype)}</div>
-            <div class="card-title">${escapeHtml(card.passion_title)}</div>
-            <div class="card-bio">${escapeHtml(card.bio)}</div>
-
-            <hr class="card-divider" />
-            <div class="card-words-label">In Their Words</div>
-            <div class="card-quote">${escapeHtml(responses.passion || '')}</div>
-            <hr class="card-divider" style="margin-top: 1.5rem" />
-
-            <span class="card-status-pill" style="background:${statusBg}; color:${escapeAttr(accent)}; border: 1px solid ${statusBorder}">
-              ${escapeHtml(statusLabel(screening_status))}
-            </span>
-          </div>
-
-          <div class="journey-heading">Your Journey</div>
-          <div class="journey-locked">
-            <div class="journey-item">
-              <div class="journey-item-left"><span>&#128274;</span> Declaration</div>
-              <div class="journey-item-right">Coming soon</div>
+            <div class="card-name">${escapeHtml(first_name)}</div>
+            <div class="card-passion-title">${escapeHtml(card.passion_title)}</div>
+            <div class="passion-row">
+              <div class="passion-label">Passion</div>
+              <div class="passion-val">${escapeHtml(card.badge)} ${escapeHtml(card.passion_title)}</div>
             </div>
-            <div class="journey-item">
-              <div class="journey-item-left"><span>&#128274;</span> First Drop</div>
-              <div class="journey-item-right">Coming soon</div>
-            </div>
-            <div class="journey-item">
-              <div class="journey-item-left"><span>&#128274;</span> Champion</div>
-              <div class="journey-item-right">Coming soon</div>
+            <hr class="card-rule" />
+            <div class="card-desc">
+              <span class="card-desc-opener">${escapeHtml(opener)}</span>
+              ${rest ? ' ' + escapeHtml(rest) : ''}
             </div>
           </div>
-
-          <div class="card-member-since">Member since ${formatDate(submitted_at)}</div>
+          <div class="journey-section">
+            <div class="journey-label">Your Journey</div>
+            <div class="journey-item">
+              <div class="journey-left">&#128274; Declaration</div>
+              <div class="journey-right">Coming soon</div>
+            </div>
+            <div class="journey-item">
+              <div class="journey-left">&#128274; First Drop</div>
+              <div class="journey-right">Coming soon</div>
+            </div>
+            <div class="journey-item">
+              <div class="journey-left">&#128274; Champion</div>
+              <div class="journey-right">Coming soon</div>
+            </div>
+          </div>
+          <div class="card-footer">GripTape Learning Challenge &middot; Accepted Cohort &middot; NYC 2026</div>
         </div>`;
     }
 
