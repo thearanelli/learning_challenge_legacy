@@ -1,6 +1,13 @@
 // OWNER: video_pending -> accepted | video_resubmit transition
+//        video_resubmit -> accepted | rejected transition
 // Triggered by: Supabase database webhook on UPDATE to applications table
 // next stage per config.STAGES.video_pending.next
+//
+// Policy:
+//   video_pending  + valid video   -> accepted
+//   video_pending  + invalid video -> video_resubmit (one 48hr chance)
+//   video_resubmit + valid video   -> accepted
+//   video_resubmit + invalid video -> rejected (no more chances)
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -17,9 +24,11 @@ serve(async (req) => {
       return new Response('No record in payload', { status: 400 });
     }
 
-    if (record.screening_status !== 'video_pending') {
+    // Only process records that are awaiting video validation
+    const processableStatuses = ['video_pending', 'video_resubmit'];
+    if (!processableStatuses.includes(record.screening_status)) {
       console.log(`[validate-video] SKIP — status is ${record.screening_status} for ${record.id}`);
-      return new Response('Not video_pending status', { status: 200 });
+      return new Response('Not processable status', { status: 200 });
     }
 
     if (!record.video_url) {
@@ -32,12 +41,14 @@ serve(async (req) => {
       Deno.env.get('DB_SERVICE_KEY')!,
     );
 
+    const isResubmit = record.screening_status === 'video_resubmit';
+
     const oEmbedRes = await fetch(
       `https://www.youtube.com/oembed?url=${encodeURIComponent(record.video_url)}&format=json`
     );
 
     if (oEmbedRes.ok) {
-      // Valid — accept, clear token and deadline
+      // Valid video — accept regardless of whether this is first or resubmit
       await supabase
         .from('applications')
         .update({
@@ -46,13 +57,28 @@ serve(async (req) => {
           stage_deadline_at: null,
         })
         .eq('id', record.id)
-        .eq('screening_status', 'video_pending');
+        .eq('screening_status', record.screening_status);
 
       console.log('[validate-video] accepted:', record.id);
       await sendNotification('video_accepted', record);
 
+    } else if (isResubmit) {
+      // Invalid video on resubmit — no more chances, reject
+      await supabase
+        .from('applications')
+        .update({
+          screening_status: 'rejected',
+          access_token: null,
+          stage_deadline_at: null,
+        })
+        .eq('id', record.id)
+        .eq('screening_status', 'video_resubmit');
+
+      console.log('[validate-video] rejected after resubmit:', record.id);
+      await sendNotification('rejected', record);
+
     } else {
-      // Invalid — open 48hr resubmit window
+      // Invalid video on first attempt — open 48hr resubmit window
       // duration from config.VIDEO_RESUBMIT_HOURS
       const tokenData = generateToken(config.VIDEO_RESUBMIT_HOURS / 24);
       const resubmitLink = `${config.BASE_URL}/video?token=${tokenData.access_token}`;
