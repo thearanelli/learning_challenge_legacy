@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Builder Profile — GripTape</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9f9f7;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .wordmark {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Not-found state */
+    .not-found {
+      text-align: center;
+      padding: 4rem 0;
+      color: #888;
+    }
+    .not-found h1 {
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    /* Profile card */
+    .profile-header {
+      margin-bottom: 2rem;
+    }
+    .profile-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+    }
+    .member-since {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      background: #e8f5e9;
+      color: #2e7d32;
+      margin-bottom: 2rem;
+    }
+
+    /* Answer sections */
+    .section {
+      margin-bottom: 1.75rem;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 0.4rem;
+    }
+    .section-body {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: #222;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e5e2;
+      margin: 2rem 0;
+    }
+
+    /* Locked sections */
+    .locked-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .locked-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: #f0f0ee;
+      border-radius: 8px;
+      color: #aaa;
+    }
+    .lock-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .locked-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="wordmark">GripTape</div>
+    <div id="app"></div>
+  </div>
+
+  <script>
+    function formatDate(isoString) {
+      if (!isoString) return '';
+      const d = new Date(isoString);
+      return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+
+    function statusLabel(screening_status) {
+      const early = ['submitted', 'screening'];
+      if (early.includes(screening_status)) return 'Application received';
+      return '10 days in progress';
+    }
+
+    function renderNotFound() {
+      document.getElementById('app').innerHTML = `
+        <div class="not-found">
+          <h1>Profile not found</h1>
+        </div>`;
+    }
+
+    function renderProfile(data) {
+      const { first_name, screening_status, submitted_at, application_responses } = data;
+      const responses = application_responses || {};
+
+      document.title = `${first_name}'s Builder Profile — GripTape`;
+
+      document.getElementById('app').innerHTML = `
+        <div class="profile-header">
+          <h1>${escapeHtml(first_name)}'s Builder Profile</h1>
+          <p class="member-since">Member since ${formatDate(submitted_at)}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Passion</div>
+          <div class="section-body">${escapeHtml(responses.passion || '')}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Why GripTape</div>
+          <div class="section-body">${escapeHtml(responses.why_join || '')}</div>
+        </div>
+
+        <span class="status-badge">${escapeHtml(statusLabel(screening_status))}</span>
+
+        <hr class="divider" />
+
+        <div class="locked-list">
+          <div class="locked-item">
+            <span class="lock-icon">&#128274;</span>
+            <span class="locked-label">Declaration — coming soon</span>
+          </div>
+          <div class="locked-item">
+            <span class="lock-icon">&#128274;</span>
+            <span class="locked-label">First Drop — coming soon</span>
+          </div>
+          <div class="locked-item">
+            <span class="lock-icon">&#128274;</span>
+            <span class="locked-label">Champion — coming soon</span>
+          </div>
+        </div>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        renderNotFound();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/profile?token=${encodeURIComponent(token)}`);
+        if (!res.ok) {
+          renderNotFound();
+          return;
+        }
+        const json = await res.json();
+        if (!json.found) {
+          renderNotFound();
+          return;
+        }
+        renderProfile(json.data);
+      } catch {
+        renderNotFound();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

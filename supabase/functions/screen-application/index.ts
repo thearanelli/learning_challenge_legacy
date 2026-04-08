@@ -93,9 +93,14 @@ serve(async (req) => {
       ai_reasoning: reasoning,
       failed_criteria: failed_criteria ?? null,
     };
+    let profileToken: string | undefined;
     if (tokenData) {
       updatePayload.access_token = tokenData.access_token;
       updatePayload.stage_deadline_at = tokenData.stage_deadline_at;
+    }
+    if (decision === 'accepted') {
+      profileToken = crypto.randomUUID();
+      updatePayload.profile_token = profileToken;
     }
 
     const { error: updateError } = await supabase
@@ -109,7 +114,11 @@ serve(async (req) => {
 
     if (decision === 'accepted') {
       const videoLink = `${config.BASE_URL}/video?token=${tokenData!.access_token}`;
-      await sendNotification('video_pending', application, { link: videoLink });
+      const profileLink = `${config.BASE_URL}/profile?token=${profileToken}`;
+      await sendNotification('video_pending', application, {
+        link: videoLink,
+        profile_link: profileLink,
+      });
 
     } else if (decision === 'rejected') {
       await sendNotification('rejected', application);
