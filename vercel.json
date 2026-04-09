@@ -4,6 +4,7 @@
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/video", "dest": "/forms/video/index.html" },
     { "src": "/profile", "dest": "/profile/index.html" },
+    { "src": "/declare", "dest": "/forms/declare/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

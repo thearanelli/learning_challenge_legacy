@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Declare Your Intent — GripTape Learning Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #001722;
+      --bg2: #0a2230;
+      --border: rgba(255,255,255,0.07);
+      --orange: #EA5329;
+      --amber: #F79227;
+      --white: #F5F5F0;
+      --gray: rgba(255,255,255,0.5);
+      --muted: rgba(255,255,255,0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Error / loading states */
+    .state-center {
+      text-align: center;
+      padding: 80px 24px;
+    }
+
+    .state-logo {
+      height: 22px;
+      display: block;
+      margin: 0 auto 28px;
+    }
+
+    .state-heading {
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0 0 10px;
+    }
+
+    .state-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .state-muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav img {
+      height: 22px;
+    }
+
+    .nav-label {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0 28px;
+    }
+
+    .divider-slim {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* Greeting */
+    .greeting {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      color: var(--gray);
+      margin: 0 0 4px;
+    }
+
+    /* Heading */
+    .main-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+      margin: 0 0 28px;
+    }
+
+    /* Program blocks */
+    .program-block {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+
+    .block-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .block-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--gray);
+      line-height: 1.6;
+      margin: 4px 0 0;
+    }
+
+    /* Past builders */
+    .section-label {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+
+    .builder-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .builder-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .builder-passion {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--gray);
+    }
+
+    .builder-built {
+      color: var(--muted);
+      font-size: 0.8rem;
+      max-width: 160px;
+      text-align: right;
+    }
+
+    /* Declaration block */
+    .declare-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--white);
+      margin: 0 0 8px;
+    }
+
+    .declare-sub {
+      color: var(--gray);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+
+    .declare-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+
+    .declare-btn:hover {
+      opacity: 0.9;
+    }
+
+    .declare-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .declare-error {
+      color: var(--orange);
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    /* Success state */
+    .success-wrap {
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    .success-logo {
+      height: 28px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .success-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--white);
+      text-align: center;
+      margin: 24px 0 12px;
+    }
+
+    .success-sub {
+      color: var(--gray);
+      font-size: 1rem;
+      text-align: center;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Loading state -->
+  <div id="state-loading" class="state-center" style="display:block;">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png"
+      alt="GripTape" />
+    <p class="state-muted">Verifying your link...</p>
+  </div>
+
+  <!-- Invalid state -->
+  <div id="state-invalid" class="state-center" style="display:none;">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png"
+      alt="GripTape" />
+    <p class="state-heading">This link is invalid or has already been used.</p>
+    <p class="state-sub">If you think this is an error contact GripTape.</p>
+  </div>
+
+  <!-- Expired state -->
+  <div id="state-expired" class="state-center" style="display:none;">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png"
+      alt="GripTape" />
+    <p class="state-heading">This link has expired.</p>
+    <p class="state-sub">Contact GripTape to get a new link.</p>
+  </div>
+
+  <!-- Declaration page -->
+  <div id="state-declaration" class="page" style="display:none;">
+
+    <div class="nav">
+      <img
+        src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png"
+        alt="GripTape" />
+      <span class="nav-label">Learning Challenge &middot; NYC 2026</span>
+    </div>
+
+    <hr class="divider" />
+
+    <p class="greeting" id="greeting"></p>
+    <h1 class="main-heading">What you're stepping into.</h1>
+
+    <div class="program-block">
+      <span class="block-label">10 days. Real work.</span>
+      <p class="block-desc">You'll spend the next 10 days working on your passion project. No curriculum. No hand-holding. Just you and your craft.</p>
+    </div>
+
+    <div class="program-block">
+      <span class="block-label">A mentor who's done it.</span>
+      <p class="block-desc">Get matched with a Champion — someone working in your field who meets with you bi-weekly and gives you real guidance.</p>
+    </div>
+
+    <div class="program-block">
+      <span class="block-label">Funding to build.</span>
+      <p class="block-desc">Up to $250 for your project. Equipment, software, materials — whatever you actually need to make it real.</p>
+    </div>
+
+    <hr class="divider-slim" />
+
+    <p class="section-label">Past builders</p>
+
+    <div class="builder-card">
+      <div>
+        <div class="builder-name">Jordan T.</div>
+        <div class="builder-passion">Skateboarding &amp; Film</div>
+      </div>
+      <div class="builder-built">Made a short doc about Crown Heights skaters</div>
+    </div>
+
+    <div class="builder-card">
+      <div>
+        <div class="builder-name">Amara S.</div>
+        <div class="builder-passion">Music Production</div>
+      </div>
+      <div class="builder-built">Recorded and released her first EP</div>
+    </div>
+
+    <div class="builder-card">
+      <div>
+        <div class="builder-name">Dev P.</div>
+        <div class="builder-passion">App Development</div>
+      </div>
+      <div class="builder-built">Built a study tool used by 200 students</div>
+    </div>
+
+    <hr class="divider-slim" />
+
+    <h2 class="declare-heading">Ready to begin?</h2>
+    <p class="declare-sub">Declaring means committing to 10 days of real work on your passion project. Your video submission link will be sent to your email immediately after.</p>
+
+    <button class="declare-btn" id="declare-btn">I'm in — start my 10 days</button>
+    <p class="declare-error" id="declare-error" style="display:none;"></p>
+
+  </div>
+
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  function showState(id) {
+    ['state-loading', 'state-invalid', 'state-expired', 'state-declaration'].forEach(function(s) {
+      document.getElementById(s).style.display = s === id ? (id === 'state-declaration' ? 'block' : 'block') : 'none';
+    });
+  }
+
+  async function init() {
+    if (!token) {
+      showState('state-invalid');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/check-declare-token?token=' + encodeURIComponent(token));
+      const data = await res.json();
+
+      if (data.valid === false && data.expired === true) {
+        showState('state-expired');
+        return;
+      }
+
+      if (!data.valid) {
+        showState('state-invalid');
+        return;
+      }
+
+      if (data.first_name) {
+        document.getElementById('greeting').textContent = 'Hey ' + data.first_name + '.';
+      }
+      showState('state-declaration');
+    } catch (e) {
+      showState('state-invalid');
+    }
+  }
+
+  document.getElementById('declare-btn').addEventListener('click', async function() {
+    var btn = document.getElementById('declare-btn');
+    var errEl = document.getElementById('declare-error');
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    errEl.style.display = 'none';
+
+    try {
+      var res = await fetch('/api/declare-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token }),
+      });
+      var data = await res.json();
+
+      if (data.success) {
+        document.getElementById('app').innerHTML =
+          '<div class="page"><div class="success-wrap">' +
+          '<img class="success-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="GripTape" />' +
+          '<h1 class="success-heading">You\'re in.</h1>' +
+          '<p class="success-sub">Your 10 days have started. Check your email — your video submission link and builder profile are on their way.</p>' +
+          '</div></div>';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'I\'m in — start my 10 days';
+        errEl.textContent = 'Something went wrong — please try again or email griptape@griptape.org';
+        errEl.style.display = 'block';
+      }
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = 'I\'m in — start my 10 days';
+      errEl.textContent = 'Something went wrong — please try again or email griptape@griptape.org';
+      errEl.style.display = 'block';
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>
