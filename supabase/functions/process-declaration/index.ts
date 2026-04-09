@@ -1,11 +1,11 @@
 // OWNER: declaration_pending -> video_pending transition
-// Triggered by: Supabase webhook on applications UPDATE
-// where screening_status = 'video_pending' (set by declare-submit.js)
-// Generates video token and sends declaration_confirmed email + SMS.
+// Invoked directly by: api/declare-submit.js via fetch
+// NOT triggered by webhook — direct invocation ensures exactly
+// one call per declaration. No idempotency guard needed.
+// Generates video token, advances status to video_pending,
+// sends declaration_confirmed email + SMS.
 // NOTE: For production, move video link send to daily-scheduler
 // to fire on day 7 instead of immediately.
-// Idempotency: advance_status() RPC ensures only one invocation
-// proceeds per transition. All others skip cleanly.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -15,16 +15,10 @@ import { generateToken } from '../_shared/tokens.ts';
 
 serve(async (req) => {
   try {
-    const payload = await req.json();
-    const application = payload.record;
+    const { application_id } = await req.json();
 
-    if (!application?.id) {
-      return new Response('No application record in payload', { status: 400 });
-    }
-
-    if (application.screening_status !== 'video_pending') {
-      console.log(`[SKIP] ${application.id} is ${application.screening_status}`);
-      return new Response('Not video_pending status', { status: 200 });
+    if (!application_id) {
+      return new Response('Missing application_id', { status: 400 });
     }
 
     const supabase = createClient(
@@ -32,19 +26,19 @@ serve(async (req) => {
       Deno.env.get('DB_SERVICE_KEY')!,
     );
 
-    const { data: advanced, error: advanceError } = await supabase
-      .rpc('advance_status', {
-        p_id: application.id,
-        p_expected_status: 'video_pending',
-        p_new_status: 'generating_video_token',
-      });
+    const { data: application, error: fetchError } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('id', application_id)
+      .single();
 
-    if (advanceError) {
-      throw new Error(`advance_status error: ${advanceError.message}`);
+    if (fetchError || !application) {
+      throw new Error(`Failed to fetch application: ${fetchError?.message}`);
     }
-    if (!advanced) {
-      console.log(`[SKIP] ${application.id} — already claimed`);
-      return new Response('Already processing', { status: 200 });
+
+    if (application.screening_status !== 'declaration_pending') {
+      console.log(`[SKIP] ${application_id} is ${application.screening_status}`);
+      return new Response('Not declaration_pending', { status: 200 });
     }
 
     const tokenData = generateToken(config.STAGES.video_pending.deadline_days);
@@ -56,7 +50,8 @@ serve(async (req) => {
         access_token: tokenData.access_token,
         stage_deadline_at: tokenData.stage_deadline_at,
       })
-      .eq('id', application.id);
+      .eq('id', application.id)
+      .eq('screening_status', 'declaration_pending');
 
     if (updateError) {
       throw new Error(`Failed to update token: ${updateError.message}`);

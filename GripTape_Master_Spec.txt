@@ -355,6 +355,12 @@ TABLE: applications
   school            text
   passion           text
   why_join          text
+  screening_status  text    'submitted' | 'screening' | 'declaration_pending' |
+                            'video_pending' | 'video_review' | 'rejected' |
+                            'onboarding' | 'mentor_pending' | 'grant_pending' |
+                            'grant_review' | 'active' | 'final_video_pending' |
+                            'showcase_invited' | 'completed' | 'removed' |
+                            'flagged' | 'generating_video_token'
   status            text    'pending' | 'accepted' | 'rejected' | 'flagged'
   ai_decision       text    'accepted' | 'rejected' | 'flagged'
   ai_reasoning      text
@@ -809,6 +815,53 @@ ALL STAFF NOTIFICATIONS:
   - Come from a dedicated Twilio number (separate from youth SMS)
 
 
+--------------------------------------------------------------------------------
+2.10 STATE TRANSITION PATTERN
+--------------------------------------------------------------------------------
+
+MANDATORY PATTERN — Webhook-triggered Edge Functions
+-----------------------------------------------------
+Used when a Supabase database change (not a form submission) should trigger
+an Edge Function, or multiple downstream functions might react to one event.
+
+  1. FORM (Vercel HTML) — submits to Vercel API route
+  2. THIN VERCEL API ROUTE — validates token, writes to Supabase
+  3. SUPABASE WEBHOOK — fires Edge Function on row change
+  4. EDGE FUNCTION — reads webhook payload, calls advance_status() RPC first
+     to claim the row atomically, skips if already claimed, runs logic
+
+  advance_status() signature:
+    rpc('advance_status', { p_id, p_expected_status, p_new_status })
+    Returns true if this caller won the race, false if already claimed.
+
+  EXAMPLE — validate-video uses webhook (video_url column change triggers it).
+
+
+DIRECT INVOCATION PATTERN
+-------------------------
+Used when a Vercel API route controls exactly which Edge Function
+fires next. Eliminates webhook duplicate fire risk for form-triggered
+transitions.
+
+  Pattern:
+    1. FORM (Vercel HTML) — same as mandatory pattern
+    2. THIN VERCEL API ROUTE — validates token, writes to Supabase,
+       calls Edge Function directly via fetch using SUPABASE_SERVICE_KEY
+    3. EDGE FUNCTION — reads application_id from POST body, fetches
+       full record from Supabase, runs business logic, sends comms
+    No webhook. No duplicate fire risk.
+
+  USE THIS PATTERN WHEN:
+    Form submission directly and exclusively triggers one Edge Function.
+
+  USE WEBHOOK PATTERN WHEN:
+    A data change (not a form) should trigger an Edge Function, or
+    multiple downstream functions might react to one event.
+
+  EXAMPLE — process-declaration uses direct invocation.
+  EXAMPLE — validate-video uses webhook (video_url column change).
+
+
 ================================================================================
 PART 3 — TECH STACK
 ================================================================================
@@ -854,6 +907,11 @@ PART 4 — BUILD PLAN
   - profile_token column added to applications table in Supabase
   - screen-application Edge Function updated to generate profile_token
     and include profile_link in video_pending notification
+  - advance_status() Postgres RPC in Supabase — atomic status transitions
+    for webhook-triggered Edge Functions
+  - Declaration stage: declaration_pending status, declare form,
+    check-declare-token API, declare-submit API, process-declaration
+    Edge Function (direct invocation pattern)
 
 These are being superseded. The new system replaces Airtable as the
 source of truth and moves all logic to Supabase Edge Functions.

@@ -1,7 +1,7 @@
 // api/declare-submit.js
-// Receives { token }, records declaration on applications row.
-// Sets screening_status = video_pending to trigger
-// process-declaration Edge Function via webhook.
+// Validates declaration token, nulls it, then calls process-declaration
+// Edge Function directly. Direct invocation prevents webhook duplicate fires.
+// Does NOT set screening_status — process-declaration owns that transition.
 
 // Token validation — mirrors isTokenValid in _shared/tokens.ts
 // Cannot import directly — this is a Vercel Node function
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, error: 'expired_token' });
   }
 
-  // Store video_url — webhook fires validate-video Edge Function
+  // Null the token — process-declaration owns the status transition
   const patchRes = await fetch(
     `${supabaseUrl}/rest/v1/applications?id=eq.${application.id}`,
     {
@@ -66,7 +66,6 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${supabaseKey}`,
       },
       body: JSON.stringify({
-        screening_status: 'video_pending',
         access_token: null,
         stage_deadline_at: null,
       }),
@@ -75,6 +74,29 @@ export default async function handler(req, res) {
 
   if (!patchRes.ok) {
     return res.status(500).json({ error: 'Failed to save video URL' });
+  }
+
+  const supabaseProjectRef = process.env.SUPABASE_URL
+    .replace('https://', '')
+    .replace('.supabase.co', '');
+
+  const edgeRes = await fetch(
+    `https://${supabaseProjectRef}.supabase.co/functions/v1/process-declaration`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+      },
+      body: JSON.stringify({ application_id: application.id }),
+    }
+  );
+
+  if (!edgeRes.ok) {
+    console.error('[declare-submit] process-declaration call failed:',
+      await edgeRes.text());
+    // Declaration was recorded. Non-fatal — return success to form.
+    // Staff alert to be added in V2.
   }
 
   return res.status(200).json({ success: true });
