@@ -7,9 +7,9 @@ export const config = {
     submitted:           { next: 'screening',          deadline_days: null, nudge_day: null, auto_remove: false },
     screening:           { next: 'declaration_pending', deadline_days: null, nudge_day: null, auto_remove: false },
     declaration_pending: { next: 'video_pending',        deadline_days: 60,   nudge_day: 7,    auto_remove: false },
-    // generating_video_token — intermediate lock used by process-declaration advance_status() (not a full stage)
     video_pending:       { next: 'video_review',        deadline_days: 10,   nudge_day: 7,    auto_remove: true  },
-    // video_review — also used as intermediate lock by validate-video advance_status() before accepting/rejecting
+    // video_review — claimed by validate-video via advance_status() before
+    // oEmbed check runs. Prevents duplicate video processing.
     video_review:        { next: 'onboarding',          deadline_days: null, nudge_day: null, auto_remove: false },
     onboarding:          { next: 'mentor_pending',      deadline_days: null, nudge_day: null, auto_remove: false },
     mentor_pending:      { next: 'grant_pending',       deadline_days: 14,   nudge_day: 10,   auto_remove: true  },

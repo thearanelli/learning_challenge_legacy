@@ -73,7 +73,7 @@ export default async function handler(req, res) {
   );
 
   if (!patchRes.ok) {
-    return res.status(500).json({ error: 'Failed to save video URL' });
+    return res.status(500).json({ error: 'Failed to null declaration token' });
   }
 
   const supabaseProjectRef = process.env.SUPABASE_URL
