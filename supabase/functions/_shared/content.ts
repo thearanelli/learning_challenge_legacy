@@ -1,4 +1,27 @@
 export const content = {
+  declaration_pending: {
+    email_subject: 'You\'re in — now let\'s see what you\'re made of',
+    email_body: `<p>Hi {{first_name}},</p>
+<p>Your application made it through. That already puts you ahead of most.</p>
+<p>Before we go further, we want you to understand exactly what you\'re
+stepping into — and make sure you\'re ready to commit.</p>
+<p><a href="{{link}}">Read about the program and declare your intent →</a></p>
+<p>Your builder profile is live:<br>
+<a href="{{profile_link}}">{{profile_link}}</a></p>
+<p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+    sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next and declare: {{link}}',
+  },
+  declaration_confirmed: {
+    email_subject: 'Your 10 days start now',
+    email_body: `<p>Hi {{first_name}},</p>
+<p>You\'ve declared. Your 10 days have started.</p>
+<p>Work on your passion project. Your video submission link is below.</p>
+<p><a href="{{video_link}}">Submit your first drop video →</a></p>
+<p>Your builder profile:<br>
+<a href="{{profile_link}}">{{profile_link}}</a></p>
+<p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+    sms: 'Hi {{first_name}}, you\'re in. Submit your video: {{video_link}} Your profile: {{profile_link}}',
+  },
   video_pending: {
     email_subject: 'You\'re accepted — submit your intro video',
     email_body: `<p>Hi {{first_name}},</p>

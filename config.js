@@ -5,7 +5,8 @@ export const config = {
 
   STAGES: {
     submitted:           { next: 'screening',          deadline_days: null, nudge_day: null, auto_remove: false },
-    screening:           { next: 'video_pending',       deadline_days: null, nudge_day: null, auto_remove: false },
+    screening:           { next: 'declaration_pending', deadline_days: null, nudge_day: null, auto_remove: false },
+    declaration_pending: { next: 'video_pending',        deadline_days: 60,   nudge_day: 7,    auto_remove: false },
     video_pending:       { next: 'video_review',        deadline_days: 10,   nudge_day: 7,    auto_remove: true  },
     video_review:        { next: 'onboarding',          deadline_days: null, nudge_day: null, auto_remove: false },
     onboarding:          { next: 'mentor_pending',      deadline_days: null, nudge_day: null, auto_remove: false },
