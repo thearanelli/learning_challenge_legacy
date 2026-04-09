@@ -5,6 +5,8 @@
 // Policy: one chance only.
 //   valid video   -> accepted
 //   invalid video -> rejected
+// Idempotency: advance_status() RPC ensures only one invocation
+// proceeds per transition. All others skip cleanly.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -34,6 +36,21 @@ serve(async (req) => {
       Deno.env.get('DB_SERVICE_KEY')!,
     );
 
+    const { data: advanced, error: advanceError } = await supabase
+      .rpc('advance_status', {
+        p_id: record.id,
+        p_expected_status: 'video_pending',
+        p_new_status: 'video_review',
+      });
+
+    if (advanceError) {
+      throw new Error(`advance_status error: ${advanceError.message}`);
+    }
+    if (!advanced) {
+      console.log(`[validate-video] SKIP — already claimed: ${record.id}`);
+      return new Response('Already processing', { status: 200 });
+    }
+
     const oEmbedRes = await fetch(
       `https://www.youtube.com/oembed?url=${encodeURIComponent(record.video_url)}&format=json`
     );
@@ -47,8 +64,7 @@ serve(async (req) => {
           access_token: null,
           stage_deadline_at: null,
         })
-        .eq('id', record.id)
-        .eq('screening_status', 'video_pending');
+        .eq('id', record.id);
 
       console.log('[validate-video] accepted:', record.id);
       await sendNotification('video_accepted', record);
@@ -62,8 +78,7 @@ serve(async (req) => {
           access_token: null,
           stage_deadline_at: null,
         })
-        .eq('id', record.id)
-        .eq('screening_status', 'video_pending');
+        .eq('id', record.id);
 
       console.log('[validate-video] rejected — invalid video:', record.id);
       await sendNotification('rejected', record);

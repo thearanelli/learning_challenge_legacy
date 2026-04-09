@@ -31,15 +31,19 @@ serve(async (req) => {
       Deno.env.get('DB_SERVICE_KEY')!,
     );
 
-    // Idempotency guard — only update if still submitted
-    const { error: screeningError } = await supabase
-      .from('applications')
-      .update({ screening_status: 'screening' })
-      .eq('id', application.id)
-      .eq('screening_status', 'submitted');
+    const { data: advanced, error: advanceError } = await supabase
+      .rpc('advance_status', {
+        p_id: application.id,
+        p_expected_status: 'submitted',
+        p_new_status: 'screening',
+      });
 
-    if (screeningError) {
-      throw new Error(`Failed to set screening: ${screeningError.message}`);
+    if (advanceError) {
+      throw new Error(`advance_status error: ${advanceError.message}`);
+    }
+    if (!advanced) {
+      console.log(`[SKIP] ${application.id} — already claimed`);
+      return new Response('Already processing', { status: 200 });
     }
 
     // Call Claude
