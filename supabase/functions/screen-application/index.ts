@@ -1,4 +1,4 @@
-// OWNER: submitted -> screening -> video_pending transition
+// OWNER: submitted -> screening -> declaration_pending transition
 // Triggered by: Supabase database webhook on applications INSERT
 // Does NOT handle deadline removal — that is owned by daily-scheduler
 
@@ -80,12 +80,12 @@ serve(async (req) => {
     console.log(`[SCREEN] ${application.id}: ${decision}`);
 
     // next stage per config.STAGES.screening.next
-    const newStatus = decision === 'accepted' ? 'video_pending'
+    const newStatus = decision === 'accepted' ? 'declaration_pending'
       : decision === 'rejected' ? 'rejected'
       : 'flagged';
 
     const tokenData = decision === 'accepted'
-      ? generateToken(config.STAGES.video_pending.deadline_days)
+      ? generateToken(config.STAGES.declaration_pending.deadline_days)
       : null;
     const updatePayload: Record<string, unknown> = {
       screening_status: newStatus,
@@ -113,10 +113,10 @@ serve(async (req) => {
     }
 
     if (decision === 'accepted') {
-      const videoLink = `${config.BASE_URL}/video?token=${tokenData!.access_token}`;
+      const declareLink = `${config.BASE_URL}/declare?token=${tokenData!.access_token}`;
       const profileLink = `${config.BASE_URL}/profile?token=${profileToken}`;
-      await sendNotification('video_pending', application, {
-        link: videoLink,
+      await sendNotification('declaration_pending', application, {
+        link: declareLink,
         profile_link: profileLink,
       });
 
