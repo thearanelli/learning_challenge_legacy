@@ -12,9 +12,24 @@ import {
   buildScreenApplicationPrompt,
 } from '../_shared/prompts.ts';
 
+async function retryWithBackoff(fn: () => Promise<Response>, retries = 3): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    const res = await fn();
+    if (res.ok) return res;
+    const text = await res.clone().text();
+    const isOverloaded = text.includes('overloaded_error');
+    if (!isOverloaded || i === retries - 1) return res;
+    const delay = Math.pow(2, i) * 1000; // 1s, 2s, 4s
+    console.log(`[RETRY] Claude overloaded, retrying in ${delay}ms (attempt ${i + 1})`);
+    await new Promise(r => setTimeout(r, delay));
+  }
+  throw new Error('retryWithBackoff exhausted');
+}
+
 serve(async (req) => {
+  let payload: any;
   try {
-    const payload = await req.json();
+    payload = await req.json();
     const application = payload.record;
 
     if (!application?.id) {
@@ -47,7 +62,7 @@ serve(async (req) => {
     }
 
     // Call Claude
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+    const claudeRes = await retryWithBackoff(() => fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,12 +70,12 @@ serve(async (req) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         system: screenApplicationSystemPrompt,
         messages: [{ role: 'user', content: buildScreenApplicationPrompt(application) }],
       }),
-    });
+    }));
 
     if (!claudeRes.ok) {
       throw new Error(`Claude API error: ${await claudeRes.text()}`);
@@ -142,6 +157,15 @@ serve(async (req) => {
     );
 
   } catch (err) {
+    const supabaseForReset = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('DB_SERVICE_KEY')!,
+    );
+    await supabaseForReset
+      .from('applications')
+      .update({ screening_status: 'submitted' })
+      .eq('id', payload?.record?.id)
+      .eq('screening_status', 'screening'); // safety: only reset if still stuck
     console.error('[ERROR] screen-application:', err);
     return new Response(
       JSON.stringify({ error: err.message }),
