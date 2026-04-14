@@ -8,6 +8,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { config } from '../_shared/config.ts';
 
 serve(async (req) => {
   try {
@@ -18,7 +19,7 @@ serve(async (req) => {
       return new Response('No record in payload', { status: 400 });
     }
 
-    if (record.screening_status !== 'video_pending') {
+    if (record.screening_status !== config.STATUS.VIDEO_PENDING) {
       console.log(`[validate-video] SKIP — status is ${record.screening_status} for ${record.id}`);
       return new Response('Not video_pending status', { status: 200 });
     }
@@ -36,8 +37,8 @@ serve(async (req) => {
     const { data: advanced, error: advanceError } = await supabase
       .rpc('advance_status', {
         p_id: record.id,
-        p_expected_status: 'video_pending',
-        p_new_status: 'video_review',
+        p_expected_status: config.STATUS.VIDEO_PENDING,
+        p_new_status: config.STATUS.VIDEO_REVIEW,
       });
 
     if (advanceError) {

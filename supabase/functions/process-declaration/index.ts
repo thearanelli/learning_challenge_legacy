@@ -36,7 +36,7 @@ serve(async (req) => {
       throw new Error(`Failed to fetch application: ${fetchError?.message}`);
     }
 
-    if (application.screening_status !== 'declaration_pending') {
+    if (application.screening_status !== config.STATUS.DECLARATION_PENDING) {
       console.log(`[SKIP] ${application_id} is ${application.screening_status}`);
       return new Response('Not declaration_pending', { status: 200 });
     }
@@ -46,12 +46,12 @@ serve(async (req) => {
     const { error: updateError } = await supabase
       .from('applications')
       .update({
-        screening_status: 'video_pending',
+        screening_status: config.STATUS.VIDEO_PENDING,
         access_token: tokenData.access_token,
         stage_deadline_at: tokenData.stage_deadline_at,
       })
       .eq('id', application.id)
-      .eq('screening_status', 'declaration_pending');
+      .eq('screening_status', config.STATUS.DECLARATION_PENDING);
 
     if (updateError) {
       throw new Error(`Failed to update token: ${updateError.message}`);

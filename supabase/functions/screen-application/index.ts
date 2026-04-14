@@ -36,7 +36,7 @@ serve(async (req) => {
       return new Response('No application record in payload', { status: 400 });
     }
 
-    if (application.screening_status !== 'submitted') {
+    if (application.screening_status !== config.STATUS.SUBMITTED) {
       console.log(`[SKIP] ${application.id} is ${application.screening_status}`);
       return new Response('Not submitted status', { status: 200 });
     }
@@ -49,8 +49,8 @@ serve(async (req) => {
     const { data: advanced, error: advanceError } = await supabase
       .rpc('advance_status', {
         p_id: application.id,
-        p_expected_status: 'submitted',
-        p_new_status: 'screening',
+        p_expected_status: config.STATUS.SUBMITTED,
+        p_new_status: config.STATUS.SCREENING,
       });
 
     if (advanceError) {
@@ -99,9 +99,9 @@ serve(async (req) => {
     console.log(`[SCREEN] ${application.id}: ${decision}`);
 
     // next stage per config.STAGES.screening.next
-    const newStatus = decision === 'accepted' ? 'declaration_pending'
-      : decision === 'rejected' ? 'rejected'
-      : 'flagged';
+    const newStatus = decision === 'accepted' ? config.STATUS.DECLARATION_PENDING
+      : decision === 'rejected' ? config.STATUS.REJECTED
+      : config.STATUS.FLAGGED;
 
     const tokenData = decision === 'accepted'
       ? generateToken(config.STAGES.declaration_pending.deadline_days)
@@ -134,17 +134,17 @@ serve(async (req) => {
     if (decision === 'accepted') {
       const declareLink = `${config.BASE_URL}/declare?token=${tokenData!.access_token}`;
       const profileLink = `${config.BASE_URL}/profile?token=${profileToken}`;
-      await sendNotification('declaration_pending', application, {
+      await sendNotification(config.STATUS.DECLARATION_PENDING, application, {
         link: declareLink,
         profile_link: profileLink,
       });
 
     } else if (decision === 'rejected') {
-      await sendNotification('rejected', application);
+      await sendNotification(config.STATUS.REJECTED, application);
 
     } else {
       // Flagged — notify staff only, no email to youth
-      await sendStaffNotification('flagged', {
+      await sendStaffNotification(config.STATUS.FLAGGED, {
         first_name: application.first_name,
         last_name: application.last_name,
         reasoning,
@@ -163,9 +163,9 @@ serve(async (req) => {
     );
     await supabaseForReset
       .from('applications')
-      .update({ screening_status: 'submitted' })
+      .update({ screening_status: config.STATUS.SUBMITTED })
       .eq('id', payload?.record?.id)
-      .eq('screening_status', 'screening'); // safety: only reset if still stuck
+      .eq('screening_status', config.STATUS.SCREENING); // safety: only reset if still stuck
     console.error('[ERROR] screen-application:', err);
     return new Response(
       JSON.stringify({ error: err.message }),
