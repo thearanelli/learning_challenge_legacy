@@ -180,3 +180,80 @@ create policy "service role full access" on champions
 
 create policy "service role full access" on youth
   to service_role using (true) with check (true);
+
+-- Drop old 3-arg signature if it exists (replaced by 5-arg version below)
+drop function if exists advance_status(uuid, text, text);
+
+-- advance_status: the ONLY permitted way to move a record's status forward.
+-- Raises StatusConflictError if the record is not in expected_current_status.
+-- table_name must be one of: applications, champions, youth.
+-- applications uses screening_status; all other tables use status.
+
+-- Ensure updated_at exists on tables managed by advance_status
+alter table applications add column if not exists updated_at timestamptz;
+alter table youth       add column if not exists updated_at timestamptz;
+
+create or replace function advance_status(
+  record_id               uuid,
+  table_name              text,
+  expected_current_status text,
+  next_status             text,
+  additional_fields       jsonb default '{}'
+) returns jsonb
+language plpgsql
+security definer
+as $$
+declare
+  status_col  text;
+  cur_status  text;
+  set_clause  text;
+  pair        record;
+  result      jsonb;
+begin
+  -- Whitelist table names to prevent SQL injection
+  if table_name not in ('applications', 'champions', 'youth') then
+    raise exception 'advance_status: unknown table "%"', table_name;
+  end if;
+
+  -- applications uses screening_status; all other tables use status
+  if table_name = 'applications' then
+    status_col := 'screening_status';
+  else
+    status_col := 'status';
+  end if;
+
+  -- Read and lock the row
+  execute format('select %I from %I where id = $1 for update', status_col, table_name)
+    into cur_status
+    using record_id;
+
+  if cur_status is null then
+    raise exception 'advance_status: record not found — id % in table %', record_id, table_name;
+  end if;
+
+  if cur_status <> expected_current_status then
+    raise exception 'StatusConflictError: expected % but found % for id %',
+      expected_current_status, cur_status, record_id;
+  end if;
+
+  -- Base SET clause: always update status and updated_at
+  set_clause := format('%I = $1, updated_at = now()', status_col);
+
+  -- Append additional_fields to SET clause
+  for pair in select key, value from jsonb_each_text(additional_fields) loop
+    set_clause := set_clause || format(', %I = %L', pair.key, pair.value);
+  end loop;
+
+  -- Execute update and return the updated row as jsonb
+  execute format(
+    'update %I set %s where id = $2 returning to_jsonb(%I.*)',
+    table_name, set_clause, table_name
+  ) into result
+    using next_status, record_id;
+
+  return result;
+end;
+$$;
+
+-- RLS policy for advance_status function
+grant execute on function advance_status to service_role;

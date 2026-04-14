@@ -43,18 +43,27 @@ serve(async (req) => {
 
     const tokenData = generateToken(config.STAGES.video_pending.deadline_days);
 
-    const { error: updateError } = await supabase
-      .from('applications')
-      .update({
-        screening_status: config.STATUS.VIDEO_PENDING,
+    // advance_status: declaration_pending -> video_pending
+    const { error: updateError } = await supabase.rpc('advance_status', {
+      record_id: application.id,
+      table_name: 'applications',
+      expected_current_status: config.STATUS.DECLARATION_PENDING,
+      next_status: config.STATUS.VIDEO_PENDING,
+      additional_fields: {
         access_token: tokenData.access_token,
         stage_deadline_at: tokenData.stage_deadline_at,
-      })
-      .eq('id', application.id)
-      .eq('screening_status', config.STATUS.DECLARATION_PENDING);
+      },
+    });
 
     if (updateError) {
-      throw new Error(`Failed to update token: ${updateError.message}`);
+      if (updateError.message?.includes('StatusConflictError')) {
+        console.log(`[process-declaration] StatusConflictError for ${application_id} — already processed`);
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 200,
+        });
+      }
+      throw new Error(`advance_status error: ${updateError.message}`);
     }
 
     const videoLink = `${config.BASE_URL}/video?token=${tokenData.access_token}`;

@@ -48,9 +48,10 @@ serve(async (req) => {
 
     const { data: advanced, error: advanceError } = await supabase
       .rpc('advance_status', {
-        p_id: application.id,
-        p_expected_status: config.STATUS.SUBMITTED,
-        p_new_status: config.STATUS.SCREENING,
+        record_id: application.id,
+        table_name: 'applications',
+        expected_current_status: config.STATUS.SUBMITTED,
+        next_status: config.STATUS.SCREENING,
       });
 
     if (advanceError) {
@@ -106,29 +107,33 @@ serve(async (req) => {
     const tokenData = decision === 'accepted'
       ? generateToken(config.STAGES.declaration_pending.deadline_days)
       : null;
-    const updatePayload: Record<string, unknown> = {
-      screening_status: newStatus,
+
+    const additionalFields: Record<string, unknown> = {
       ai_decision: decision,
       ai_reasoning: reasoning,
       failed_criteria: failed_criteria ?? null,
     };
     let profileToken: string | undefined;
     if (tokenData) {
-      updatePayload.access_token = tokenData.access_token;
-      updatePayload.stage_deadline_at = tokenData.stage_deadline_at;
+      additionalFields.access_token = tokenData.access_token;
+      additionalFields.stage_deadline_at = tokenData.stage_deadline_at;
     }
     if (decision === 'accepted') {
       profileToken = crypto.randomUUID();
-      updatePayload.profile_token = profileToken;
+      additionalFields.profile_token = profileToken;
     }
 
-    const { error: updateError } = await supabase
-      .from('applications')
-      .update(updatePayload)
-      .eq('id', application.id);
+    // advance_status: screening -> declaration_pending | rejected | flagged
+    const { error: updateError } = await supabase.rpc('advance_status', {
+      record_id: application.id,
+      table_name: 'applications',
+      expected_current_status: config.STATUS.SCREENING,
+      next_status: newStatus,
+      additional_fields: additionalFields,
+    });
 
     if (updateError) {
-      throw new Error(`Failed to update application: ${updateError.message}`);
+      throw new Error(`advance_status (screening → final) error: ${updateError.message}`);
     }
 
     if (decision === 'accepted') {

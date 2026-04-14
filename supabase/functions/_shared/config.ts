@@ -26,6 +26,7 @@ export const config = {
     final_video_pending:  { next: 'showcase_invited',     deadline_days: 14,   nudge_day: 5,    auto_remove: false },
     showcase_invited:     { next: 'completed',            deadline_days: null, nudge_day: null, auto_remove: false },
   },
+  STAFF_EMAIL: Deno.env.get('STAFF_EMAIL') ?? '',
   STATUS: {
     SUBMITTED:             'submitted',
     SCREENING:             'screening',

@@ -36,9 +36,10 @@ serve(async (req) => {
 
     const { data: advanced, error: advanceError } = await supabase
       .rpc('advance_status', {
-        p_id: record.id,
-        p_expected_status: config.STATUS.VIDEO_PENDING,
-        p_new_status: config.STATUS.VIDEO_REVIEW,
+        record_id: record.id,
+        table_name: 'applications',
+        expected_current_status: config.STATUS.VIDEO_PENDING,
+        next_status: config.STATUS.VIDEO_REVIEW,
       });
 
     if (advanceError) {

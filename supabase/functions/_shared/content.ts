@@ -49,6 +49,15 @@ export const content = {
     sms: 'Hi {{first_name}}, your video is confirmed! You are officially in GripTape. Stay tuned for next steps.',
   },
 
+  mentor_pending: {
+    email_subject: 'Placeholder — replace before launch',
+    email_body: 'Placeholder — replace before launch. Variables available: {{youth_first_name}}, {{champion_first_name}}, {{champion_name}}, {{deadline_date}}, {{program_name}}',
+    nudge_email_subject: 'Placeholder — replace before launch',
+    nudge_email_body: 'Placeholder — replace before launch',
+    removal_email_subject: 'Placeholder — replace before launch',
+    removal_email_body: 'Placeholder — replace before launch',
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",
