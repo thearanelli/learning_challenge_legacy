@@ -163,3 +163,20 @@ values
   ('00000000-0000-0000-0000-000000000001', 'Aaliyah', 'Johnson', 'aaliyah.johnson@example.com', '212-555-0104', 'I am a certified personal trainer and wellness coach based in Crown Heights who works primarily with young people on building sustainable fitness habits. I played college basketball and now run a community fitness program on weekends. I can mentor on sports performance, wellness routines, and using athletics as a platform for leadership.', 2, true, 0),
   ('00000000-0000-0000-0000-000000000001', 'Carlos', 'Mendez', 'carlos.mendez@example.com', '212-555-0105', 'I am a chef and food entrepreneur from the Bronx who started my first pop-up at 19 and now run a catering business focused on Latin cuisine. I am passionate about food as culture, community, and a path to economic independence. I can mentor on culinary skills, starting a food business, and building something from nothing.', 2, true, 0)
 on conflict (email) do nothing;
+
+-- RLS: enable on all tables and grant service role full access
+-- Public and anonymous roles have no access to any table
+-- All Edge Functions use SUPABASE_SERVICE_KEY (service role)
+
+alter table applications enable row level security;
+alter table champions enable row level security;
+alter table youth enable row level security;
+
+create policy "service role full access" on applications
+  to service_role using (true) with check (true);
+
+create policy "service role full access" on champions
+  to service_role using (true) with check (true);
+
+create policy "service role full access" on youth
+  to service_role using (true) with check (true);
