@@ -1,16 +1,13 @@
-// OWNER: video_pending -> accepted | rejected transition
+// OWNER: video_pending -> video_review transition
 // Triggered by: Supabase database webhook on UPDATE to applications table
-// next stage per config.STAGES.video_pending.next
 //
-// Policy: one chance only.
-//   valid video   -> accepted
-//   invalid video -> rejected
+// Policy: confirm video_url is present, advance status to video_review,
+// write video_submitted_at. Stops here — staff approves via pending_videos view.
 // Idempotency: advance_status() RPC ensures only one invocation
 // proceeds per transition. All others skip cleanly.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendNotification } from '../_shared/dispatcher.ts';
 
 serve(async (req) => {
   try {
@@ -51,39 +48,16 @@ serve(async (req) => {
       return new Response('Already processing', { status: 200 });
     }
 
-    const oEmbedRes = await fetch(
-      `https://www.youtube.com/oembed?url=${encodeURIComponent(record.video_url)}&format=json`
-    );
+    const { error: updateError } = await supabase
+      .from('applications')
+      .update({ video_submitted_at: new Date().toISOString() })
+      .eq('id', record.id);
 
-    if (oEmbedRes.ok) {
-      // Valid video — accept
-      await supabase
-        .from('applications')
-        .update({
-          screening_status: 'accepted',
-          access_token: null,
-          stage_deadline_at: null,
-        })
-        .eq('id', record.id);
-
-      console.log('[validate-video] accepted:', record.id);
-      await sendNotification('video_accepted', record);
-
-    } else {
-      // Invalid video — reject immediately, one chance only
-      await supabase
-        .from('applications')
-        .update({
-          screening_status: 'rejected',
-          access_token: null,
-          stage_deadline_at: null,
-        })
-        .eq('id', record.id);
-
-      console.log('[validate-video] rejected — invalid video:', record.id);
-      await sendNotification('rejected', record);
+    if (updateError) {
+      throw new Error(`video_submitted_at update error: ${updateError.message}`);
     }
 
+    console.log('[validate-video] advanced to video_review:', record.id);
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
       status: 200,

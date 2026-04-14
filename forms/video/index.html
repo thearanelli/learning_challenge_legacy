@@ -81,8 +81,26 @@
       const status = document.getElementById('status');
 
       btn.disabled = true;
-      status.textContent = 'Validating your video…';
+      status.textContent = '';
       status.className = '';
+
+      // oEmbed check — copy source: _shared/content.ts forms.video_oembed_error
+      try {
+        const oEmbedRes = await fetch(
+          `https://www.youtube.com/oembed?url=${encodeURIComponent(video_url)}&format=json`
+        );
+        if (!oEmbedRes.ok) {
+          status.textContent = "That doesn't appear to be a public YouTube video. Please check the link and try again.";
+          status.className = 'error';
+          btn.disabled = false;
+          return;
+        }
+      } catch {
+        status.textContent = "That doesn't appear to be a public YouTube video. Please check the link and try again.";
+        status.className = 'error';
+        btn.disabled = false;
+        return;
+      }
 
       try {
         const res = await fetch('/api/video-submit', {
@@ -96,10 +114,6 @@
           document.getElementById('video-form').style.display = 'none';
           status.textContent = "You're all set! We'll be in touch soon.";
           status.className = 'success';
-        } else if (data.error === 'invalid_video') {
-          status.textContent = "That doesn't look like a valid YouTube video. Please check the link and try again.";
-          status.className = 'error';
-          btn.disabled = false;
         } else {
           status.textContent = 'Something went wrong. Please try again.';
           status.className = 'error';

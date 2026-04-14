@@ -48,6 +48,11 @@ export const content = {
       <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
     sms: 'Hi {{first_name}}, your video is confirmed! You are officially in GripTape. Stay tuned for next steps.',
   },
+
+  // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
+  forms: {
+    video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",
+  },
 };
 
 export function renderContent(template: string, vars: Record<string, string>): string {
