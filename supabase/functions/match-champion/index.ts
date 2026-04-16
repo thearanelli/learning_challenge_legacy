@@ -5,8 +5,13 @@
 // URL:       https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/match-champion
 //
 // Fires on every INSERT to youth. Matches youth with the best available
-// champion using Claude AI, advances status to mentor_pending, and sends
-// a group intro email to both youth and champion.
+// champion using Claude AI, advances status to mentor_pending, and
+// increments the champion's active_youth_count.
+//
+// The intro email is NOT sent here. The onboarding → mentor_pending status
+// transition triggers the on_youth_mentor_pending webhook which calls
+// send-champion-intro to send it. This means the same email path fires for
+// both automated matching and manual staff assignment.
 //
 // Idempotency: advance_status() raises StatusConflictError if youth is
 // not in 'onboarding' — subsequent invocations skip cleanly.
@@ -18,7 +23,6 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
 import { sendEmail } from '../_shared/email.ts';
-import { content, renderContent } from '../_shared/content.ts';
 import { systemPrompt, buildUserPrompt } from '../../../prompts/matchChampion.ts';
 
 // next stage: config.STAGES.onboarding.next = 'mentor_pending'
@@ -87,10 +91,20 @@ serve(async (req) => {
       console.log(`[match-champion] No champions available for youth ${youth.id}`);
       await sendStaffAlert(
         `Action needed: no champions available for ${youth.first_name} ${youth.last_name}`,
-        `No champions are currently available for matching.\n\n` +
-        `Youth: ${youth.first_name} ${youth.last_name} (${youth.email})\n\n` +
+        `No champions are currently available for matching. Manual assignment required.\n\n` +
+        `Youth: ${youth.first_name} ${youth.last_name} (${youth.email})\n` +
+        `Youth ID: ${youth.id}\n\n` +
         `Passion: ${responses.passion ?? '(not provided)'}\n\n` +
-        `Why join: ${responses.why_join ?? '(not provided)'}`,
+        `Why join: ${responses.why_join ?? '(not provided)'}\n\n` +
+        `Once you have chosen a champion, run the following SQL in Supabase → SQL Editor:\n\n` +
+        `UPDATE youth\n` +
+        `SET champion_id      = '&lt;champion_id&gt;',\n` +
+        `    status           = 'mentor_pending',\n` +
+        `    access_token     = gen_random_uuid(),\n` +
+        `    token_expires_at = now() + interval '16 days'\n` +
+        `WHERE id = '${youth.id}'\n` +
+        `  AND status = 'onboarding';\n\n` +
+        `This will trigger the send-champion-intro webhook and send the intro email automatically.`,
       );
       return new Response(JSON.stringify({ no_champions: true }), {
         headers: { 'Content-Type': 'application/json' },
@@ -195,30 +209,8 @@ serve(async (req) => {
       .update({ active_youth_count: selectedChampion.active_youth_count + 1 })
       .eq('id', selectedChampion.id);
 
-    // Step 6 — Group intro email to youth and champion
-    const deadlineDate = new Date(Date.now() + deadlineDays * 86400000).toLocaleDateString(
-      'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-    );
-
-    const mentorBlock = content.mentor_pending as Record<string, string>;
-    await sendEmail({
-      to: [youth.email, selectedChampion.email],
-      subject: renderContent(mentorBlock.email_subject, {
-        youth_first_name:    youth.first_name,
-        champion_first_name: selectedChampion.first_name,
-        champion_name:       `${selectedChampion.first_name} ${selectedChampion.last_name}`,
-        deadline_date:       deadlineDate,
-        program_name:        'GripTape Learning Challenge',
-      }),
-      html: renderContent(mentorBlock.email_body, {
-        youth_first_name:    youth.first_name,
-        champion_first_name: selectedChampion.first_name,
-        champion_name:       `${selectedChampion.first_name} ${selectedChampion.last_name}`,
-        deadline_date:       deadlineDate,
-        program_name:        'GripTape Learning Challenge',
-      }),
-    });
-
+    // Intro email is handled by send-champion-intro, triggered by the
+    // on_youth_mentor_pending DB webhook on the onboarding → mentor_pending transition.
     console.log(
       `[match-champion] youth ${youth.id} matched to champion ${selectedChampion.id}, status → ${NEXT_STATUS}`,
     );

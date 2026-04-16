@@ -59,7 +59,37 @@ Every webhook posts the full row payload to its Edge Function URL.
 | Function | match-champion                                                  |
 | URL      | https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/match-champion |
 
-**What it does:** Fires when a new youth row is inserted (by on-acceptance). Uses Claude AI to match the youth with the best available champion based on passion alignment. Advances youth status onboarding → mentor_pending. Increments champion's `active_youth_count`. Sends a group intro email to both youth and champion. Idempotent via `advance_status()` StatusConflictError guard.
+**What it does:** Fires when a new youth row is inserted (by on-acceptance). Uses Claude AI to match the youth with the best available champion based on passion alignment. Advances youth status onboarding → mentor_pending. Increments champion's `active_youth_count`. Idempotent via `advance_status()` StatusConflictError guard. Does **not** send the intro email — that is handled by `on_youth_mentor_pending` below.
+
+---
+
+## on_youth_mentor_pending
+
+| Field     | Value                                                                        |
+|-----------|------------------------------------------------------------------------------|
+| Name      | on_youth_mentor_pending                                                      |
+| Table     | public.youth                                                                 |
+| Event     | UPDATE                                                                       |
+| Condition | `OLD.status = 'onboarding' AND NEW.status = 'mentor_pending'`               |
+| Function  | send-champion-intro                                                          |
+| URL       | https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/send-champion-intro   |
+
+**What it does:** Fires whenever a youth transitions from `onboarding` → `mentor_pending`, regardless of how that transition happens. Loads the youth and champion records and sends the group intro email to both. This is the single canonical trigger for the intro email and covers two paths:
+
+- **Automated path:** `advance_status()` in match-champion sets status → triggers this webhook
+- **Manual staff path:** Staff runs the following SQL after choosing a champion manually:
+
+```sql
+UPDATE youth
+SET champion_id      = '<champion_id>',
+    status           = 'mentor_pending',
+    access_token     = gen_random_uuid(),
+    token_expires_at = now() + interval '16 days'
+WHERE id = '<youth_id>'
+  AND status = 'onboarding';
+```
+
+This UPDATE triggers the webhook automatically — no additional action needed to send the intro email.
 
 ---
 
