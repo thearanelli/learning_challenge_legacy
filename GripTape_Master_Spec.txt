@@ -1,10 +1,10 @@
 ================================================================================
->GRIPTAPE> LEARNING CHALLENGE
+GRIPTAPE LEARNING CHALLENGE
 YOUTH DRIVING LEARNING
 
 Full System Spec — MVP
 Tech Spec + Architecture + Build Plan
-Last updated: April 2026 (rev 10 — Builder Profile added)
+Last updated: April 16, 2026
 ================================================================================
 
 This is the single document that governs building the GripTape Learning
@@ -25,7 +25,7 @@ PART 1 — WHAT WE ARE BUILDING
 
 GripTape runs a passion-based learning program for NYC teenagers ages 15-19.
 Youth apply, get accepted, receive a $250 learning stipend, get matched with
-a mentor (Champion), meet with them bi-weekly over 8 weeks, and present their
+a mentor (Champion), meet with them bi-weekly over 10 weeks, and present their
 work at a Grand Showcase event.
 
 This platform automates the entire journey — from application screening to
@@ -74,177 +74,140 @@ What happens:
   Youth fills out the chat-style application form on the GripTape website.
 
 What they submit:
-  Name, age, borough/neighborhood, school, passion (40+ words required),
+  Name, age, address, school, passion (40+ words required),
   why they want to join, email and phone number.
 
 AI check:
-  Claude checks three criteria:
-    1. Age is 15-19
-    2. Location is an NYC borough or New Jersey
-    3. Passion answer is real and specific (not gibberish)
+  Claude screens for: age 15-19, NYC/NJ location, passion length,
+  genuine interest vs spam. Returns accepted / rejected / flagged.
 
-If all pass:
-  Status -> declaration_pending.
-  profile_token generated and stored.
-  access_token generated with 60-day expiry.
-  Email + SMS sent with declare link + profile link.
+If accepted:
+  screening_status -> declaration_pending.
+  Youth receives email + SMS with magic link to declaration form.
+  10-day deadline.
 
-If any fail:
-  Status -> rejected.
-  Kind rejection email + SMS sent immediately.
+If rejected:
+  screening_status -> rejected. Kind rejection email sent.
 
-If unclear:
-  Status -> flagged.
-  No message to youth.
-  Staff notified via SMS immediately.
+If flagged:
+  screening_status -> flagged. Staff notified via email. No email to youth.
+  Staff manually reviews and sets status.
 
 Tech:
-  Existing HTML/JS form on Vercel.
-  Submits to /api/submit.
-  Writes to Supabase. Supabase webhook syncs to Airtable.
+  HTML/JS form on Vercel — live at learning-challenge-legacy.vercel.app
+  Submits to /api/submit (Vercel serverless function).
+  Writes to Supabase applications table. Supabase is source of truth.
+  Airtable sync is a separate job.
+  Supabase DB webhook on INSERT to applications fires screen-application
+  Edge Function.
+
+NOTE: The stage between screening acceptance and video submission is
+  declaration_pending — youth must complete a declaration/profile form
+  before receiving their video submission link. This is an intermediate
+  step not described in the original spec; it was added during build.
 
 
-===============================================
-STAGE 1B — DECLARATION  [LIVE]
-===============================================
+================================
+STAGE 2 — DECLARATION  [LIVE]
+================================
 
 What happens:
-  Accepted applicant receives email with link to the declaration form.
-  Form shows program overview: what GripTape offers, mentor matching,
-  funding, past builder examples. Youth clicks "I'm in — start my
-  10 days" to declare intent and commit to the program.
+  Accepted youth complete a declaration form via their magic link.
+  This confirms their commitment and collects any remaining profile info.
 
-What it does:
-  declare-submit.js validates token, nulls access_token and
-  stage_deadline_at. Calls process-declaration Edge Function directly.
-  process-declaration fetches record, advances status to video_pending,
-  generates 10-day video token, sends declaration_confirmed email + SMS
-  with video submission link and profile link.
-
-No deadline on declaration — token expires after 60 days.
-auto_remove: false — missed declaration is a staff decision, not
-automatic removal.
-
-NOTE: For production, video link send moves to daily-scheduler to
-fire on day 7 instead of immediately. Currently sends immediately
-for testing.
+If completed:
+  screening_status -> video_pending.
+  Youth receives email + SMS with magic link to video submission form.
+  10-day deadline.
 
 Tech:
-  forms/declare/index.html — token-gated reveal + declaration page
-  api/check-declare-token.js — validates declaration_pending token
-  api/declare-submit.js — thin route, direct invocation pattern
-  supabase/functions/process-declaration/ — direct invocation pattern
-
-
-=============================================
-BUILDER PROFILE PAGE  [LIVE]
-=============================================
-
-Every accepted applicant gets a personal profile page at:
-  BASE_URL/profile?token=[profile_token]
-
-profile_token never expires and is read-only — gates display only,
-never submission. Page is designed to be shared with friends and family.
-
-The page renders a trading card generated by Claude from the youth's
-passion and why_join answers. Card includes: archetype (one of 8 defined
-types), archetype color, passion title, archetype description (4-5
-sentences), badge emoji.
-
-The card falls back to a simple layout if Claude generation fails.
-Profile page never breaks regardless of card generation outcome.
-
-The profile page is the youth's hub throughout the program. As they
-progress, locked sections (Declaration, First Drop, Champion) will
-surface links to the relevant submission forms. Submissions always
-happen on dedicated form pages — the profile page is display only.
-
-Archetype set (Claude picks best fit from application answers):
-  The Builder   #C8F135    The Narrator  #7B2FFF
-  The Sonic     #38CFFF    The Visionary #FF5C5C
-  The Maker     #FFB840    The Activist  #FF6B6B
-  The Connector #A8D020    The Pioneer   #9B5FFF
-
-Tech:
-  profile/index.html — trading card display page
-  api/profile.js — fetches data from Supabase, calls Claude for card,
-                   returns { found, data, card }
+  forms/declare/ — token-gated via magic link from acceptance email.
+  api/declare-submit.js — direct invocation of process-declaration
+  Edge Function (not webhook-triggered).
+  process-declaration advances status and sends video link.
 
 
 ================================================
-STAGE 2 — INTRO VIDEO SUBMISSION  [BUILD NEXT]
+STAGE 3 — INTRO VIDEO SUBMISSION  [LIVE]
 ================================================
 
 What happens:
-  Youth submits a YouTube link via their magic link form.
+  Youth submits a YouTube link to a short intro video about themselves
+  and their passion.
 
 Deadline:
-  10 days from acceptance message.
-  Nudge SMS sent at day 7 if no submission.
-
-If deadline missed:
-  Status -> removed. Youth notified by email + SMS.
+  10 days from declaration confirmation email.
 
 AI check:
-  Claude verifies the YouTube link is real, public, and watchable.
-  Uses YouTube oEmbed API to confirm.
+  validate-video confirms video_url is present and advances status to
+  video_review. Staff then manually reviews video in Supabase.
+  (Full oEmbed validation is a future enhancement.)
 
-If video valid:
-  Status -> onboarding.
-  Confirmation email + SMS sent. Champion matching begins.
+If video submitted:
+  screening_status -> video_review. Staff reviews manually.
 
-If video invalid:
-  Status -> rejected. Youth notified. One chance to resubmit in 48 hours.
+If staff accepts:
+  Staff sets screening_status -> accepted on the applications table.
+  on-acceptance Edge Function fires, creates youth row.
+  match-champion fires on youth INSERT.
 
 Tech:
-  forms/video/ — simple form, token-gated via magic link.
-  Supabase Edge Function on row update.
-  YouTube oEmbed API (free, no key required).
+  forms/video/ — token-gated via magic link.
+  Supabase DB webhook on UPDATE to applications fires validate-video.
+  validate-video advances status to video_review via advance_status().
+  on-acceptance fires on UPDATE when screening_status = 'accepted'.
 
 
 ====================================================
-STAGE 3 — CHAMPION MATCHING & MEETING  [BUILD NEXT]
+STAGE 4 — CHAMPION MATCHING & MEETING  [LIVE]
 ====================================================
 
 What happens:
   System finds an available Champion and matches them to the youth.
 
-Matching logic:
-  Query champions where availability = true and
-  active_youth_count < max_youth. Pass available Champions' bios
-  and youth's passion description to Claude. Claude picks the
-  best soft match. If no Champions available, staff is alerted.
+Automated path:
+  match-champion fires on INSERT to youth table.
+  Queries champions where available = true and
+  active_youth_count < max_youth.
+  Passes available Champions' bios + youth's passion to Claude.
+  Claude picks best soft match.
+  advance_status() moves youth onboarding -> mentor_pending,
+  sets champion_id + access_token + token_expires_at.
+  send-champion-intro fires via webhook, sends group intro email to
+  both youth and Champion.
 
-Notifications:
-  Introduction email + SMS sent to both youth and Champion.
-  Includes each other's name, bio, and instructions to meet
-  within the deadline.
+No-champion path:
+  If no champions available: staff receives email alert with exact SQL
+  to manually assign a champion once one becomes available.
+  Staff runs the SQL (sets champion_id + status = mentor_pending).
+  send-champion-intro webhook fires automatically on status change.
+  Same intro email path — no special handling required.
+
+Webhook trigger for intro email:
+  Table: youth
+  Event: UPDATE
+  Condition: OLD.status = 'onboarding' AND NEW.status = 'mentor_pending'
+  Fires: send-champion-intro
 
 Meeting deadline:
-  Set in config.js (default: 14 days).
-  Youth submits meeting confirmation form by the deadline.
+  14 days. Set in config.js.
 
-Meeting form:
-  Confirms meeting happened.
-  Includes a short reflection from the youth.
-  Champion confirms via SMS reply (YES to confirm).
+If form submitted:
+  Status -> grant_pending. W9 + grant request forms sent to youth.
 
 If deadline missed:
   Status -> removed. Youth notified. Champion's active_youth_count
   decremented.
 
-If form submitted:
-  Status -> grant_pending. W9 + grant request forms sent to youth.
-
 Tech:
-  Supabase Edge Function (matching).
+  match-champion — Supabase Edge Function, fires on INSERT to youth.
+  send-champion-intro — Supabase Edge Function, fires on webhook
+    (status transition onboarding -> mentor_pending).
   forms/meeting/ — token-gated form for youth reflection.
-  Champion confirms via inbound SMS reply.
-  Resend (email). Twilio (SMS).
 
 
 ===============================================
-STAGE 4 — GRANT REQUEST (W9 + FUNDS)  [BUILD NEXT]
+STAGE 5 — GRANT REQUEST (W9 + FUNDS)  [FUTURE]
 ===============================================
 
 What happens:
@@ -252,7 +215,7 @@ What happens:
   can legally send the $250 learning stipend.
 
 Deadline:
-  Set in config.js (default: 14 days). Nudge at day 10.
+  14 days. Nudge at day 10. Set in config.js.
 
 If deadline missed:
   Status -> removed. Youth notified.
@@ -262,19 +225,21 @@ AI review:
   Flags any missing fields.
 
 Staff approval:
-  Staff receives SMS: AI review summary + approve/reject prompt.
-  Staff replies to approve. System triggers fund disbursement.
+  Staff receives email: AI review summary + approve/reject prompt.
+  Staff approves. System triggers fund disbursement.
   Status -> active.
 
 Tech:
   forms/grant/ — token-gated.
   Supabase Edge Function for AI review.
-  Twilio SMS to staff for approval.
   Payment method TBD (confirm with accountant before building).
+
+OPEN DECISION: Payment method for $250 stipend (check, ACH, Venmo, API?)
+OPEN DECISION: W9 storage compliance — confirm with accountant/lawyer.
 
 
 ==========================================
-STAGE 5 — ACTIVE PROGRAM (8 WEEKS)  [FUTURE]
+STAGE 6 — ACTIVE PROGRAM (10 WEEKS)  [FUTURE]
 ==========================================
 
 What happens:
@@ -284,14 +249,14 @@ Bi-weekly nudges:
   SMS sent to youth and Champion before each meeting week (2, 4, 6, 8).
 
 Meeting confirmation:
-  Same form as Stage 3. Youth confirms + submits reflection.
+  Same form as Stage 4. Youth confirms + submits reflection.
   If missed, staff is flagged. Youth is NOT auto-removed at this stage.
 
 Weekly emails:
   All active youth receive a weekly group email — project updates,
   motivational messages, program news. Staff drafts content. Resend sends.
 
-Week 8 trigger:
+Week 10 trigger:
   Email + SMS sent prompting youth to submit their final video.
 
 Tech:
@@ -300,24 +265,21 @@ Tech:
 
 
 =========================================
-STAGE 6 — FINAL VIDEO & SHOWCASE  [FUTURE]
+STAGE 7 — FINAL VIDEO & SHOWCASE  [FUTURE]
 =========================================
 
 What happens:
   Youth submits a final YouTube video showcasing their passion project.
 
 Deadline:
-  Set in config.js. Nudge SMS at day 5 if no submission.
-
-AI check:
-  Same as Stage 2 — real, public, watchable video.
+  Set in config.js. Nudge SMS at day 5. No auto-remove — staff decides.
 
 If valid:
   Status -> showcase_invited.
-  Congratulations email + SMS sent with Showcase event details + RSVP link.
+  Congratulations email + SMS with Showcase event details + RSVP link.
 
 If invalid or missed:
-  Staff flagged. No auto-remove. Staff decides next step.
+  Staff flagged. Staff decides next step.
 
 Showcase RSVP:
   forms/rsvp/ — simple form. Stored in event_rsvps table.
@@ -341,20 +303,23 @@ PART 2 — HOW IT IS BUILT
 2.1 THE STATUS FIELD
 --------------------------------------------------------------------------------
 
-Every youth record has a `status` text field. This is the heart of the system.
-All Edge Functions read and write it. Airtable mirrors it. Nothing moves
-without it.
+Applications use screening_status. Youth use status. These are separate
+plain-text fields — never Postgres enums.
 
-Valid status values (defined in config.js — not a database enum):
-
-  submitted           Application received, awaiting AI screening
-  screening           AI checking eligibility
-  declaration_pending Accepted, awaiting youth declaration. 60-day token.
-  video_pending       Awaiting intro video
-  video_review        Video submitted, AI checking
+APPLICATIONS — screening_status values:
+  submitted           Received, awaiting AI screening
+  screening           AI check in progress (claimed by advance_status)
+  declaration_pending Accepted by AI, awaiting declaration form
+  video_pending       Declaration complete, awaiting video submission
+  video_review        Video submitted, awaiting staff review
   rejected            Did not meet criteria. TERMINAL.
-  onboarding          Accepted, Champion matching in progress
-  mentor_pending      Matched, awaiting meeting confirmation
+  flagged             AI unclear — staff reviews manually. Not terminal.
+  accepted            Staff approved video. youth row created. TERMINAL
+                      for applications table.
+
+YOUTH — status values:
+  onboarding          Youth row created, champion matching in progress
+  mentor_pending      Matched with Champion, awaiting meeting confirmation
   grant_pending       Meeting confirmed, awaiting W9 + grant forms
   grant_review        Forms submitted, AI reviewed, awaiting staff approval
   active              Funded, in program, bi-weekly meetings
@@ -365,116 +330,341 @@ Valid status values (defined in config.js — not a database enum):
 
 RULES:
   - Status only moves forward. Never backward except via staff override.
-  - Terminal states: rejected, removed, completed. No automations fire
-    after the terminal notification is sent.
-  - Every status change writes a timestamp field for audit trail.
-  - Every status change triggers the Airtable sync webhook.
-  - Status values are treated as permanent. Never rename them.
-    Adding new values is fine. Renaming cascades everywhere.
+  - All status changes go through advance_status() RPC. No exceptions.
+  - advance_status() uses optimistic locking (FOR UPDATE). If status
+    doesn't match expected, raises StatusConflictError and aborts.
+  - Terminal states: rejected, removed, completed, accepted (applications).
+    No automations fire after terminal notification is sent.
+  - Status values are permanent. Never rename them. Adding new values fine.
 
 
 --------------------------------------------------------------------------------
-2.2 DATABASE SCHEMA
+2.2 ADVANCE_STATUS() — THE ONLY WAY TO CHANGE STATUS
 --------------------------------------------------------------------------------
 
-All tables have a program_id column. There is no programs table logic in
-the MVP — program config lives in config.js. The column exists so V2 can
-add multi-program support without a schema migration.
+advance_status() is a Postgres function (security definer) that:
+  1. Locks the row (FOR UPDATE)
+  2. Confirms current status matches expected
+  3. Updates status + updated_at + any additional_fields atomically
+  4. Raises StatusConflictError if status doesn't match — caller catches
+     and exits cleanly (idempotency)
 
-Column names are permanent. Adding new columns is easy and encouraged.
-Renaming columns cascades through Edge Functions, sync job, and Airtable.
-Get names right once.
+Signature:
+  advance_status(
+    record_id               uuid,
+    table_name              text,       -- 'applications' | 'youth' | 'champions'
+    expected_current_status text,
+    next_status             text,
+    additional_fields       jsonb       -- optional extra fields to set
+  ) returns jsonb
+
+Called via: supabase.rpc('advance_status', { ... })
+
+applications uses screening_status column.
+youth and champions use status column.
+Whitelisted tables only — prevents SQL injection.
+
+
+--------------------------------------------------------------------------------
+2.3 EDGE FUNCTIONS — BUILT AND DEPLOYED
+--------------------------------------------------------------------------------
+
+All Edge Functions run on Supabase Deno runtime.
+All import shared utilities from supabase/functions/_shared/.
+None hardcode API keys — all use Deno.env.get().
 
 --
 
-TABLE: applications
-  id                uuid, primary key
-  program_id        uuid
-  name              text
-  age               integer
-  email             text
-  phone             text
-  borough           text
-  school            text
-  passion           text
-  why_join          text
-  screening_status  text    'submitted' | 'screening' | 'declaration_pending' |
-                            'video_pending' | 'video_review' | 'rejected' |
-                            'onboarding' | 'mentor_pending' | 'grant_pending' |
-                            'grant_review' | 'active' | 'final_video_pending' |
-                            'showcase_invited' | 'completed' | 'removed' |
-                            'flagged' | 'generating_video_token'
-  status            text    'pending' | 'accepted' | 'rejected' | 'flagged'
-  ai_decision       text    'accepted' | 'rejected' | 'flagged'
-  ai_reasoning      text
-  failed_criteria   text
-  submitted_at      timestamptz
-  profile_token         text    read-only shareable token for profile page.
-                                Generated at acceptance. Never expires.
-                                Used to gate profile/index.html.
+FUNCTION: screen-application
+  Status: LIVE
+  Trigger: Supabase DB webhook on INSERT to applications
+           Name: on_application_insert
+  Flow:
+    1. Skips if screening_status != 'submitted'
+    2. advance_status(submitted -> screening) — claims the record
+    3. Calls Claude with screenApplicationSystemPrompt
+    4. Parses decision: accepted | rejected | flagged
+    5. advance_status(screening -> declaration_pending | rejected | flagged)
+       Sets access_token + stage_deadline_at on accepted records.
+       Sets profile_token on accepted records.
+    6. Sends notifications via dispatcher:
+       accepted  -> declaration_pending email + SMS with magic link
+       rejected  -> rejection email + SMS
+       flagged   -> staff email alert only (no youth notification)
+    7. On error: resets status back to 'submitted' so record can retry
 
-  NOTE: applications.status is only about screening outcome.
-  It does not mirror the youth's current program stage.
-  Once accepted, track progress in the youth table.
+  Idempotency: advance_status() StatusConflictError exits cleanly.
+  Retry logic: exponential backoff on Claude overloaded_error (3 attempts).
+
+--
+
+FUNCTION: process-declaration
+  Status: LIVE
+  Trigger: Direct HTTP call from api/declare-submit.js (NOT a webhook)
+           One call per declaration submit — no idempotency guard needed.
+  Flow:
+    1. Receives application_id in request body
+    2. Skips if screening_status != 'declaration_pending'
+    3. Generates video token via generateToken()
+    4. advance_status(declaration_pending -> video_pending)
+       Sets access_token + stage_deadline_at
+    5. Sends declaration_confirmed notification with video_link + profile_link
+
+  NOTE: Direct invocation (not webhook) is intentional. Ensures exactly
+  one execution per declaration. No race condition possible.
+
+--
+
+FUNCTION: validate-video
+  Status: LIVE
+  Trigger: Supabase DB webhook on UPDATE to applications
+           Name: on_video_url_submitted
+           Fires when video_url changes on a video_pending record
+  Flow:
+    1. Skips if screening_status != 'video_pending'
+    2. Skips if video_url is null
+    3. advance_status(video_pending -> video_review)
+    4. Writes video_submitted_at timestamp
+
+  NOTE: Does not do oEmbed validation. Advances to video_review for
+  staff manual review. oEmbed check is a future enhancement.
+  Staff then manually sets screening_status = 'accepted' in Supabase
+  to trigger on-acceptance.
+
+--
+
+FUNCTION: on-acceptance
+  Status: LIVE
+  Trigger: Supabase DB webhook on UPDATE to applications
+           Name: on_application_accepted
+           Fires on all UPDATEs — function checks screening_status internally
+  Flow:
+    1. Skips if screening_status != 'accepted'
+    2. Idempotency: skips if youth row already exists for this application_id
+    3. Creates youth row with status = 'onboarding', copying fields from
+       application: program_id, application_id, first_name, last_name,
+       email, phone, address, birthdate, first_drop_url (video_url)
+    4. Logs youth_id created
+
+  NOTE: Creating the youth row triggers match-champion automatically
+  via the INSERT webhook on the youth table.
+
+--
+
+FUNCTION: match-champion
+  Status: LIVE
+  Trigger: Supabase DB webhook on INSERT to youth
+           Name: on_youth_insert
+  Flow:
+    1. Loads full youth record + application (for passion + why_join)
+    2. Queries champions where available = true AND
+       active_youth_count < max_youth
+    3. If no champions available:
+       - Sends staff email alert with youth details + manual assignment SQL
+       - Returns 200, youth stays at 'onboarding'
+    4. Calls Claude with matchChampion prompt — returns champion_id + reasoning
+    5. advance_status(onboarding -> mentor_pending)
+       Sets champion_id, access_token, token_expires_at
+    6. Increments champion.active_youth_count
+    7. Does NOT send intro email — that is owned by send-champion-intro
+       (triggered by the status transition webhook)
+
+  Idempotency: advance_status() StatusConflictError exits cleanly.
+
+  No-champion manual resolution:
+    Staff receives SQL in the alert email:
+      UPDATE youth
+      SET champion_id = '<CHAMPION_ID>',
+          status = 'mentor_pending',
+          access_token = gen_random_uuid()::text,
+          token_expires_at = now() + interval '16 days',
+          updated_at = now()
+      WHERE id = '<YOUTH_ID>' AND status = 'onboarding';
+    This triggers the on_youth_mentor_pending webhook automatically.
+    No additional staff action required.
+
+--
+
+FUNCTION: send-champion-intro
+  Status: LIVE
+  Trigger: Supabase DB webhook on UPDATE to youth
+           Name: on_youth_mentor_pending
+           Condition: OLD.status = 'onboarding' AND NEW.status = 'mentor_pending'
+           Payload: { record: NEW, old_record: OLD }
+  Flow:
+    1. Reads youth_id from payload.record.id
+    2. Confirms record.status = 'mentor_pending' (guard against stale fires)
+    3. Confirms record.champion_id is not null
+    4. Loads champion record
+    5. Sends group intro email to youth + champion via sendEmail()
+       Uses content.mentor_pending block
+    6. Logs '[send-champion-intro] intro email sent for youth [id] -> champion [id]'
+
+  This is the SINGLE canonical trigger for the champion intro email.
+  Both the automated path (match-champion) and the manual staff path
+  (direct SQL update) flow through this function. No duplicate sends possible.
+
+  Does NOT call advance_status(). Status is already mentor_pending.
+  Does NOT increment active_youth_count. match-champion owns that.
+
+
+--------------------------------------------------------------------------------
+2.4 WEBHOOKS — CONFIGURED IN SUPABASE DASHBOARD
+--------------------------------------------------------------------------------
+
+All webhooks are configured manually in:
+Supabase Dashboard -> Database -> Webhooks
+
+All webhooks send Authorization: Bearer <SUPABASE_ANON_KEY> header.
+
+--
+
+NAME:     on_application_insert
+Table:    public.applications
+Event:    INSERT
+URL:      https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/screen-application
+Purpose:  Triggers AI screening on every new application submission.
+
+--
+
+NAME:     on_application_accepted
+Table:    public.applications
+Event:    UPDATE
+URL:      https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/on-acceptance
+Purpose:  Creates youth row when staff manually sets screening_status = 'accepted'.
+          Function checks screening_status internally and skips if not 'accepted'.
+
+--
+
+NAME:     on_video_url_submitted
+Table:    public.applications
+Event:    UPDATE
+URL:      https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/validate-video
+Purpose:  Fires when youth submits video URL. Advances to video_review.
+          Function checks screening_status and video_url internally.
+
+--
+
+NAME:     on_youth_insert
+Table:    public.youth
+Event:    INSERT
+URL:      https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/match-champion
+Purpose:  Triggers champion matching immediately when a youth row is created.
+
+--
+
+NAME:     on_youth_mentor_pending
+Table:    public.youth
+Event:    UPDATE
+URL:      https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/send-champion-intro
+Purpose:  Sends group intro email to youth + champion on status transition
+          onboarding -> mentor_pending. Fires for both automated and manual paths.
+          Function guards internally: skips if status != 'mentor_pending'
+          or champion_id is null.
+
+
+--------------------------------------------------------------------------------
+2.5 SHARED UTILITIES (_shared/)
+--------------------------------------------------------------------------------
+
+supabase/functions/_shared/ contains shared modules imported by all Edge Functions.
+
+  config.ts       Program config + stage definitions. Mirrors config.js for Deno.
+  content.ts      All copy organized by stage key. renderContent() helper.
+  dispatcher.ts   sendNotification() and sendStaffNotification() — routes to
+                  email.ts and/or sms.ts based on stage config.
+  email.ts        Resend wrapper. sendEmail({ to, subject, html }).
+  sms.ts          Twilio wrapper. sendSMS({ to, body }).
+  tokens.ts       generateToken(deadline_days) — returns { access_token,
+                  stage_deadline_at }. Token never expires on first use,
+                  only at stage deadline.
+  prompts.ts      All Claude AI prompts. One export per use case.
+
+RULES:
+  - Edge Functions import from _shared/. Never duplicate logic.
+  - Copy lives in content.ts only. Never in Edge Functions.
+  - All prompts live in prompts.ts. Never inline in Edge Functions.
+
+
+--------------------------------------------------------------------------------
+2.6 DATABASE SCHEMA (actual as built)
+--------------------------------------------------------------------------------
+
+TABLE: applications
+  id                  uuid, primary key, default uuid_generate_v4()
+  program_id          uuid
+  first_name          text not null
+  last_name           text not null
+  birthdate           text not null
+  address             text not null
+  email               text not null
+  phone               text not null
+  screening_status    text not null, default 'submitted'
+  ai_decision         text
+  ai_reasoning        text
+  failed_criteria     text
+  video_url           text
+  video_submitted_at  timestamptz
+  access_token        text
+  stage_deadline_at   timestamptz
+  profile_token       text
+  submitted_at        timestamptz not null, default now()
+  updated_at          timestamptz
+  application_responses jsonb not null, default '{}'
+
+  Indexes: screening_status, submitted_at desc, email
 
 --
 
 TABLE: youth
-  id                uuid, primary key
-  program_id        uuid
-  application_id    uuid, foreign key -> applications.id
-  name              text
-  email             text
-  phone             text
-  status            text        see valid values in section 2.1
-  current_week      integer     1-8, only relevant during 'active' stage
-  champion_id       uuid, foreign key -> champions.id
-  stipend_sent      boolean     default false
-  video_url         text        intro video YouTube link
-  final_video_url   text        final video YouTube link
-  access_token      text        current magic link token
-  token_expires_at  timestamptz token expires when stage deadline passes
-  accepted_at       timestamptz
-  completed_at      timestamptz
+  id                          uuid, primary key, default gen_random_uuid()
+  program_id                  uuid
+  application_id              uuid references applications(id)
+  first_name                  text not null
+  last_name                   text not null
+  email                       text not null
+  phone                       text not null
+  address                     text not null
+  birthdate                   text not null
+  status                      text not null, default 'onboarding'
+  current_week                integer
+  champion_id                 uuid  (no FK constraint — intentional for build stability)
+  access_token                text
+  token_expires_at            timestamptz
+  grant_sent                  boolean, default false
+  first_drop_url              text    (intro video URL, copied from application)
+  full_send_url               text    (final video URL)
+  accepted_at                 timestamptz, default now()
+  updated_at                  timestamptz
+  orientation_call_completed_at timestamptz
 
 --
 
 TABLE: champions
-  id                    uuid, primary key
-  program_id            uuid
-  name                  text
-  email                 text
-  phone                 text
-  bio                   text        used in introduction emails + soft AI match
-  availability          boolean     true = available for matching
-  active_youth_count    integer     current matched youth
-  max_youth             integer     capacity limit (set on registration)
-  registration_token    text        unique token for self-registration link
-  registered_at         timestamptz
-  created_at            timestamptz
-
---
-
-TABLE: meetings
-  id              uuid, primary key
-  program_id      uuid
-  youth_id        uuid, foreign key -> youth.id
-  champion_id     uuid, foreign key -> champions.id
-  meeting_week    integer
-  confirmed_at    timestamptz
-  reflection      text
-  submitted_at    timestamptz
+  id                  uuid, primary key, default gen_random_uuid()
+  program_id          uuid
+  first_name          text not null
+  last_name           text not null
+  email               text not null unique
+  phone               text not null
+  bio                 text
+  max_youth           integer not null
+  active_youth_count  integer, default 0
+  available           boolean, default true
+  registration_token  text
+  registered_at       timestamptz
+  created_at          timestamptz, default now()
 
 --
 
 TABLE: grant_requests
   id                uuid, primary key
   program_id        uuid
-  youth_id          uuid, foreign key -> youth.id
+  youth_id          uuid references youth(id)
   w9_url            text
   amount_requested  integer
   ai_review_notes   text
-  staff_approved    boolean     default false
+  staff_approved    boolean, default false
   staff_approved_at timestamptz
   funds_sent_at     timestamptz
 
@@ -483,7 +673,7 @@ TABLE: grant_requests
 TABLE: check_ins
   id              uuid, primary key
   program_id      uuid
-  youth_id        uuid, foreign key -> youth.id
+  youth_id        uuid references youth(id)
   week_number     integer
   prompt_sent_at  timestamptz
   nudge_sent_at   timestamptz
@@ -504,8 +694,8 @@ TABLE: events
 
 TABLE: event_rsvps
   id          uuid, primary key
-  youth_id    uuid, foreign key -> youth.id
-  event_id    uuid, foreign key -> events.id
+  youth_id    uuid references youth(id)
+  event_id    uuid references events(id)
   rsvped_at   timestamptz
   attending   boolean
 
@@ -538,704 +728,330 @@ TABLE: comms_log
 
 
 --------------------------------------------------------------------------------
-2.3 REPO FOLDER STRUCTURE
+2.7 REPO FOLDER STRUCTURE (actual as built)
 --------------------------------------------------------------------------------
 
-griptapeclaudeapp/
+learning_challenge_legacy/
 │
 ├── api/
-│   ├── submit.js               Application form -> Supabase + Airtable
-│   ├── sync-airtable.js        Supabase webhook -> Airtable sync
-│   ├── check-declare-token.js  Gates declare form. Valid: declaration_pending.
-│   ├── declare-submit.js       Nulls declaration token. Calls process-declaration
-│   │                           directly via fetch. Does NOT set screening_status.
-│   └── profile.js              Read-only profile data + Claude card generation.
-│                               Returns { found, data, card }.
+│   ├── submit.js               Application form -> Supabase
+│   ├── declare-submit.js       Declaration form -> process-declaration Edge Fn
+│   └── sync-airtable.js        Supabase webhook -> Airtable sync
 │
 ├── supabase/
 │   └── functions/
-│       ├── screen-application/ AI screens new application on insert
-│       ├── process-declaration/ Direct invocation pattern. Owned by declare-submit.
-│       │                        Advances declaration_pending -> video_pending.
-│       │                        Generates video token. Sends declaration_confirmed.
-│       ├── validate-video/     YouTube oEmbed check on video submission
-│       ├── match-champion/     AI matches youth to available Champion
-│       ├── review-grant/       AI reviews W9 + grant request
-│       └── daily-scheduler/   One job: deadlines, nudges, weekly check-ins
+│       ├── _shared/            Shared utilities (config, content, email, sms,
+│       │                       dispatcher, tokens, prompts)
+│       ├── screen-application/ AI screens new application on INSERT
+│       ├── process-declaration/ Advances declaration_pending -> video_pending
+│       ├── validate-video/     Advances video_pending -> video_review on submit
+│       ├── on-acceptance/      Creates youth row when staff accepts video
+│       ├── match-champion/     AI matches youth to Champion on youth INSERT
+│       └── send-champion-intro/ Sends intro email on onboarding->mentor_pending
 │
-├── lib/
-│   ├── email.js                Resend wrapper
-│   ├── sms.js                  Twilio wrapper
-│   ├── supabase.js             Supabase client + helpers
-│   ├── youtube.js              oEmbed validation helper
-│   └── tokens.js               Magic link token generation + validation
-│
-├── content.js                  ALL copy. Organized by stage key.
-│                               Never write copy inside Edge Functions.
-│
-├── prompts/                    ALL Claude AI prompts. One file per use case.
-│   ├── screenApplication.js
-│   ├── matchChampion.js
-│   └── reviewGrant.js
-│
-├── config.js                   Program config + stage definitions.
-│                               Deadlines, nudge days, valid status values.
-│                               Nothing program-specific is hardcoded elsewhere.
-│
-├── templates/
-│   └── default/                HTML email templates, one per stage.
-│       ├── base.html           Shared layout, header, footer, styles.
-│       ├── acceptance.html
-│       ├── video-accepted.html
-│       ├── rejection.html
-│       ├── champion-intro.html
-│       ├── grant-request.html
-│       ├── weekly-update.html
-│       ├── final-video.html
-│       ├── showcase-invite.html
-│       ├── completion.html
-│       └── nudge.html
-│
-├── forms/                      Token-gated HTML/JS forms. No framework.
-│   ├── apply/                  Public application (already built)
-│   ├── declare/                Declaration form. Token-gated. Shows program
-│   │                           overview + declaration button.
-│   ├── video/                  Intro video submission
-│   ├── meeting/                Meeting confirmation + reflection
-│   ├── grant/                  W9 + grant request
-│   ├── final-video/            Final video submission
-│   ├── rsvp/                   Showcase RSVP
+├── forms/
+│   ├── apply/                  Public application (live)
+│   ├── declare/                Declaration form (token-gated)
+│   ├── video/                  Intro video submission (token-gated)
+│   ├── meeting/                Meeting confirmation + reflection (token-gated)
+│   ├── grant/                  W9 + grant request (token-gated, future)
+│   ├── final-video/            Final video submission (token-gated, future)
+│   ├── rsvp/                   Showcase RSVP (future)
 │   └── champion-register/      Champion self-registration
 │
-├── profile/                    Builder profile page (NOT a form — read-only display)
-│   └── index.html              Profile page. Fetches /api/profile.
-│                               Renders builder info and locked sections.
-│                               Hub for youth — locked sections will link to
-│                               submission forms as program progresses.
-│                               Falls back gracefully if API fails.
-│                               NOTE: profile/ is NOT under forms/ — it is
-│                               display only, never a submission form.
+├── scripts/
+│   └── test-champion-intro.ts  Test script: creates application + youth,
+│                               runs manual assignment, verifies, cleans up
+│
+├── prompts/                    Claude AI prompts (also in _shared/prompts.ts)
+│   ├── matchChampion.js
+│   └── screenApplication.js
 │
 ├── schema/
-│   └── seed.sql                Creates all tables + indexes.
-│                               Inserts initial program_id constant.
+│   └── seed.sql                All table definitions + advance_status() RPC
+│                               + RLS policies + champion seed data
 │
-└── index.html                  Public landing page (already built)
-
-vercel.json routes (in order):
-  { "src": "/api/(.*)",  "dest": "/api/$1" }
-  { "src": "/video",     "dest": "/forms/video/index.html" }
-  { "src": "/profile",   "dest": "/profile/index.html" }
-  { "src": "/(.*)",      "dest": "/index.html" }
+├── config.js                   Program config + stage definitions
+├── content.js                  All copy organized by stage key
+├── index.html                  Public landing page (live)
+├── package.json
+└── vercel.json
 
 
 --------------------------------------------------------------------------------
-2.4 CONFIG.JS CONVENTIONS
+2.8 CONFIG.JS — ACTUAL VALUES
 --------------------------------------------------------------------------------
-
-config.js is the control panel for the program. All deadline values,
-stage definitions, and program parameters live here. Nothing is hardcoded
-inside Edge Functions or API routes.
-
-Structure:
 
 export const config = {
-
-  PROGRAM_ID: 'nyc-2026',   // used as program_id on all records
+  PROGRAM_ID:              'nyc-2026',
+  BASE_URL:                'https://learning-challenge-legacy.vercel.app',
+  EMAIL_FROM:              'noreply@griptape.org',
 
   STAGES: {
-    submitted:           { next: 'screening',           deadline_days: null, nudge_day: null,  auto_remove: false },
-    screening:           { next: 'video_pending',        deadline_days: null, nudge_day: null,  auto_remove: false },
-    video_pending:       { next: 'video_review',         deadline_days: 10,   nudge_day: 7,     auto_remove: true  },
-    video_review:        { next: 'onboarding',           deadline_days: null, nudge_day: null,  auto_remove: false },
-    onboarding:          { next: 'mentor_pending',       deadline_days: null, nudge_day: null,  auto_remove: false },
-    mentor_pending:      { next: 'grant_pending',        deadline_days: 14,   nudge_day: 10,    auto_remove: true  },
-    grant_pending:       { next: 'grant_review',         deadline_days: 14,   nudge_day: 10,    auto_remove: true  },
-    grant_review:        { next: 'active',               deadline_days: null, nudge_day: null,  auto_remove: false },
-    active:              { next: 'final_video_pending',  deadline_days: null, nudge_day: null,  auto_remove: false },
-    final_video_pending: { next: 'showcase_invited',     deadline_days: 14,   nudge_day: 5,     auto_remove: false },
-    showcase_invited:    { next: 'completed',            deadline_days: null, nudge_day: null,  auto_remove: false },
+    submitted:           { next: 'screening',          deadline_days: null, nudge_day: null, auto_remove: false },
+    screening:           { next: 'declaration_pending', deadline_days: null, nudge_day: null, auto_remove: false },
+    declaration_pending: { next: 'video_pending',       deadline_days: 60,   nudge_day: 7,   auto_remove: false },
+    video_pending:       { next: 'video_review',        deadline_days: 10,   nudge_day: 7,   auto_remove: true  },
+    video_review:        { next: 'onboarding',          deadline_days: null, nudge_day: null, auto_remove: false },
+    onboarding:          { next: 'mentor_pending',      deadline_days: null, nudge_day: null, auto_remove: false },
+    mentor_pending:      { next: 'grant_pending',       deadline_days: 14,   nudge_day: 10,  auto_remove: true  },
+    grant_pending:       { next: 'grant_review',        deadline_days: 14,   nudge_day: 10,  auto_remove: true  },
+    grant_review:        { next: 'active',              deadline_days: null, nudge_day: null, auto_remove: false },
+    active:              { next: 'final_video_pending', deadline_days: null, nudge_day: null, auto_remove: false },
+    final_video_pending: { next: 'showcase_invited',    deadline_days: 14,   nudge_day: 5,   auto_remove: false },
+    showcase_invited:    { next: 'completed',           deadline_days: null, nudge_day: null, auto_remove: false },
   },
 
-  TERMINAL_STAGES: ['completed', 'rejected', 'removed'],
-
-  STIPEND_AMOUNT: 250,
-  PROGRAM_DURATION_WEEKS: 8,
-  MEETING_FREQUENCY_WEEKS: 2,
+  TERMINAL_STAGES:           ['completed', 'rejected', 'removed'],
+  STIPEND_AMOUNT:            250,
+  PROGRAM_DURATION_WEEKS:    10,
+  MEETING_FREQUENCY_WEEKS:   2,
   DEFAULT_CHAMPION_CAPACITY: 3,
-  TOKEN_BUFFER_HOURS: 24,   // extra time before token expires after deadline
-
-  ELIGIBLE_LOCATIONS: ['NYC', 'NJ'],
-  AGE_MIN: 15,
-  AGE_MAX: 19,
-  PASSION_MIN_WORDS: 40,
-
+  TOKEN_BUFFER_HOURS:        24,
+  ELIGIBLE_LOCATIONS:        ['NYC', 'NJ'],
+  AGE_MIN:                   15,
+  AGE_MAX:                   19,
+  PASSION_MIN_WORDS:         40,
 }
 
 RULES:
-  - Edge Functions import config and read from it. Never hardcode values.
-  - Changing a deadline = update one line in config.js, push to GitHub.
-  - Adding a new stage = add a row to STAGES, add a block in content.js,
-    add an email template, write the Edge Function. No schema changes needed.
+  - Edge Functions import from _shared/config.ts (Deno version of this).
+  - Changing a deadline = update one line in config.js, redeploy.
+  - STAGES is documentation + daily-scheduler data source.
+    Edge Functions hardcode their own next status as a plain string
+    and include a comment referencing config. This is intentional —
+    a status transition is an architectural decision, not a config value.
 
 
 --------------------------------------------------------------------------------
-2.5 CONTENT.JS CONVENTIONS
+2.9 CONCURRENCY & IDEMPOTENCY
 --------------------------------------------------------------------------------
 
-content.js holds every piece of copy in the system. Organized by stage key.
-Never write copy inside an Edge Function, API route, or form.
+Three sources of writes can collide: Edge Functions (webhook-triggered),
+daily-scheduler (cron), and inbound handlers. advance_status() prevents
+all race conditions via optimistic locking.
 
-Structure:
+RULE: Every status update goes through advance_status().
+  If two processes try to advance the same record simultaneously, the
+  second finds the status already changed and raises StatusConflictError.
+  Caller catches it, logs, and exits cleanly. Record is never corrupted.
 
-export const content = {
+RULE: All scheduled jobs are idempotent.
+  Before sending any nudge or removal notice, scheduler checks sent_at
+  timestamp. If already set, skips silently. Running twice = zero duplicate sends.
 
-  video_pending: {
-    email_subject:   "Placeholder",
-    email_body:      "Placeholder",
-    sms:             "Placeholder — include {{link}}",
-    nudge_sms:       "Placeholder reminder — include {{link}}",
-    removal_sms:     "Placeholder removal message",
-    removal_email:   "Placeholder removal email",
-  },
+RULE: Webhook functions skip on status mismatch.
+  Every Edge Function checks status at the top and returns 200 if the
+  record is not in the expected state. Stale webhook fires are harmless.
 
-  // one block per stage key
-  // terminal stages (rejected, removed) have their own blocks
-
-}
-
-TEMPLATE VARIABLES:
-  {{first_name}}      Youth's first name
-  {{champion_name}}   Matched Champion's name
-  {{link}}            Unique magic link for this stage
-  {{deadline_date}}   Human-readable deadline
-  {{program_name}}    "GripTape Learning Challenge"
-  {{support_number}}  GripTape support SMS number
-  {{week_number}}     Current week (active stage only)
-  {{stipend_amount}}  Dollar amount from config.js
-
-RULES:
-  - All copy is placeholder until replaced before pilot launch.
-  - Mark all placeholders clearly: "Placeholder — replace before launch."
-  - SMS messages must be under 160 characters.
-  - Never delete a stage block. Another program version may use it.
+CONCURRENCY FAILURE MODE:
+  If advance_status() throws StatusConflictError:
+    1. Log to agent_log
+    2. Send staff alert
+    3. Take no further action
 
 
 --------------------------------------------------------------------------------
-2.6 PROMPT FILE CONVENTIONS
---------------------------------------------------------------------------------
-
-Every Claude API call has its prompt in prompts/. Never write prompts
-inline inside Edge Functions.
-
-Each file exports:
-  systemPrompt          instruction set for Claude
-  buildUserPrompt(data) function that returns the user message
-  outputSchema          expected JSON response structure
-
-Example — prompts/screenApplication.js:
-
-  export const systemPrompt = `
-    You are screening applications for the GripTape Learning Challenge.
-    Evaluate the application against the eligibility criteria provided.
-    Respond only in valid JSON. Be encouraging. This is for NYC teenagers.
-  `;
-
-  export const buildUserPrompt = (application, config) => `
-    Eligibility criteria:
-    - Age: ${config.AGE_MIN} to ${config.AGE_MAX}
-    - Locations: ${config.ELIGIBLE_LOCATIONS.join(', ')}
-    - Passion: minimum ${config.PASSION_MIN_WORDS} words, real and specific
-
-    Application:
-    Name: ${application.name}
-    Age: ${application.age}
-    Location: ${application.borough}
-    Passion: ${application.passion}
-    Why join: ${application.why_join}
-  `;
-
-  export const outputSchema = {
-    decision: "accepted | rejected | flagged",
-    reasoning: "string",
-    failed_criteria: "string | null"
-  };
-
-RULES:
-  - Always use model: claude-sonnet-4-20250514
-  - Always request JSON output in the system prompt
-  - Never hardcode eligibility criteria — always read from config
-  - Output schema always includes: decision, reasoning, failed_criteria
-
-
---------------------------------------------------------------------------------
-2.7 MAGIC LINK SYSTEM
---------------------------------------------------------------------------------
-
-Youth access all forms via unique magic links. No login, no password.
-Champions receive a unique registration link the same way.
-
-HOW IT WORKS:
-  1. Youth advances to a stage that requires a form submission
-  2. System generates a unique token via lib/tokens.js
-  3. Token stored on youth record: access_token + token_expires_at
-  4. token_expires_at = stage entered timestamp + stage deadline + buffer
-  5. Link sent via SMS + email: https://griptape.org/video?token=abc123
-  6. Form validates token on load via Supabase lookup
-  7. Valid: form loads with youth name pre-filled
-  8. Expired or invalid: youth sees "get a new link" screen,
-     enters email, system sends a fresh link
-
-TOKEN RULES:
-  - Tokens expire when the stage deadline passes (not on first use)
-  - Youth can return to the same form multiple times before deadline
-  - lib/tokens.js handles all generation and validation
-  - Never implement token logic directly in a form or Edge Function
-
-CHAMPION REGISTRATION:
-  - Staff generates a link: texts staff agent number with
-    "Add Champion — send link to [phone]"
-  - System creates a pending champion record + registration_token
-  - Champion opens forms/champion-register/, fills profile, sets capacity
-  - On submit: availability = true, registered_at = now
-  - Staff notified via SMS: "[Name] has registered as a Champion"
-
-
---------------------------------------------------------------------------------
-2.8 AIRTABLE SYNC
+2.10 AIRTABLE SYNC
 --------------------------------------------------------------------------------
 
 Airtable is a read-only mirror of Supabase for staff reporting.
 Nothing writes to Airtable directly. Ever.
 
 HOW IT WORKS:
-  - Every Supabase record change fires a webhook to api/sync-airtable.js
-  - sync-airtable.js writes the change to Airtable via the Airtable API
-  - If a record doesn't exist in Airtable yet, it is created
-  - One-way only: Supabase -> Airtable. Never the reverse.
+  Supabase record changes fire a webhook to api/sync-airtable.js.
+  sync-airtable.js writes to Airtable via Airtable API.
+  One-way: Supabase -> Airtable. Never the reverse.
 
-TABLES MIRRORED:
-  - applications
-  - youth
-  - champions
-  - grant_requests
-  - meetings
-
-FIELD MAPPING:
-  Supabase uses snake_case. Airtable uses Title Case With Spaces.
-  Mapping lives in api/sync-airtable.js as a fieldMap object.
-  Adding a new Supabase column = add Airtable column + update fieldMap.
+TABLES MIRRORED: applications, youth, champions, grant_requests, meetings
 
 RULES:
-  - If Airtable is down, events are lost for that window (acceptable
-    for MVP — add a sync queue in V2 if this becomes a problem)
-  - Supabase is always the source of truth
-  - Staff reads Airtable, acts via SMS agent or direct Supabase access
+  If Airtable is down, events are lost for that window (acceptable for
+  MVP — add sync queue in V2 at 500+ youth).
+  Supabase is always source of truth.
 
 
 --------------------------------------------------------------------------------
-2.9 STAFF NOTIFICATIONS (MVP)
+2.11 STAFF NOTIFICATIONS (MVP)
 --------------------------------------------------------------------------------
 
-The full staff AI agent is a V2 feature. For the MVP, staff are notified
-via simple Twilio SMS for the cases that require human action.
+Staff notified via email for cases requiring human action.
+Full staff AI agent is a V2 feature.
 
 STAFF IS NOTIFIED WHEN:
-  - An application is flagged (AI unclear on eligibility)
-  - No Champions are available for a youth awaiting matching
-  - A grant request is ready for approval (includes AI review summary)
-  - A final video is flagged or deadline missed (staff decides next step)
-  - An Edge Function throws an unhandled error
-
-GRANT APPROVAL FLOW (MVP):
-  1. Youth submits W9 + grant request
-  2. AI reviews, writes notes to grant_requests.ai_review_notes
-  3. Staff receives SMS: youth name + AI review summary + "Reply APPROVE
-     or DECLINE"
-  4. Staff replies APPROVE
-  5. System updates staff_approved = true, triggers fund disbursement
-  6. Status -> active
+  - Application is flagged (AI unclear on eligibility)
+  - No Champions available for youth awaiting matching
+    (includes exact SQL for manual assignment)
+  - Grant request ready for approval (AI review summary included)
+  - Edge Function throws unhandled error
 
 ALL STAFF NOTIFICATIONS:
-  - Logged to agent_log table with triggered_by = 'system'
   - Include youth name, current status, and clear next action
-  - Come from a dedicated Twilio number (separate from youth SMS)
-
-
---------------------------------------------------------------------------------
-2.10 STATE TRANSITION PATTERN
---------------------------------------------------------------------------------
-
-MANDATORY PATTERN — Webhook-triggered Edge Functions
------------------------------------------------------
-Used when a Supabase database change (not a form submission) should trigger
-an Edge Function, or multiple downstream functions might react to one event.
-
-  1. FORM (Vercel HTML) — submits to Vercel API route
-  2. THIN VERCEL API ROUTE — validates token, writes to Supabase
-  3. SUPABASE WEBHOOK — fires Edge Function on row change
-  4. EDGE FUNCTION — reads webhook payload, calls advance_status() RPC first
-     to claim the row atomically, skips if already claimed, runs logic
-
-  advance_status() signature:
-    rpc('advance_status', { p_id, p_expected_status, p_new_status })
-    Returns true if this caller won the race, false if already claimed.
-
-  EXAMPLE — validate-video uses webhook (video_url column change triggers it).
-
-
-DIRECT INVOCATION PATTERN
--------------------------
-Used when a Vercel API route controls exactly which Edge Function fires.
-Eliminates webhook duplicate fire risk for form-triggered transitions.
-
-  Pattern:
-    1. FORM (Vercel HTML) — same as mandatory pattern
-    2. THIN VERCEL API ROUTE — validates token, writes to Supabase,
-       then calls Edge Function directly via fetch using SUPABASE_ANON_KEY
-       as the Authorization header
-    3. EDGE FUNCTION — reads application_id from POST body, fetches
-       full record from Supabase, runs all business logic, sends comms
-
-  USE THIS PATTERN WHEN:
-    A form submission directly and exclusively triggers one Edge Function.
-    Webhook fan-out would cause duplicate invocations.
-
-  USE WEBHOOK PATTERN WHEN:
-    A data change (not a form) triggers an Edge Function.
-    The trigger is a column change you do not control (e.g. video_url).
-
-  EXAMPLE — process-declaration: direct invocation.
-  EXAMPLE — validate-video: webhook (triggered by video_url column change).
-
-
---------------------------------------------------------------------------------
-2.12 IDEMPOTENCY PATTERN
---------------------------------------------------------------------------------
-
-ADVANCE_STATUS() RPC
-All webhook-triggered Edge Functions use the advance_status() Postgres
-RPC as their idempotency guard. This atomically advances screening_status
-only if the current value matches the expected value. Returns true if
-this invocation claimed the row, false if another already did.
-
-Function signature (defined in Supabase):
-  advance_status(p_id uuid, p_expected_status text, p_new_status text)
-  Returns boolean.
-
-Pattern in every webhook-triggered Edge Function:
-  const { data: advanced } = await supabase.rpc('advance_status', {
-    p_id: record.id,
-    p_expected_status: 'current_status',
-    p_new_status: 'intermediate_lock_status',
-  });
-  if (!advanced) {
-    // Another invocation already claimed this record — skip cleanly
-    return new Response('Already processing', { status: 200 });
-  }
-
-Direct invocation functions (e.g. process-declaration) do NOT need
-advance_status() — they are called exactly once by design.
-
-Currently uses advance_status():
-  screen-application  — submitted -> screening (claim before AI call)
-  validate-video      — video_pending -> video_review (claim before oEmbed)
+  - Sent via sendStaffNotification() in dispatcher.ts
 
 
 ================================================================================
 PART 3 — TECH STACK
 ================================================================================
 
-  Hosting            Vercel. Application form + all serverless functions.
+  Hosting            Vercel. Application form + all API routes.
   Database           Supabase (PostgreSQL). Source of truth.
-  Edge Functions     Supabase (Deno runtime).
+  Edge Functions     Supabase (Deno runtime). 6 deployed.
   Email              Resend. All transactional emails.
   SMS                Twilio. Youth + Champion notifications + staff alerts.
-  AI                 Claude (claude-sonnet-4-20250514) via Anthropic API.
-  Video check        YouTube oEmbed API (free, no key required).
+  AI                 Claude (claude-sonnet-4-6) via Anthropic API.
+  Video check        YouTube oEmbed API (future — not yet implemented).
   Reporting          Airtable (read-only mirror).
-  Code               GitHub (github.com/thearanelli/griptapeclaudeapp).
+  Code               GitHub (github.com/thearanelli/learning_challenge_legacy).
                      Auto-deploys to Vercel on push to main.
 
 ENVIRONMENT VARIABLES (never hardcode any of these):
-  ANTHROPIC_API_KEY         Must be set in BOTH Supabase (for Edge Functions)
-                            AND Vercel (for api/profile.js card generation).
+  ANTHROPIC_API_KEY
   SUPABASE_URL
-  SUPABASE_SERVICE_KEY
-  SUPABASE_ANON_KEY         Supabase anon/public key. Used by Vercel API
-                            routes that call Edge Functions directly via HTTP.
-                            Different from SUPABASE_SERVICE_KEY which is used
-                            for Supabase REST API calls.
+  DB_SERVICE_KEY              (Supabase service role key — used in Edge Fns)
   RESEND_API_KEY
   TWILIO_ACCOUNT_SID
   TWILIO_AUTH_TOKEN
-  TWILIO_PHONE_NUMBER       youth + champion SMS
-  TWILIO_STAFF_NUMBER       staff notifications (separate number)
+  TWILIO_PHONE_NUMBER         youth + champion SMS
+  TWILIO_STAFF_NUMBER         staff notifications (separate number)
   AIRTABLE_TOKEN
   AIRTABLE_BASE_ID
+  STAFF_EMAIL                 staff alert email address
 
 
 ================================================================================
-PART 4 — BUILD PLAN
+PART 4 — BUILD STATUS
 ================================================================================
 
 --------------------------------------------------------------------------------
-4.1 WHAT IS ALREADY BUILT
+4.1 COMPLETED (Phase 1 + Phase 2 partial)
 --------------------------------------------------------------------------------
 
-  - Public application form (index.html) — live on Vercel
-  - /api/submit serverless function — writes to Airtable
-  - AI screening via Airtable automation
-  - Basic acceptance/rejection emails via Airtable
-  - screen-application Edge Function — AI screens, generates profile_token,
-    sends declaration_pending notification with declare link + profile link
-  - Declaration stage (Stage 1B) — full pipeline live and tested
-    forms/declare/, api/check-declare-token.js, api/declare-submit.js,
-    supabase/functions/process-declaration/
-  - Builder profile page — profile/index.html + api/profile.js
-  - Trading card generation — Claude generates archetype, passion title,
-    archetype description, badge from application answers on every load
-  - advance_status() Postgres RPC — atomic idempotency for all
-    webhook-triggered Edge Functions
-  - SUPABASE_ANON_KEY added to Vercel environment variables
-
-These are being superseded. The new system replaces Airtable as the
-source of truth and moves all logic to Supabase Edge Functions.
-
-
---------------------------------------------------------------------------------
-4.2 BEFORE YOU WRITE A SINGLE LINE OF CODE
---------------------------------------------------------------------------------
-
-Set up the repo structure exactly as defined in section 2.3. Create every
-folder and placeholder file. This is Day 1. A clean structure from the start
-means every subsequent Claude Code prompt lands in the right place.
-
-Also before building:
-  - Confirm payment method for $250 stipend (check, ACH, Venmo, API?)
-  - Confirm W9 storage compliance with accountant/lawyer
-  - Confirm Twilio account is set up with two numbers (youth + staff)
-  - Confirm Resend account and sending domain is verified
-  - Run seed.sql to create all Supabase tables
+  [x] Repo folder structure
+  [x] config.js + _shared/config.ts
+  [x] content.js + _shared/content.ts
+  [x] schema/seed.sql — all tables + advance_status() RPC + RLS
+  [x] advance_status() Postgres function with optimistic locking
+  [x] /api/submit — application form -> Supabase
+  [x] screen-application Edge Function + webhook
+  [x] process-declaration Edge Function (direct invocation)
+  [x] validate-video Edge Function + webhook
+  [x] on-acceptance Edge Function + webhook
+  [x] match-champion Edge Function + webhook
+  [x] send-champion-intro Edge Function + webhook
+  [x] _shared/ utilities: config, content, dispatcher, email, sms, tokens, prompts
+  [x] forms/apply/ — live
+  [x] forms/declare/ — live
+  [x] forms/video/ — live
+  [x] Champion seed data (5 champions in Supabase)
+  [x] End-to-end test: application -> screening -> declaration -> video ->
+      staff acceptance -> youth row -> champion match -> intro email
 
 
 --------------------------------------------------------------------------------
-4.3 PHASED BUILD ORDER
+4.2 UP NEXT (Phase 2 remainder)
 --------------------------------------------------------------------------------
 
-Each phase must be fully working and tested before the next begins.
-Do not move on until the current phase passes an end-to-end test.
-
---
-
-PHASE 1 — FOUNDATION (~3 days)
-Goal: An application can be submitted, AI-screened, and the correct
-email + SMS fires. Everything lands in Supabase and mirrors to Airtable.
-
-Day 1:
-  [ ] Set up repo folder structure exactly per section 2.3
-  [ ] Create config.js with all stage definitions and program config
-  [ ] Create content.js with placeholder copy for all stages
-  [ ] Run schema/seed.sql — create all tables in Supabase
-  [ ] Update /api/submit to write to Supabase (keep Airtable write too
-      until Phase 1 is fully validated)
-
-Day 2:
-  [ ] Build api/sync-airtable.js — Supabase webhook -> Airtable
-  [ ] Build lib/email.js — Resend wrapper
-  [ ] Build lib/sms.js — Twilio wrapper
-  [ ] Build supabase/functions/screen-application/
-      Reads config for eligibility criteria. Calls Claude. Writes
-      ai_decision + status back to applications table.
-      On accepted: creates youth record, sends email + SMS via lib/
-      On rejected: sends rejection email + SMS
-      On flagged: sends staff SMS alert
-
-Day 3:
-  [ ] End-to-end test — submit application, confirm:
-        Supabase applications table receives record
-        AI runs and writes decision + reasoning
-        Correct email sends (accepted / rejected / flagged)
-        SMS sends to youth
-        Airtable mirrors the record
-  [ ] Test all three outcomes: accepted, rejected, flagged
-  [ ] Fix everything that breaks before moving to Phase 2
-
---
-
-PHASE 2 — VIDEO & CHAMPION (~4 days)
-Goal: Accepted youth can submit a video, get matched to a Champion,
-confirm a meeting, and advance to grant_pending.
-
-Day 4:
-  [ ] Build lib/tokens.js — token generation + validation
-  [ ] Build forms/video/ — token-gated YouTube link submission form
-  [ ] Build supabase/functions/validate-video/
-      oEmbed check. Valid: status -> onboarding, send notifications.
-      Invalid: notify youth, allow 48hr resubmit.
-  [ ] Build deadline nudge logic in daily-scheduler for video_pending
-
-Day 5:
-  [ ] Seed champions table with real Champion profiles
-  [ ] Build forms/champion-register/ — self-registration form
-  [ ] Build supabase/functions/match-champion/
-      Queries available Champions. Calls Claude with bios + youth passion.
-      Assigns match. Sends intro email + SMS to both youth and Champion.
-      If no match: alerts staff via SMS.
-
-Day 6:
-  [ ] Build forms/meeting/ — token-gated meeting confirmation + reflection
-  [ ] Build inbound SMS handler for Champion YES/NO confirmation
-      (simple: if reply = YES from champion phone, confirm meeting)
+  [ ] forms/meeting/ — token-gated meeting confirmation + reflection form
   [ ] Edge Function: on meeting confirmed, status -> grant_pending,
       send W9 + grant forms to youth
+  [ ] daily-scheduler — deadlines, nudges, auto-remove for
+      declaration_pending, video_pending, mentor_pending
+  [ ] End-to-end test through to grant_pending
 
-Day 7:
-  [ ] Build supabase/functions/daily-scheduler/
-      Checks all youth with active deadlines. Sends nudges. Auto-removes
-      on missed deadlines for auto_remove = true stages.
-      Idempotent — use sent_at timestamps to prevent duplicate sends.
-  [ ] End-to-end test Phase 2: accepted -> video -> match -> meeting ->
-      grant_pending. Fix everything that breaks.
 
---
+--------------------------------------------------------------------------------
+4.3 FUTURE PHASES
+--------------------------------------------------------------------------------
 
-PHASE 3 — GRANT PROCESSING (~2 days)
-Goal: Youth can submit W9 + grant request. AI reviews it. Staff approves
-via SMS. Funds sent. Status -> active.
+PHASE 3 — GRANT PROCESSING
+  [ ] forms/grant/ — W9 + grant request (token-gated)
+  [ ] review-grant Edge Function — AI reviews, staff SMS approval
+  [ ] Staff approval handler -> fund disbursement -> status active
+  BLOCKED ON: payment method decision + W9 compliance confirmation
 
-Day 8:
-  [ ] Build forms/grant/ — token-gated W9 + grant request form
-  [ ] Build supabase/functions/review-grant/
-      AI reviews W9 completeness. Writes notes to grant_requests.
-      Sends staff SMS with summary + APPROVE/DECLINE prompt.
+PHASE 4 — ACTIVE PROGRAM & SHOWCASE
+  [ ] Bi-weekly meeting nudge logic in daily-scheduler
+  [ ] Weekly email system
+  [ ] forms/final-video/
+  [ ] Final video validation
+  [ ] forms/rsvp/
+  [ ] Completion flow — status -> completed, certificate email
 
-Day 9:
-  [ ] Build staff SMS approval handler
-      Receives APPROVE reply, sets staff_approved = true,
-      triggers fund disbursement (method TBD), status -> active.
-  [ ] End-to-end test Phase 3. Fix everything.
+PHASE 5 — STAFF AI AGENT (V2, post-pilot)
+  Full Claude-powered SMS agent with daily digest and reactive commands.
 
-  NOTE: Do not build Phase 3 until payment method and W9 compliance
-  are confirmed with your accountant/lawyer.
-
---
-
-PHASE 4 — ACTIVE PROGRAM & SHOWCASE (~4 days)
-Goal: Active youth receive bi-weekly nudges, weekly emails, submit
-final video, get invited to Showcase, complete the program.
-
-Day 10:
-  [ ] Add bi-weekly meeting nudge logic to daily-scheduler
-  [ ] Build weekly email system — staff drafts in Resend,
-      scheduler sends to all active youth each week
-  [ ] Build forms/final-video/ — same pattern as forms/video/
-  [ ] Build validate-final-video logic (reuse validate-video function)
-
-Day 11:
-  [ ] Build forms/rsvp/ — Showcase RSVP form
-  [ ] Build completion flow — status -> completed, certificate email
-  [ ] Flag completed youth in Airtable for alumni outreach
-
-Day 12-13:
-  [ ] End-to-end test the full pipeline. Run 2-3 fake youth from
-      application all the way to completed.
-  [ ] Document every edge case that breaks.
-
-Day 14:
-  [ ] Fix everything from Days 12-13.
-  [ ] Pilot prep: replace all placeholder copy in content.js
-      with real GripTape copy before any youth touch the system.
-
---
-
-PHASE 5 — STAFF AI AGENT (~2 days, post-pilot V2)
-  Full Claude-powered SMS agent with daily digest, immediate alerts,
-  and reactive commands. Build this after the pilot validates the
-  core program flow.
-
---
-
-PHASE 6 — STAFF DASHBOARD (~2 days, post-pilot V2)
-  Web UI reading from Supabase. Active youth, status, flags,
-  grant queue, reporting. Build this after the pilot.
+PHASE 6 — STAFF DASHBOARD (V2, post-pilot)
+  Web UI reading from Supabase. Active youth, status, flags, grant queue.
 
 
 --------------------------------------------------------------------------------
 4.4 RULES FOR PROMPTING CLAUDE CODE
 --------------------------------------------------------------------------------
 
-Start every Claude Code prompt with this header:
+Start every Claude Code prompt with:
 
-  "Using the GripTape master spec (GripTape_Master_Spec.txt), build
-  [component]. Follow all architecture conventions exactly:
-  - All copy goes in content.js, organized by stage key
-  - All AI prompts go in prompts/
-  - All deadline and config values come from config.js
-  - All email sends use lib/email.js, all SMS sends use lib/sms.js
-  - Never hardcode API keys — use environment variables
-  - Column names must match the schema in section 2.2 exactly
-  - Status values must match the valid values in section 2.1 exactly
-  - Every status change writes a timestamp field for audit trail"
+  "Using the GripTape tech spec and architecture document, build [component].
+  All copy goes in content.js. All prompts go in prompts/ and _shared/prompts.ts.
+  All notification logic uses dispatcher in _shared/dispatcher.ts.
+  Never hardcode API keys — use Deno.env.get().
+  Column names must match the schema in the spec exactly.
+  All status changes must go through advance_status() RPC.
+  Status values must match the valid values in the spec exactly."
 
 ADDITIONAL RULES:
-  - The status field is sacred. Only move it forward. Never skip a state.
-  - Update status atomically with any other field changes in the same
-    database operation.
-  - All scheduled jobs must be idempotent. Running twice must not send
-    duplicate notifications. Use sent_at timestamp fields to check first.
-  - lib/tokens.js handles all magic link logic. Never implement token
-    logic directly in a form or Edge Function.
-  - Never write to Airtable from Edge Functions. All writes go to
-    Supabase. Airtable receives changes via api/sync-airtable.js only.
+  - The status field is sacred. Only advance_status() moves it.
+  - All scheduled jobs must be idempotent. Use sent_at timestamps.
+  - Never write to Airtable from Edge Functions. Supabase only.
+  - Magic link tokens are set by advance_status() additional_fields.
+    Never generate or store tokens outside of a status transition.
 
 
 --------------------------------------------------------------------------------
-4.5 WHAT GETS ADDED IN V2
+4.5 V2 DEFERRED ITEMS
 --------------------------------------------------------------------------------
 
-These are explicitly out of scope for the MVP. Do not build them now.
+These are explicitly out of scope for the MVP pilot. Do not build now.
 
   programs table logic    Multi-city support. Add when expanding beyond NYC.
-  stages table            Dynamic stage config. Add when program structure
-                          changes frequently between pilots.
+  stages table            Dynamic stage config. Add when structure changes often.
   Airtable sync queue     Rate limit protection. Add at 500+ youth.
   Full staff AI agent     Daily digest, reactive commands. Add post-pilot.
-  Staff dashboard         Web UI. Add post-pilot. Airtable covers MVP needs.
+    V2 design: Twilio inbound webhook -> Edge Function -> Claude -> SMS reply.
+    No Twilio Flex. Separate Twilio number for staff.
+  Twilio Video            Orientation calls. Auto-trigger
+                          orientation_call_completed_at on call end.
+  Staff dashboard         Web UI. Airtable covers MVP needs.
   Two-way youth SMS       Conversational replies. Add post-pilot.
-  Error log table         Structured error tracking. Add post-pilot.
   Certificate PDF gen     Auto-generate completion certificates. Add post-pilot.
+  oEmbed validation       YouTube link validity check. Currently staff manual.
 
 
 ================================================================================
 PART 5 — OPEN DECISIONS
 ================================================================================
 
-Resolve these before building the relevant phase.
-
 Before Phase 3:
   - Payment method for $250 stipend (check, ACH, Venmo, payment API?)
-  - W9 storage compliance — confirm with accountant/lawyer what data
-    must be collected and how to store it securely
+  - W9 storage compliance — confirm with accountant/lawyer
 
 Before Phase 4:
-  - Exact deadline windows for each stage (defaults are in config.js
-    but confirm these are right for the program)
-  - Video resubmission policy — one 48-hour chance confirmed?
+  - Video resubmission policy — one 48-hour chance? Currently no resubmit logic.
 
 Before Pilot Launch:
   - Replace ALL placeholder copy in content.js with real GripTape copy
-  - Replace ALL placeholder email templates in templates/default/
-  - Confirm Twilio numbers are set up (youth number + staff number)
-  - Confirm Resend sending domain is verified
-  - Run full end-to-end test with fake youth before any real youth
+  - Confirm Twilio numbers active (youth number + staff number)
+  - Confirm Resend sending domain verified
+  - Run full end-to-end test with fake youth before any real youth touch system
+  - Confirm stage deadline windows are right (defaults in config.js)
 
 Ongoing:
-  - Champion registration: currently auto-active on form submission.
-    Confirm this is the right policy or add a staff approval step.
-  - Staff agent SMS provider and number (Phase 5)
+  - Champion registration: currently manual (staff adds champions directly
+    to DB or via seed). Champion self-registration form (forms/champion-register/)
+    is in the repo but not wired to a full flow yet. Confirm whether staff
+    approves before champion goes active, or auto-active on form submission.
 
 
 ================================================================================
->GRIPTAPE>  Confidential  |  April 2026
+GRIPTAPE  |  Confidential  |  April 2026
 ================================================================================
