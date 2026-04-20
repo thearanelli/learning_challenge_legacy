@@ -2,6 +2,8 @@
 // Template variables: {{first_name}}, {{last_name}}, {{link}}, {{deadline_date}},
 // {{program_name}}, {{support_number}}, {{stipend_amount}}
 
+import { config } from './config.js';
+
 export const content = {
 
   video_pending: {
@@ -18,7 +20,9 @@ Submit here: {{link}}
 
 Questions? Text or call us at {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, submit your video by {{deadline_date}}: {{link}}',
     nudge_sms: 'Placeholder — replace before launch. Reminder {{first_name}}: your video is due {{deadline_date}}. Submit now: {{link}}',
     removal_sms: 'Placeholder — replace before launch. Hi {{first_name}}, your spot in {{program_name}} has been released. Text {{support_number}} if this is a mistake.',
@@ -32,7 +36,9 @@ We didn't receive your video by the deadline, so your spot has been released.
 
 If you believe this is a mistake, reply to this email or text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     },
   },
 
@@ -46,7 +52,9 @@ Thank you for applying to {{program_name}}. After review, we're unable to move y
 
 We appreciate you taking the time to apply.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, we reviewed your application and are unable to move forward. Questions? {{support_number}}',
   },
 
@@ -67,7 +75,9 @@ Here's what happens next: {{link}}
 
 Questions? Text or call {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Welcome {{first_name}}! You\'re in {{program_name}}. Check your email for next steps or visit: {{link}}',
   },
 
@@ -83,7 +93,9 @@ Complete this step here: {{link}}
 
 Questions? Text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, connect with your Champion by {{deadline_date}}: {{link}}',
     nudge_sms: 'Placeholder — replace before launch. Reminder {{first_name}}: connect with your Champion by {{deadline_date}}: {{link}}',
     removal_sms: 'Placeholder — replace before launch. Hi {{first_name}}, your spot in {{program_name}} has been released. Text {{support_number}} if this is a mistake.',
@@ -97,7 +109,9 @@ We didn't hear from you by the deadline, so your spot has been released.
 
 Questions? Reply here or text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     },
   },
 
@@ -111,9 +125,9 @@ It's time to submit your grant proposal. Deadline: {{deadline_date}}.
 
 Submit here: {{link}}
 
-Need help? Text {{support_number}}.
+— The GripTape Team
 
-— The GripTape Team`,
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, submit your grant proposal by {{deadline_date}}: {{link}}',
     nudge_sms: 'Placeholder — replace before launch. Reminder {{first_name}}: grant proposal due {{deadline_date}}: {{link}}',
     removal_sms: 'Placeholder — replace before launch. Hi {{first_name}}, your spot in {{program_name}} has been released. Text {{support_number}} with questions.',
@@ -127,7 +141,9 @@ We didn't receive your grant proposal by {{deadline_date}}, so your spot has bee
 
 Reply to this email or text {{support_number}} if you have questions.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     },
   },
 
@@ -141,7 +157,9 @@ We've received your grant proposal and it's currently under review. We'll be in 
 
 Questions? Text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, your grant proposal is under review. We\'ll be in touch. Questions? {{support_number}}',
   },
 
@@ -157,7 +175,9 @@ Your stipend of ${{stipend_amount}} will be processed according to program guide
 
 Visit your dashboard: {{link}}
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Congrats {{first_name}}! Your grant is approved. You\'re active in {{program_name}}. Dashboard: {{link}}',
   },
 
@@ -173,7 +193,9 @@ Submit here: {{link}}
 
 Questions? Text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, submit your final video by {{deadline_date}}: {{link}}',
     nudge_sms: 'Placeholder — replace before launch. Reminder {{first_name}}: final video due {{deadline_date}}: {{link}}',
   },
@@ -190,7 +212,9 @@ Details and RSVP: {{link}}
 
 Questions? Text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. {{first_name}}, you\'re invited to the {{program_name}} Showcase! RSVP: {{link}}',
   },
 
@@ -204,7 +228,9 @@ Congratulations on completing {{program_name}}! This is a huge accomplishment.
 
 We're proud of you and can't wait to see what you do next.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Congrats {{first_name}}! You completed {{program_name}}. We\'re so proud of you.',
   },
 
@@ -218,7 +244,9 @@ Your participation in {{program_name}} has ended.
 
 If you have questions or believe this is a mistake, reply to this email or text {{support_number}}.
 
-— The GripTape Team`,
+— The GripTape Team
+
+Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Hi {{first_name}}, your participation in {{program_name}} has ended. Questions? Text {{support_number}}.',
   },
 

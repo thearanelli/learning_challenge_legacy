@@ -1,3 +1,5 @@
+import { config } from './config.ts';
+
 export const content = {
   declaration_pending: {
     email_subject: 'Step 1 done. You\'re invited to Step 2.',
@@ -5,7 +7,8 @@ export const content = {
 <p>It takes guts to put your passion into words. You did that — and that was Step 1.</p>
 <p>Now you\'re invited to Step 2: see what GripTape is really about, straight from the 4,000+ teens who\'ve been exactly where you are. Builders who got real funding, a mentor, and the support to actually finish what they started.</p>
 <p>See what they made. Then tell us if you\'re ready to do the same.</p>
-<p><a href="{{link}}">Your spot isn\'t secured yet — Step 2 is how you get there →</a></p>`,
+<p><a href="{{link}}">Your spot isn\'t secured yet — Step 2 is how you get there →</a></p>
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next and declare: {{link}}',
   },
   declaration_confirmed: {
@@ -16,7 +19,8 @@ export const content = {
 <p><a href="{{video_link}}">Submit your first drop video →</a></p>
 <p>Your builder profile:<br>
 <a href="{{profile_link}}">{{profile_link}}</a></p>
-<p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+<p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     sms: 'Hi {{first_name}}, you\'re in. Submit your video: {{video_link}} Your profile: {{profile_link}}',
   },
   video_pending: {
@@ -26,14 +30,16 @@ export const content = {
       <p>Submit your intro video within 10 days to secure your spot.</p>
       <p><a href="{{link}}">Click here to submit your video</a></p>
       <p><a href="{{profile_link}}">See your builder profile</a></p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
+      <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     sms: 'Hi {{first_name}}! You\'re accepted to GripTape. Submit your video: {{link}} (placeholder)',
   },
   rejected: {
     email_subject: 'Your GripTape Learning Challenge application',
     email_body: `<p>Hi {{first_name}},</p>
       <p>Thank you for applying. Unfortunately we\'re unable to move forward at this time.</p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
+      <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     sms: 'Hi {{first_name}}, thanks for applying to GripTape. We\'re unable to move forward at this time.',
   },
   flagged: {
@@ -45,17 +51,21 @@ export const content = {
     email_body: `<p>Hi {{first_name}},</p>
       <p>We received your intro video and you are officially in the GripTape Learning Challenge.</p>
       <p>Next steps coming soon.</p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
+      <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     sms: 'Hi {{first_name}}, your video is confirmed! You are officially in GripTape. Stay tuned for next steps.',
   },
 
   mentor_pending: {
     email_subject: 'Placeholder — replace before launch',
-    email_body: 'Placeholder — replace before launch. Variables available: {{youth_first_name}}, {{champion_first_name}}, {{champion_name}}, {{deadline_date}}, {{program_name}}',
+    email_body: `Placeholder — replace before launch. Variables available: {{youth_first_name}}, {{champion_first_name}}, {{champion_name}}, {{deadline_date}}, {{program_name}}
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     nudge_email_subject: 'Placeholder — replace before launch',
-    nudge_email_body: 'Placeholder — replace before launch',
+    nudge_email_body: `Placeholder — replace before launch
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     removal_email_subject: 'Placeholder — replace before launch',
-    removal_email_body: 'Placeholder — replace before launch',
+    removal_email_body: `Placeholder — replace before launch
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
   },
 
   grant_pending: {
@@ -64,7 +74,8 @@ export const content = {
 <p>Congratulations on completing your orientation call.</p>
 <p>Your next step is to sign two documents so we can process your $250 learning stipend.</p>
 <p><a href="{{grant_link}}">Click here to get started →</a></p>
-<p>You have 14 days to complete this step.</p>`,
+<p>You have 14 days to complete this step.</p>
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
     sms: 'PLACEHOLDER — GripTape: Time to sign your documents. {{grant_link}}',
   },
 

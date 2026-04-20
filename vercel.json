@@ -7,6 +7,7 @@
     { "src": "/declare", "dest": "/forms/declare/index.html" },
     { "src": "/orientation", "dest": "/forms/orientation/index.html" },
     { "src": "/grant", "dest": "/forms/grant/index.html" },
+    { "src": "/help", "dest": "/forms/help/index.html" },
     { "src": "/champion-register", "dest": "/forms/champion-register/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
