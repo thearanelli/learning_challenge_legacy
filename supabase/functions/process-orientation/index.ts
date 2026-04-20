@@ -53,7 +53,7 @@ serve(async (req) => {
       next_status: 'grant_pending',
       additional_fields: {
         access_token: tokenData.access_token,
-        stage_deadline_at: tokenData.stage_deadline_at,
+        token_expires_at: tokenData.stage_deadline_at,
       },
     });
 
