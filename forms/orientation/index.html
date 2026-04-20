@@ -56,16 +56,18 @@
     // Edit these arrays to add, remove, or reorder questions — no other changes needed.
 
     const REFLECTION_QUESTIONS = [
-      { key: 'project_description', label: 'How would you describe what your challenger is working on?', required: true },
-      { key: 'excited_about',       label: 'What is one thing they seem excited about?',                  required: true },
-      { key: 'challenge_facing',    label: 'What is one challenge they are facing?',                      required: true },
-      { key: 'support_plan',        label: 'How do you plan to support them over the next two weeks?',    required: true },
+      { key: 'vision',           label: 'What is your overall vision for your Learning Challenge? In a sentence or two, what do you want to achieve?', required: true },
+      { key: 'goals',            label: 'What are three or four goals you have for your Learning Challenge?',                                           required: true },
+      { key: 'achievement_plan', label: 'How do you plan to achieve your goals?',                                                                       required: true },
+      { key: 'grant_use',        label: 'What do you plan to use this grant for? What do you think you\'ll spend the money on?',                        required: true },
+      { key: 'success_vision',   label: 'If you jumped 10 weeks into the future and were reflecting on your Challenge, what would success look like?',  required: true },
+      { key: 'challenge_title',  label: 'What title do you want to give your Learning Challenge?',                                                       required: true },
+      { key: 'start_date',       label: 'When do you want to start your Challenge?',                                                                     required: true },
+      { key: 'end_date',         label: 'When will you complete your Challenge?',                                                                        required: true },
+      { key: 'checkin_schedule', label: 'What\'s a good day and time for our check-in calls?',                                                           required: true },
     ];
 
-    const SATISFACTION_QUESTIONS = [
-      { key: 'instructions_clarity', label: 'How clear were the instructions for this call?', type: 'rating', required: true },
-      { key: 'program_feedback',     label: 'Any feedback for the GripTape team?',                        required: false },
-    ];
+    const SATISFACTION_QUESTIONS = [];
 
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
