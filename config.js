@@ -1,3 +1,4 @@
+// Keep STAGES in sync with supabase/functions/_shared/config.ts
 export const config = {
   PROGRAM_ID: 'nyc-2026',
   BASE_URL: 'https://learning-challenge-legacy.vercel.app',
