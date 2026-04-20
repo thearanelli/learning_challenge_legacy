@@ -844,6 +844,22 @@ RULE: Webhook functions skip on status mismatch.
   Every Edge Function checks status at the top and returns 200 if the
   record is not in the expected state. Stale webhook fires are harmless.
 
+RULE: UPDATE webhook functions must guard using payload, not DB reads.
+  Use payload.old_record and payload.record to determine what transition
+  occurred. Never re-read live DB state to make the skip decision — the
+  DB may have already advanced by the time the function runs, causing the
+  live read to return the new status and the guard to pass incorrectly.
+
+  Safe pattern:
+    if (payload.old_record.status !== 'expected_old' ||
+        payload.record.status !== 'expected_new') {
+      console.log(`[fn] skipping — transition was ${oldStatus} → ${newStatus}`)
+      return new Response('skipped', { status: 200 })
+    }
+
+  INSERT webhook functions are naturally safe — they fire once per row.
+  This rule applies only to UPDATE-triggered functions.
+
 CONCURRENCY FAILURE MODE:
   If advance_status() throws StatusConflictError:
     1. Log to agent_log
@@ -1005,6 +1021,9 @@ ADDITIONAL RULES:
   - Never write to Airtable from Edge Functions. Supabase only.
   - Magic link tokens are set by advance_status() additional_fields.
     Never generate or store tokens outside of a status transition.
+  - UPDATE webhook functions must check both old_record and record
+    from the payload to guard against duplicate fires. Never re-read
+    live DB state for the skip decision.
 
 
 --------------------------------------------------------------------------------
