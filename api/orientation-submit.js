@@ -38,14 +38,14 @@ export default async function handler(req, res) {
 
     const champRows = await champRes.json();
     if (!champRows.length) {
-      return res.status(400).json({ error: 'Invalid token' });
+      return res.status(200).json({ success: false, error: 'invalid_token' });
     }
 
     const champion_id = champRows[0].id;
 
     // Validate youth belongs to this champion
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?id=eq.${youth_id}&champion_id=eq.${champion_id}&select=id,orientation_call_completed_at`,
+      `${supabaseUrl}/rest/v1/youth?id=eq.${youth_id}&champion_id=eq.${champion_id}&select=id,status,orientation_call_completed_at`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -65,9 +65,13 @@ export default async function handler(req, res) {
 
     const youth = youthRows[0];
 
-    // Idempotency: already submitted
-    if (youth.orientation_call_completed_at) {
-      return res.status(200).json({ already_submitted: true });
+    // Guard: orientation can only be submitted while youth is mentor_pending
+    if (youth.status !== 'mentor_pending') {
+      return res.status(200).json({
+        success: false,
+        error: 'already_submitted',
+        message: 'It looks like an orientation form has already been submitted for this challenger. If you selected the wrong person from the dropdown, or if you think this is an error, please screenshot your completed form and email thea@griptape.org and we will sort it out.',
+      });
     }
 
     // Write responses and timestamp
@@ -92,6 +96,29 @@ export default async function handler(req, res) {
     }
 
     console.log(`[orientation-submit] champion ${champion_id} submitted for youth ${youth_id}`);
+
+    // Call process-orientation to advance status to grant_pending.
+    // Non-fatal: orientation data is saved — staff can manually trigger if this fails.
+    const supabaseProjectRef = process.env.SUPABASE_URL
+      .replace('https://', '')
+      .replace('.supabase.co', '');
+
+    const edgeRes = await fetch(
+      `https://${supabaseProjectRef}.supabase.co/functions/v1/process-orientation`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ youth_id }),
+      }
+    );
+
+    if (!edgeRes.ok) {
+      console.error('[orientation-submit] process-orientation call failed:', await edgeRes.text());
+    }
+
     return res.status(200).json({ success: true });
 
   } catch (err) {

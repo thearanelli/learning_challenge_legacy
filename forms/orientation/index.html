@@ -15,6 +15,7 @@
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     #status { margin-top: 16px; font-size: 0.95rem; }
     .error { color: #c00; }
+    .warning { color: #856404; background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; line-height: 1.5; }
     #state-loading, #state-invalid, #state-form, #state-success { display: none; }
   </style>
 </head>
@@ -189,8 +190,12 @@
         });
         var data = await res.json();
 
-        if (data.success || data.already_submitted) {
+        if (data.success) {
           showState('state-success');
+        } else if (data.error === 'already_submitted') {
+          status.textContent = data.message;
+          status.className   = 'warning';
+          btn.disabled = false;
         } else {
           status.textContent = 'Something went wrong. Please try again.';
           status.className   = 'error';

@@ -58,6 +58,16 @@ export const content = {
     removal_email_body: 'Placeholder — replace before launch',
   },
 
+  grant_pending: {
+    email_subject: 'PLACEHOLDER — Next step: sign your documents',
+    email_body: `<p>PLACEHOLDER — Hi {{first_name}},</p>
+<p>Congratulations on completing your orientation call.</p>
+<p>Your next step is to sign two documents so we can process your $250 learning stipend.</p>
+<p><a href="{{grant_link}}">Click here to get started →</a></p>
+<p>You have 14 days to complete this step.</p>`,
+    sms: 'PLACEHOLDER — GripTape: Time to sign your documents. {{grant_link}}',
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",

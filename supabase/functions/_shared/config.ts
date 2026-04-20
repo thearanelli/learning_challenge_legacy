@@ -18,7 +18,7 @@ export const config = {
     video_pending:        { next: 'video_review',         deadline_days: 10,   nudge_day: 7,    auto_remove: true  },
     video_review:         { next: 'onboarding',           deadline_days: null, nudge_day: null, auto_remove: false },
     onboarding:           { next: 'mentor_pending',       deadline_days: null, nudge_day: null, auto_remove: false },
-    mentor_pending:       { next: 'orientation_complete', deadline_days: 7,    nudge_day: 5,    auto_remove: true  },
+    mentor_pending:       { next: 'grant_pending',        deadline_days: 14,   nudge_day: 10,   auto_remove: true  },
     orientation_complete: { next: 'grant_pending',        deadline_days: null, nudge_day: null, auto_remove: false },
     grant_pending:        { next: 'grant_review',         deadline_days: 14,   nudge_day: 10,   auto_remove: true  },
     grant_review:         { next: 'active',               deadline_days: null, nudge_day: null, auto_remove: false },

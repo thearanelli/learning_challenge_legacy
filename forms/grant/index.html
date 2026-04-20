@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Your Documents — GripTape Learning Challenge</title>
+  <style>
+    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    p { line-height: 1.6; color: #444; }
+    button { margin-top: 20px; display: block; padding: 12px 24px; font-size: 1rem; background: #1a1a1a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    .doc-section { margin-top: 28px; }
+    .doc-section h2 { font-size: 1rem; margin-bottom: 4px; }
+    .inline-msg { margin-top: 8px; font-size: 0.9rem; color: #555; }
+    .note { margin-top: 32px; font-size: 0.9rem; color: #666; border-top: 1px solid #eee; padding-top: 16px; }
+    #loading, #form-section, #invalid-section { display: none; }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><p>Verifying your link…</p></div>
+
+  <div id="invalid-section">
+    <h1>Link invalid or expired</h1>
+    <p>This link is invalid or expired. If you believe this is a mistake, please contact us.</p>
+  </div>
+
+  <div id="form-section">
+    <h1>Sign your documents</h1>
+    <p>Hi <span id="first-name"></span>! Complete both forms below to unlock your $250 learning stipend.</p>
+
+    <div class="doc-section">
+      <h2>W-9 form</h2>
+      <button type="button" id="w9-btn">Sign W-9 form</button>
+      <p id="w9-msg" class="inline-msg" style="display:none;">Signing link coming soon — check back shortly.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>Participation agreement</h2>
+      <button type="button" id="agreement-btn">Sign participation agreement</button>
+      <p id="agreement-msg" class="inline-msg" style="display:none;">Signing link coming soon — check back shortly.</p>
+    </div>
+
+    <p class="note">Once both documents are signed, the GripTape team will review and confirm your stipend. Questions? Email <a href="mailto:thea@griptape.org">thea@griptape.org</a></p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    async function init() {
+      document.getElementById('loading').style.display = 'block';
+
+      if (!token) {
+        showInvalid();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/check-youth-token?token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+
+        if (!data.valid) {
+          showInvalid();
+          return;
+        }
+
+        document.getElementById('first-name').textContent = data.first_name;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('form-section').style.display = 'block';
+      } catch {
+        showInvalid();
+      }
+    }
+
+    function showInvalid() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('invalid-section').style.display = 'block';
+    }
+
+    document.getElementById('w9-btn').addEventListener('click', function() {
+      document.getElementById('w9-msg').style.display = 'block';
+    });
+
+    document.getElementById('agreement-btn').addEventListener('click', function() {
+      document.getElementById('agreement-msg').style.display = 'block';
+    });
+
+    init();
+  </script>
+</body>
+</html>
