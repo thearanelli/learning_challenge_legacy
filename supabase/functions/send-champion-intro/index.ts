@@ -28,6 +28,21 @@ serve(async (req) => {
       return new Response('No record in payload', { status: 400 });
     }
 
+    // Guard: only fire on onboarding → mentor_pending transition.
+    // Prevents duplicate fires when other fields on a mentor_pending
+    // youth row are updated (e.g. orientation_responses PATCH).
+    const oldStatus = payload.old_record?.status;
+    const newStatus = youthRecord.status;
+    if (oldStatus !== config.STATUS.ONBOARDING || newStatus !== config.STATUS.MENTOR_PENDING) {
+      console.log(
+        `[send-champion-intro] skipping — transition was ${oldStatus} → ${newStatus}`,
+      );
+      return new Response(JSON.stringify({ skipped: true }), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('DB_SERVICE_KEY')!,
