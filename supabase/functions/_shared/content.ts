@@ -82,6 +82,25 @@ export const content = {
     sms: `PLACEHOLDER — GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
   },
 
+  grant_review: {
+    staff_email_subject: 'Grant docs ready for review — {{first_name}} {{last_name}}',
+    staff_email_body: `Grant documents signed and ready for review.
+
+Youth: {{first_name}} {{last_name}}
+Email: {{email}}
+Phone: {{phone}}
+
+Documents in BoldSign:
+W-9: {{w9_doc_url}}
+Participation agreement: {{agreement_doc_url}}
+
+Approve: {{base_url}}/api/grant-approve?youth_id={{youth_id}}
+Reject: {{base_url}}/api/grant-reject?youth_id={{youth_id}}
+
+Note: approve/reject routes not built yet — coming next session.`,
+    staff_sms: `GripTape: Grant docs ready for {{first_name}} {{last_name}}. Check email to approve.`,
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",

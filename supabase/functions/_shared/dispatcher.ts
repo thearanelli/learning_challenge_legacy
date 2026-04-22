@@ -1,6 +1,7 @@
 import { sendEmail } from './email.ts';
 import { sendSMS } from './sms.ts';
 import { content, renderContent } from './content.ts';
+import { config } from './config.ts';
 
 export async function sendNotification(
   stageKey: string,
@@ -44,15 +45,31 @@ export async function sendStaffNotification(
     return;
   }
   const b = block as Record<string, string>;
-  if (!b.staff_sms) return;
-  const staffPhone = Deno.env.get('STAFF_PHONE') || '';
-  if (!staffPhone) {
-    console.error('[dispatcher] STAFF_PHONE not set');
-    return;
+
+  if (b.staff_email_subject && b.staff_email_body) {
+    const staffEmail = config.STAFF_EMAIL;
+    if (!staffEmail) {
+      console.error('[dispatcher] STAFF_EMAIL not set');
+    } else {
+      await sendEmail({
+        to: staffEmail,
+        subject: renderContent(b.staff_email_subject, vars),
+        html: renderContent(b.staff_email_body, vars),
+      });
+    }
   }
-  await sendSMS({
-    to: staffPhone,
-    body: renderContent(b.staff_sms, vars),
-  });
+
+  if (b.staff_sms) {
+    const staffPhone = Deno.env.get('STAFF_PHONE') || '';
+    if (!staffPhone) {
+      console.error('[dispatcher] STAFF_PHONE not set');
+    } else {
+      await sendSMS({
+        to: staffPhone,
+        body: renderContent(b.staff_sms, vars),
+      });
+    }
+  }
+
   console.log(`[dispatcher] Sent staff notification for: ${stageKey}`);
 }
