@@ -116,19 +116,23 @@ Need help? Visit ${config.BASE_URL}/help`, // help footer
   },
 
   grant_pending: {
-    email_subject: 'Placeholder — replace before launch. Submit your grant proposal for {{program_name}}',
-    email_body: `Placeholder — replace before launch.
+    email_subject: 'PLACEHOLDER — Sign your documents to unlock your stipend',
+    email_body: `PLACEHOLDER — Hi {{first_name}},
 
-Hi {{first_name}},
+Your orientation call is complete. You are one step away from unlocking your $250 GripTape Learning Challenge stipend.
 
-It's time to submit your grant proposal. Deadline: {{deadline_date}}.
+You need to sign two documents:
 
-Submit here: {{link}}
+Sign your W-9 form:
+{{w9_link}}
 
-— The GripTape Team
+Sign your participation agreement:
+{{agreement_link}}
 
-Need help? Visit ${config.BASE_URL}/help`, // help footer
-    sms: 'Placeholder — replace before launch. Hi {{first_name}}, submit your grant proposal by {{deadline_date}}: {{link}}',
+Both documents must be signed within 14 days.
+
+Questions? Visit ${config.BASE_URL}/help`,
+    sms: `PLACEHOLDER — GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
     nudge_sms: 'Placeholder — replace before launch. Reminder {{first_name}}: grant proposal due {{deadline_date}}: {{link}}',
     removal_sms: 'Placeholder — replace before launch. Hi {{first_name}}, your spot in {{program_name}} has been released. Text {{support_number}} with questions.',
     removal_email: {
@@ -143,7 +147,7 @@ Reply to this email or text {{support_number}} if you have questions.
 
 — The GripTape Team
 
-Need help? Visit ${config.BASE_URL}/help`, // help footer
+Need help? Visit ${config.BASE_URL}/help`,
     },
   },
 

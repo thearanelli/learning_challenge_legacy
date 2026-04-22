@@ -2,12 +2,11 @@
 // Invoked directly by: api/orientation-submit.js via fetch
 // NOT triggered by webhook — direct invocation ensures exactly
 // one call per orientation submission.
-// Generates grant token, advances status to grant_pending,
-// sends grant_pending email + SMS with grant link.
+// Advances status to grant_pending, creates grant_requests row,
+// calls send-grant-docs to send BoldSign signing links to youth.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendNotification } from '../_shared/dispatcher.ts';
 import { config } from '../_shared/config.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
@@ -68,12 +67,48 @@ serve(async (req) => {
       throw new Error(`advance_status error: ${updateError.message}`);
     }
 
-    const grantLink = `${config.BASE_URL}/grant?token=${tokenData.access_token}`;
-    await sendNotification('grant_pending', youth, {
-      grant_link: grantLink,
-    });
+    const { error: grantError } = await supabase
+      .from('grant_requests')
+      .insert({
+        program_id: youth.program_id,
+        youth_id: youth.id,
+      });
 
-    console.log(`[process-orientation] ${youth.id}: advanced to grant_pending, grant link sent`);
+    if (grantError) {
+      console.error(
+        '[process-orientation] failed to create grant_requests:',
+        grantError.message
+      );
+      // Non-fatal — status already advanced. Log and continue.
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseProjectRef = supabaseUrl
+      .replace('https://', '')
+      .replace('.supabase.co', '');
+
+    const sendDocsRes = await fetch(
+      `https://${supabaseProjectRef}.supabase.co/functions/v1/send-grant-docs`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({ youth_id: youth.id }),
+      }
+    );
+
+    if (!sendDocsRes.ok) {
+      console.error(
+        '[process-orientation] send-grant-docs call failed:',
+        await sendDocsRes.text()
+      );
+      // Non-fatal — grant_requests row exists, staff can
+      // manually trigger send-grant-docs if needed
+    }
+
+    console.log(`[process-orientation] ${youth.id}: advanced to grant_pending, grant_requests created, send-grant-docs called`);
 
     return new Response(
       JSON.stringify({ success: true }),

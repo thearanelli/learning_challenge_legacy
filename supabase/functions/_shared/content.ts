@@ -69,14 +69,17 @@ export const content = {
   },
 
   grant_pending: {
-    email_subject: 'PLACEHOLDER — Next step: sign your documents',
+    email_subject: 'PLACEHOLDER — Sign your documents to unlock your stipend',
     email_body: `<p>PLACEHOLDER — Hi {{first_name}},</p>
-<p>Congratulations on completing your orientation call.</p>
-<p>Your next step is to sign two documents so we can process your $250 learning stipend.</p>
-<p><a href="{{grant_link}}">Click here to get started →</a></p>
-<p>You have 14 days to complete this step.</p>
-<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
-    sms: 'PLACEHOLDER — GripTape: Time to sign your documents. {{grant_link}}',
+<p>Your orientation call is complete. You are one step away from unlocking your $250 GripTape Learning Challenge stipend.</p>
+<p>You need to sign two documents:</p>
+<p>Sign your W-9 form:<br>
+<a href="{{w9_link}}">{{w9_link}}</a></p>
+<p>Sign your participation agreement:<br>
+<a href="{{agreement_link}}">{{agreement_link}}</a></p>
+<p>Both documents must be signed within 14 days.</p>
+<p>Questions? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`,
+    sms: `PLACEHOLDER — GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
   },
 
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
