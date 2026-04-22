@@ -101,6 +101,16 @@ Note: approve/reject routes not built yet — coming next session.`,
     staff_sms: `GripTape: Grant docs ready for {{first_name}} {{last_name}}. Check email to approve.`,
   },
 
+  grant_approved: {
+    email_subject: 'PLACEHOLDER — Your GripTape grant is approved!',
+    email_body: `<p>PLACEHOLDER — Hi {{first_name}},</p>
+<p>Great news — your grant has been approved by the GripTape team!</p>
+<p>To receive your $250 learning stipend, please complete your direct deposit information using the link below:</p>
+<p><a href="{{deposit_link}}">Set up direct deposit →</a></p>
+<p>Questions? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`,
+    sms: `PLACEHOLDER — GripTape: Your grant is approved! Set up direct deposit to receive your $250: {{deposit_link}}`,
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",

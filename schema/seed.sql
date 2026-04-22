@@ -257,3 +257,42 @@ $$;
 
 -- RLS policy for advance_status function
 grant execute on function advance_status to service_role;
+
+-- STATUS NOTE (2026-04-22): grant_approved added to youth status values.
+-- grant_review.next changed from 'active' to 'grant_approved'.
+-- New flow: grant_review -> grant_approved -> active.
+-- grant_approved fires on-grant-approved webhook (staff sets
+-- staff_approved = true on grant_requests), advances status,
+-- sends deposit link to youth.
+
+-- ============================================================
+-- run manually, do not execute on fresh seed
+-- Already run in Supabase on 2026-04-22.
+-- ============================================================
+
+-- grant_requests: one row per youth, tracks BoldSign document
+-- signing status and staff approval for the $250 stipend.
+-- Created when youth submits the grant form (boldsign-send-documents).
+-- Columns updated by boldsign-webhook as documents are signed.
+
+-- CREATE TABLE IF NOT EXISTS grant_requests (
+--   id                      uuid primary key default gen_random_uuid(),
+--   program_id              uuid,
+--   youth_id                uuid references youth(id),
+--   boldsign_w9_id          text,
+--   boldsign_agreement_id   text,
+--   w9_signed_at            timestamptz,
+--   agreement_signed_at     timestamptz,
+--   w9_doc_url              text,
+--   agreement_doc_url       text,
+--   staff_approved          boolean default false,
+--   staff_approved_at       timestamptz,
+--   created_at              timestamptz default now(),
+--   updated_at              timestamptz
+-- );
+--
+-- ALTER TABLE grant_requests ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY "Service role full access" ON grant_requests
+--   FOR ALL USING (true)
+--   WITH CHECK (true);

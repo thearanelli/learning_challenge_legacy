@@ -183,6 +183,20 @@ Note: approve/reject routes not built yet — coming next session.`,
     staff_sms: `GripTape: Grant docs ready for {{first_name}} {{last_name}}. Check email to approve.`,
   },
 
+  grant_approved: {
+    email_subject: 'PLACEHOLDER — Your GripTape grant is approved!',
+    email_body: `PLACEHOLDER — Hi {{first_name}},
+
+Great news — your grant has been approved by the GripTape team!
+
+To receive your $250 learning stipend, please complete your direct deposit information using the link below:
+
+{{deposit_link}}
+
+Questions? Visit ${config.BASE_URL}/help`,
+    sms: `PLACEHOLDER — GripTape: Your grant is approved! Set up direct deposit to receive your $250: {{deposit_link}}`,
+  },
+
   active: {
     email_subject: 'Placeholder — replace before launch. Your {{program_name}} grant is approved — you\'re active!',
     email_body: `Placeholder — replace before launch.
