@@ -97,13 +97,13 @@ export default async function handler(req, res) {
 
     console.log(`[orientation-submit] champion ${champion_id} submitted for youth ${youth_id}`);
 
-    // Call process-orientation to advance status to grant_pending.
+    // Fire and forget — do not await
     // Non-fatal: orientation data is saved — staff can manually trigger if this fails.
     const supabaseProjectRef = process.env.SUPABASE_URL
       .replace('https://', '')
       .replace('.supabase.co', '');
 
-    const edgeRes = await fetch(
+    fetch(
       `https://${supabaseProjectRef}.supabase.co/functions/v1/process-orientation`,
       {
         method: 'POST',
@@ -119,11 +119,7 @@ export default async function handler(req, res) {
           legal_name:      responses.legal_name,
         }),
       }
-    );
-
-    if (!edgeRes.ok) {
-      console.error('[orientation-submit] process-orientation call failed:', await edgeRes.text());
-    }
+    ).catch(err => console.error('[orientation-submit] process-orientation call failed:', err));
 
     return res.status(200).json({ success: true });
 
