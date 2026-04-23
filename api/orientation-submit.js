@@ -111,7 +111,13 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({ youth_id }),
+        body: JSON.stringify({
+          youth_id,
+          challenge_topic: responses.challenge_topic,
+          grant_amount:    responses.grant_amount,
+          grant_format:    responses.grant_format,
+          legal_name:      responses.legal_name,
+        }),
       }
     );
 

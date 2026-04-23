@@ -149,7 +149,14 @@ serve(async (req) => {
       const claudeData = await claudeRes.json();
       const raw = claudeData.content[0]?.text ?? '';
       const cleaned = raw.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
-      const aiResult: { champion_id: string; reasoning: string } = JSON.parse(cleaned);
+      console.log('[match-champion] Claude raw response:', JSON.stringify(raw));
+      console.log('[match-champion] Claude cleaned response:', JSON.stringify(cleaned));
+      let aiResult: { champion_id: string; reasoning: string };
+      try {
+        aiResult = JSON.parse(cleaned);
+      } catch (parseErr) {
+        throw new Error(`Failed to parse Claude response. cleaned=${JSON.stringify(cleaned)} parseErr=${parseErr}`);
+      }
 
       const matched = champions.find((c) => c.id === aiResult.champion_id);
       if (!matched) {

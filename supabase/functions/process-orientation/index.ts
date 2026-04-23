@@ -12,7 +12,7 @@ import { generateToken } from '../_shared/tokens.ts';
 
 serve(async (req) => {
   try {
-    const { youth_id } = await req.json();
+    const { youth_id, challenge_topic, grant_amount, grant_format, legal_name } = await req.json();
 
     if (!youth_id) {
       return new Response('Missing youth_id', { status: 400 });
@@ -81,6 +81,17 @@ serve(async (req) => {
       );
       // Non-fatal — status already advanced. Log and continue.
     }
+
+    await supabase
+      .from('grant_requests')
+      .update({
+        grant_format:    grant_format,
+        grant_amount:    grant_amount,
+        challenge_topic: challenge_topic,
+        legal_name:      legal_name,
+        updated_at:      new Date().toISOString(),
+      })
+      .eq('youth_id', youth.id);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseProjectRef = supabaseUrl
