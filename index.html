@@ -878,6 +878,13 @@ function sendAnswer() {
       setTimeout(() => {
         hideTyping();
         addAiMsg("Perfect! Last one — what's your phone number? 📱", null);
+
+        var notice = document.createElement('p');
+        notice.style.cssText = 'font-size:0.8rem;color:#999;line-height:1.5;max-width:680px;margin:-0.25rem auto 0;padding:0 0.5rem 0 calc(36px + 0.85rem);';
+        notice.textContent = 'By submitting this application, you agree to receive SMS updates from GripTape about your application status and program participation. Message and data rates may apply. Reply STOP to unsubscribe at any time.';
+        document.getElementById('chat').appendChild(notice);
+        scrollBottom();
+
         setEnabled(true);
       }, 700);
       return;
