@@ -14,6 +14,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendNotification } from '../_shared/dispatcher.ts';
+import { sendEmail } from '../_shared/email.ts';
+import { renderContent, content } from '../_shared/content.ts';
+import { config } from '../_shared/config.ts';
 
 serve(async (req) => {
   try {
@@ -84,11 +87,43 @@ serve(async (req) => {
       throw new Error(`advance_status error: ${updateError.message}`);
     }
 
+    // Load grant_request for Ryan notification vars
+    const { data: grantRequest } = await supabase
+      .from('grant_requests')
+      .select('legal_name, grant_amount, grant_format, grant_coding, w9_doc_url')
+      .eq('id', record.id)
+      .single();
+
     // Send deposit link notification to youth
     // Uses grant_approved content block: email_subject, email_body, sms
     await sendNotification('grant_approved', youth, {
       deposit_link: 'PLACEHOLDER_DEPOSIT_LINK',
     });
+
+    // Send disbursement notification to Ryan (separate address, separate content)
+    const ryanEmail = config.RYAN_EMAIL;
+    if (ryanEmail) {
+      const block = (content as Record<string, any>)['ryan_notification'];
+      const vars = {
+        first_name:  youth.first_name,
+        last_name:   youth.last_name,
+        legal_name:  grantRequest?.legal_name  ?? 'Not provided',
+        email:       youth.email,
+        phone:       youth.phone,
+        grant_amount: String(grantRequest?.grant_amount ?? 250),
+        grant_format: grantRequest?.grant_format  ?? 'Not specified',
+        grant_coding: grantRequest?.grant_coding  ?? 'PLACEHOLDER',
+        youth_id:    youth.id,
+        approved_at: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        w9_doc_url:  grantRequest?.w9_doc_url ?? 'Not available',
+      };
+      await sendEmail({
+        to:      ryanEmail,
+        subject: renderContent(block.staff_email_subject, vars),
+        html:    renderContent(block.staff_email_body, vars),
+      });
+      console.log(`[on-grant-approved] Ryan notification sent for youth ${youth.id}`);
+    }
 
     console.log(`[on-grant-approved] ${youth.id}: advanced to grant_approved, deposit link sent to ${youth.email}`);
 

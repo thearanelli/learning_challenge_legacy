@@ -29,6 +29,7 @@ export const config = {
     showcase_invited:     { next: 'completed',            deadline_days: null, nudge_day: null, auto_remove: false },
   },
   STAFF_EMAIL: Deno.env.get('STAFF_EMAIL') ?? '',
+  RYAN_EMAIL:  Deno.env.get('RYAN_EMAIL')  ?? '',
   STATUS: {
     SUBMITTED:             'submitted',
     SCREENING:             'screening',

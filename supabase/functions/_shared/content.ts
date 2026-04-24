@@ -111,6 +111,56 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms: `PLACEHOLDER — GripTape: Your grant is approved! Set up direct deposit to receive your $250: {{deposit_link}}`,
   },
 
+  ryan_notification: {
+    staff_email_subject: 'Grant disbursement — {{legal_name}}',
+    staff_email_body: `<p>A grant has been approved and is ready for disbursement.</p>
+
+<table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px;">
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Challenger name</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{first_name}} {{last_name}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Legal name</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{legal_name}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Email</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{email}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Phone</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{phone}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Grant amount</td>
+    <td style="padding:8px;border:1px solid #ddd;">\${{grant_amount}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Payment format</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{grant_format}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Grant coding</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{grant_coding}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Challenger Progress ID</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{youth_id}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Approved on</td>
+    <td style="padding:8px;border:1px solid #ddd;">{{approved_at}}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">W-9</td>
+    <td style="padding:8px;border:1px solid #ddd;"><a href="{{w9_doc_url}}">View in BoldSign</a></td>
+  </tr>
+</table>
+
+<p style="margin-top:16px;color:#666;font-size:12px;">Tremendous disbursement pending — deposit link will be sent to challenger directly once wired.</p>`,
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",

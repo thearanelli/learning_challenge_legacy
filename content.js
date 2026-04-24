@@ -268,6 +268,24 @@ Need help? Visit ${config.BASE_URL}/help`, // help footer
     sms: 'Placeholder — replace before launch. Congrats {{first_name}}! You completed {{program_name}}. We\'re so proud of you.',
   },
 
+  ryan_notification: {
+    staff_email_subject: 'Grant disbursement — {{legal_name}}',
+    staff_email_body: `Grant disbursement ready.
+
+Challenger: {{first_name}} {{last_name}}
+Legal name: {{legal_name}}
+Email: {{email}}
+Phone: {{phone}}
+Grant amount: ${{grant_amount}}
+Payment format: {{grant_format}}
+Grant coding: {{grant_coding}}
+Challenger Progress ID: {{youth_id}}
+Approved on: {{approved_at}}
+W-9: {{w9_doc_url}}
+
+Tremendous disbursement pending — deposit link will be sent to challenger directly once wired.`,
+  },
+
   removed: {
     email_subject: 'Placeholder — replace before launch. Your {{program_name}} status',
     email_body: `Placeholder — replace before launch.
