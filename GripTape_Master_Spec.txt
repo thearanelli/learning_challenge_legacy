@@ -4,7 +4,7 @@ YOUTH DRIVING LEARNING
 
 Full System Spec — MVP
 Tech Spec + Architecture + Build Plan
-Last updated: April 16, 2026
+Last updated: April 24, 2026
 ================================================================================
 
 This is the single document that governs building the GripTape Learning
@@ -319,9 +319,11 @@ APPLICATIONS — screening_status values:
 
 YOUTH — status values:
   onboarding          Youth row created, champion matching in progress
-  mentor_pending      Matched with Champion, awaiting meeting confirmation
-  grant_pending       Meeting confirmed, awaiting W9 + grant forms
-  grant_review        Forms submitted, AI reviewed, awaiting staff approval
+  mentor_pending      Matched with Champion, awaiting orientation call
+  grant_pending       Orientation confirmed, awaiting W9 + grant docs signing
+  grant_review        Docs signed, awaiting staff approval
+  grant_approved      Docs approved by staff, deposit link sent to youth.
+                      Sits between grant_review and active.
   active              Funded, in program, bi-weekly meetings
   final_video_pending Awaiting final video
   showcase_invited    Invited to Grand Showcase
@@ -507,6 +509,94 @@ FUNCTION: send-champion-intro
   Does NOT call advance_status(). Status is already mentor_pending.
   Does NOT increment active_youth_count. match-champion owns that.
 
+--
+
+FUNCTION: process-orientation
+  Status: LIVE
+  Trigger: Direct HTTP call from api/orientation-submit.js
+           Fire-and-forget (not awaited). Non-fatal if it fails —
+           orientation data already saved to youth record.
+  Flow:
+    1. Receives youth_id, challenge_topic, grant_amount, grant_format,
+       legal_name in request body
+    2. Skips if youth.status !== 'mentor_pending'
+    3. advance_status(mentor_pending → grant_pending)
+       Sets access_token + token_expires_at (14 days)
+    4. Creates grant_requests row (INSERT) with youth_id, program_id
+    5. UPDATEs grant_requests with challenge_topic, grant_amount,
+       grant_format, legal_name
+    6. Calls send-grant-docs Edge Function directly
+
+  Idempotency: advance_status() StatusConflictError exits cleanly.
+
+--
+
+FUNCTION: send-grant-docs
+  Status: LIVE
+  Trigger: Direct HTTP call from process-orientation
+  Flow:
+    1. Receives youth_id
+    2. Idempotency: skips if boldsign_w9_id already set on grant_requests
+    3. Calls BoldSign API to create W-9 signing request
+       POST /v1/template/send?templateId=BOLDSIGN_W9_TEMPLATE_ID
+       disableEmails: true — all communications go through our dispatcher
+    4. Calls BoldSign API to create agreement signing request
+       Same pattern with BOLDSIGN_AGREEMENT_TEMPLATE_ID
+    5. Fetches signing URLs via getEmbeddedSignLink per document
+       linkValidTill derived from config.STAGES.grant_pending.deadline_days
+    6. Updates grant_requests with boldsign_w9_id + boldsign_agreement_id
+    7. Sends youth email + SMS via sendNotification('grant_pending')
+       with w9_link and agreement_link as template vars
+
+--
+
+FUNCTION: boldsign-webhook
+  Status: LIVE
+  Trigger: BoldSign webhook on document completion
+           No JWT verification (--no-verify-jwt)
+           URL: /functions/v1/boldsign-webhook
+  Flow:
+    1. Filters for event.eventType === 'Completed'
+    2. Extracts body.data.documentId
+    3. Looks up grant_requests by boldsign_w9_id or boldsign_agreement_id
+    4. Writes signed_at timestamp + BoldSign dashboard URL
+       to w9_signed_at/w9_doc_url or agreement_signed_at/agreement_doc_url
+    5. If both w9_signed_at and agreement_signed_at are set:
+       calls process-grant-signed directly
+
+--
+
+FUNCTION: process-grant-signed
+  Status: LIVE
+  Trigger: Direct HTTP call from boldsign-webhook
+  Flow:
+    1. Receives youth_id
+    2. Skips if youth.status !== 'grant_pending'
+    3. advance_status(grant_pending → grant_review)
+    4. Sends staff email via sendStaffNotification('grant_review')
+       with doc URLs and approve/reject placeholder instructions
+
+  Idempotency: advance_status() StatusConflictError exits cleanly.
+
+--
+
+FUNCTION: on-grant-approved
+  Status: LIVE
+  Trigger: Supabase DB webhook on UPDATE to grant_requests
+           Name: on_grant_requests_approved
+           Fires when staff_approved changes to true
+  Flow:
+    1. Guards using payload: old_record.staff_approved !== true AND
+       record.staff_approved === true (prevents duplicate fires)
+    2. Sets staff_approved_at on grant_requests
+    3. Skips if youth.status !== 'grant_review'
+    4. advance_status(grant_review → grant_approved)
+    5. Sends youth email + SMS via sendNotification('grant_approved')
+       with deposit_link: 'PLACEHOLDER_DEPOSIT_LINK'
+       (Tremendous integration pending — see Open Decisions)
+
+  NOTE: Uses payload guard pattern (not DB re-read). See Section 2.9.
+
 
 --------------------------------------------------------------------------------
 2.4 WEBHOOKS — CONFIGURED IN SUPABASE DASHBOARD
@@ -562,6 +652,18 @@ Purpose:  Sends group intro email to youth + champion on status transition
           Function guards internally: skips if status != 'mentor_pending'
           or champion_id is null.
 
+--
+
+NAME:     on_grant_requests_approved
+Table:    public.grant_requests
+Event:    UPDATE
+URL:      https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/on-grant-approved
+Purpose:  Fires when staff sets staff_approved = true directly in Supabase.
+          Advances youth grant_review → grant_approved.
+          Sends youth deposit link email + SMS.
+          Function guards using payload (old_record + record) to prevent
+          duplicate fires.
+
 
 --------------------------------------------------------------------------------
 2.5 SHARED UTILITIES (_shared/)
@@ -573,6 +675,10 @@ supabase/functions/_shared/ contains shared modules imported by all Edge Functio
   content.ts      All copy organized by stage key. renderContent() helper.
   dispatcher.ts   sendNotification() and sendStaffNotification() — routes to
                   email.ts and/or sms.ts based on stage config.
+                  sendStaffNotification() supports both email and SMS:
+                  email fires if content block has staff_email_subject +
+                  staff_email_body keys; SMS fires if staff_sms key present.
+                  Both are optional — missing keys skip silently.
   email.ts        Resend wrapper. sendEmail({ to, subject, html }).
   sms.ts          Twilio wrapper. sendSMS({ to, body }).
   tokens.ts       generateToken(deadline_days) — returns { access_token,
@@ -658,15 +764,23 @@ TABLE: champions
 --
 
 TABLE: grant_requests
-  id                uuid, primary key
-  program_id        uuid
-  youth_id          uuid references youth(id)
-  w9_url            text
-  amount_requested  integer
-  ai_review_notes   text
-  staff_approved    boolean, default false
-  staff_approved_at timestamptz
-  funds_sent_at     timestamptz
+  id                      uuid, primary key
+  program_id              uuid
+  youth_id                uuid references youth(id)
+  boldsign_w9_id          text
+  boldsign_agreement_id   text
+  w9_signed_at            timestamptz
+  agreement_signed_at     timestamptz
+  w9_doc_url              text
+  agreement_doc_url       text
+  staff_approved          boolean, default false
+  staff_approved_at       timestamptz
+  challenge_topic         text
+  grant_amount            integer
+  grant_format            text       ('ACH (direct deposit)' | 'Physical Visa debit card' | 'Virtual Visa debit card')
+  legal_name              text
+  created_at              timestamptz, default now()
+  updated_at              timestamptz
 
 --
 
@@ -736,6 +850,9 @@ learning_challenge_legacy/
 ├── api/
 │   ├── submit.js               Application form -> Supabase
 │   ├── declare-submit.js       Declaration form -> process-declaration Edge Fn
+│   ├── orientation-submit.js   Orientation form -> writes to youth, fires
+│   │                           process-orientation (fire-and-forget)
+│   ├── help-submit.js          /help form -> Resend email to staff
 │   └── sync-airtable.js        Supabase webhook -> Airtable sync
 │
 ├── supabase/
@@ -747,17 +864,25 @@ learning_challenge_legacy/
 │       ├── validate-video/     Advances video_pending -> video_review on submit
 │       ├── on-acceptance/      Creates youth row when staff accepts video
 │       ├── match-champion/     AI matches youth to Champion on youth INSERT
-│       └── send-champion-intro/ Sends intro email on onboarding->mentor_pending
+│       ├── send-champion-intro/ Sends intro email on onboarding->mentor_pending
+│       ├── process-orientation/ mentor_pending -> grant_pending transition
+│       ├── send-grant-docs/    BoldSign API + grant_pending youth notification
+│       ├── boldsign-webhook/   BoldSign document completion handler
+│       ├── process-grant-signed/ grant_pending -> grant_review transition
+│       └── on-grant-approved/  grant_review -> grant_approved transition
 │
 ├── forms/
-│   ├── apply/                  Public application (live)
 │   ├── declare/                Declaration form (token-gated)
 │   ├── video/                  Intro video submission (token-gated)
-│   ├── meeting/                Meeting confirmation + reflection (token-gated)
-│   ├── grant/                  W9 + grant request (token-gated, future)
+│   ├── orientation/            Champion orientation form (token-gated, live)
+│   ├── grant/                  Grant signing links (token-gated, live)
+│   ├── help/                   Public support/help form (no token gate)
+│   ├── privacy/                Privacy policy (public static page)
+│   ├── terms/                  Terms of service (public static page)
+│   ├── champion-register/      Champion self-registration
+│   ├── meeting/                (confirm whether replaced by orientation/)
 │   ├── final-video/            Final video submission (token-gated, future)
-│   ├── rsvp/                   Showcase RSVP (future)
-│   └── champion-register/      Champion self-registration
+│   └── rsvp/                   Showcase RSVP (future)
 │
 ├── scripts/
 │   └── test-champion-intro.ts  Test script: creates application + youth,
@@ -796,7 +921,8 @@ export const config = {
     onboarding:          { next: 'mentor_pending',      deadline_days: null, nudge_day: null, auto_remove: false },
     mentor_pending:      { next: 'grant_pending',       deadline_days: 14,   nudge_day: 10,  auto_remove: true  },
     grant_pending:       { next: 'grant_review',        deadline_days: 14,   nudge_day: 10,  auto_remove: true  },
-    grant_review:        { next: 'active',              deadline_days: null, nudge_day: null, auto_remove: false },
+    grant_review:        { next: 'grant_approved',       deadline_days: null, nudge_day: null, auto_remove: false },
+    grant_approved:      { next: 'active',               deadline_days: null, nudge_day: null, auto_remove: false },
     active:              { next: 'final_video_pending', deadline_days: null, nudge_day: null, auto_remove: false },
     final_video_pending: { next: 'showcase_invited',    deadline_days: 14,   nudge_day: 5,   auto_remove: false },
     showcase_invited:    { next: 'completed',           deadline_days: null, nudge_day: null, auto_remove: false },
@@ -912,27 +1038,47 @@ PART 3 — TECH STACK
 
   Hosting            Vercel. Application form + all API routes.
   Database           Supabase (PostgreSQL). Source of truth.
-  Edge Functions     Supabase (Deno runtime). 6 deployed.
+  Edge Functions     Supabase (Deno runtime). 11 deployed.
   Email              Resend. All transactional emails.
   SMS                Twilio. Youth + Champion notifications + staff alerts.
   AI                 Claude (claude-sonnet-4-6) via Anthropic API.
+  E-signatures       BoldSign. W-9 and participation agreement signing.
+                     Webhook on completion. disableEmails: true on all
+                     API calls — all comms go through our dispatcher.
   Video check        YouTube oEmbed API (future — not yet implemented).
   Reporting          Airtable (read-only mirror).
   Code               GitHub (github.com/thearanelli/learning_challenge_legacy).
                      Auto-deploys to Vercel on push to main.
 
 ENVIRONMENT VARIABLES (never hardcode any of these):
-  ANTHROPIC_API_KEY
-  SUPABASE_URL
-  DB_SERVICE_KEY              (Supabase service role key — used in Edge Fns)
-  RESEND_API_KEY
-  TWILIO_ACCOUNT_SID
-  TWILIO_AUTH_TOKEN
-  TWILIO_PHONE_NUMBER         youth + champion SMS
-  TWILIO_STAFF_NUMBER         staff notifications (separate number)
-  AIRTABLE_TOKEN
-  AIRTABLE_BASE_ID
-  STAFF_EMAIL                 staff alert email address
+
+  Vercel (api/ routes):
+    ANTHROPIC_API_KEY
+    SUPABASE_URL
+    SUPABASE_SERVICE_KEY        (Vercel uses this key name)
+    SUPABASE_ANON_KEY
+    RESEND_API_KEY
+    AIRTABLE_TOKEN
+    AIRTABLE_BASE_ID
+    STAFF_EMAIL
+
+  Supabase secrets (Edge Functions):
+    ANTHROPIC_API_KEY
+    SUPABASE_URL
+    DB_SERVICE_KEY              (Edge Functions use this key name)
+    SUPABASE_ANON_KEY
+    RESEND_API_KEY
+    TWILIO_ACCOUNT_SID
+    TWILIO_AUTH_TOKEN
+    TWILIO_PHONE_NUMBER         youth + champion SMS
+    TWILIO_STAFF_NUMBER         staff notifications (separate number)
+    STAFF_EMAIL
+    BOLDSIGN_API_KEY
+    BOLDSIGN_W9_TEMPLATE_ID
+    BOLDSIGN_AGREEMENT_TEMPLATE_ID
+
+  NOTE: Vercel uses SUPABASE_SERVICE_KEY. Edge Functions use DB_SERVICE_KEY.
+  These are the same Supabase service role key stored under different names.
 
 
 ================================================================================
@@ -956,24 +1102,49 @@ PART 4 — BUILD STATUS
   [x] match-champion Edge Function + webhook
   [x] send-champion-intro Edge Function + webhook
   [x] _shared/ utilities: config, content, dispatcher, email, sms, tokens, prompts
-  [x] forms/apply/ — live
   [x] forms/declare/ — live
   [x] forms/video/ — live
   [x] Champion seed data (5 champions in Supabase)
   [x] End-to-end test: application -> screening -> declaration -> video ->
       staff acceptance -> youth row -> champion match -> intro email
+  [x] forms/orientation/ — champion orientation form, live
+  [x] api/orientation-submit.js — fires process-orientation fire-and-forget
+  [x] process-orientation Edge Function — mentor_pending -> grant_pending
+  [x] send-grant-docs Edge Function — BoldSign W-9 + agreement integration
+  [x] boldsign-webhook Edge Function — document completion handler
+  [x] process-grant-signed Edge Function — grant_pending -> grant_review
+  [x] on-grant-approved Edge Function + webhook — grant_review -> grant_approved
+  [x] grant_requests table — full schema with BoldSign + grant form columns
+  [x] dispatcher.ts extended for staff SMS support
+  [x] grant_pending, grant_review, grant_approved content blocks in content.ts
+  [x] api/help-submit.js + forms/help/ — public support channel
+  [x] forms/privacy/ — GripTape Privacy Policy (public, /privacy route)
+  [x] forms/terms/ — GripTape Terms of Service (public, /terms route)
+  [x] SMS consent notice injected into application form at phone question
+  [x] send-champion-intro — fixed duplicate fire bug using payload guards
+  [x] Twilio A2P 10DLC campaign resubmitted (pending carrier approval)
+  [x] BoldSign account + W-9 and agreement templates created
 
 
 --------------------------------------------------------------------------------
 4.2 UP NEXT (Phase 2 remainder)
 --------------------------------------------------------------------------------
 
-  [ ] forms/meeting/ — token-gated meeting confirmation + reflection form
-  [ ] Edge Function: on meeting confirmed, status -> grant_pending,
-      send W9 + grant forms to youth
   [ ] daily-scheduler — deadlines, nudges, auto-remove for
-      declaration_pending, video_pending, mentor_pending
-  [ ] End-to-end test through to grant_pending
+      declaration_pending, video_pending, mentor_pending, grant_pending.
+      BLOCKING for pilot launch.
+  [ ] forms/meeting/ — confirm whether still needed or replaced by
+      orientation form flow
+  [ ] Replace ALL placeholder copy in content.ts and content.js with
+      real GripTape copy before pilot
+  [ ] Champion token backfill SQL — 5 seeded champions need
+      champion_token set
+  [ ] Tremendous API integration — replace PLACEHOLDER_DEPOSIT_LINK
+      in on-grant-approved
+      BLOCKED ON: accountant confirmation re W-9 requirement at $250
+  [ ] Catherine grant review view in Supabase
+  [ ] Oversight agent — 30-min cron, emails Thea on anomalies
+  [ ] Full end-to-end test with fake youth before pilot
 
 
 --------------------------------------------------------------------------------
@@ -981,10 +1152,12 @@ PART 4 — BUILD STATUS
 --------------------------------------------------------------------------------
 
 PHASE 3 — GRANT PROCESSING
-  [ ] forms/grant/ — W9 + grant request (token-gated)
-  [ ] review-grant Edge Function — AI reviews, staff SMS approval
-  [ ] Staff approval handler -> fund disbursement -> status active
-  BLOCKED ON: payment method decision + W9 compliance confirmation
+  [x] BoldSign e-signature platform (selected + integrated)
+  [x] Tremendous payment platform (selected, pending integration)
+  [x] Payment methods: ACH or Visa gift card via Tremendous
+  [ ] Tremendous API integration — replace PLACEHOLDER_DEPOSIT_LINK
+  [ ] W-9 compliance at $250 — pending accountant confirmation
+      (IRS threshold is $600 but org policy TBD)
 
 PHASE 4 — ACTIVE PROGRAM & SHOWCASE
   [ ] Bi-weekly meeting nudge logic in daily-scheduler
@@ -1047,28 +1220,97 @@ These are explicitly out of scope for the MVP pilot. Do not build now.
 
 
 ================================================================================
+PART 4.6 — KEY ARCHITECTURAL DECISIONS MADE DURING BUILD
+================================================================================
+
+These were not in the original spec but are now system rules.
+Follow them in all future Edge Function work.
+
+--
+
+1. UPDATE webhook functions must guard using payload, not DB reads.
+   Use payload.old_record and payload.record to determine what transition
+   occurred. Never re-read live DB state for the skip decision — the DB
+   may have already advanced by the time the function runs, causing the
+   live read to return the new status and the guard to pass incorrectly.
+
+   Safe pattern:
+     if (payload.old_record.staff_approved === true ||
+         payload.record.staff_approved !== true) return 200 (skipped)
+
+   INSERT webhook functions are naturally safe — they fire once per row.
+   This rule applies only to UPDATE-triggered functions.
+
+--
+
+2. Direct invocation vs webhook trigger.
+   Direct HTTP invocation is correct for forms making multiple writes
+   to the same table (prevents webhook duplicate fires). Forms that
+   write to a table and need exactly one downstream execution use direct
+   invocation. Webhook pattern is correct for single clean field writes.
+
+   Examples:
+     orientation-submit.js writes to youth, then calls process-orientation
+     directly (fire-and-forget). NOT webhook-triggered.
+     boldsign-webhook writes to grant_requests, then calls process-grant-signed
+     directly. NOT a DB webhook.
+
+--
+
+3. BoldSign email suppression.
+   disableEmails: true on all BoldSign API calls. All communications to
+   youth go through our dispatcher (Resend + Twilio). BoldSign is signing
+   infrastructure only — it never sends email directly to participants.
+
+--
+
+4. Signing URL retrieval.
+   BoldSign template/send response does NOT include the signing URL.
+   Must call getEmbeddedSignLink separately per document after getting
+   the documentId from the send response. linkValidTill is derived from
+   config.STAGES.grant_pending.deadline_days.
+
+--
+
+5. grant_requests row creation.
+   Created by process-orientation atomically with the grant_pending status
+   transition. Never created elsewhere. Fields are written in two steps:
+   INSERT (program_id + youth_id), then UPDATE (challenge_topic, grant_amount,
+   grant_format, legal_name) — because the INSERT fires before we have
+   confirmed the status advance succeeded.
+
+--
+
+6. Staff approval flow (pilot).
+   Staff (Thea) reviews BoldSign docs manually and sets staff_approved = true
+   directly in Supabase. on-grant-approved webhook handles the rest
+   automatically. No approve/reject API routes needed for the 50-youth pilot.
+   This is intentional — build the manual staff path first, add the staff
+   UI when volume demands it.
+
+================================================================================
 PART 5 — OPEN DECISIONS
 ================================================================================
 
-Before Phase 3:
-  - Payment method for $250 stipend (check, ACH, Venmo, payment API?)
-  - W9 storage compliance — confirm with accountant/lawyer
-
-Before Phase 4:
-  - Video resubmission policy — one 48-hour chance? Currently no resubmit logic.
-
 Before Pilot Launch:
-  - Replace ALL placeholder copy in content.js with real GripTape copy
-  - Confirm Twilio numbers active (youth number + staff number)
+  - W-9 storage compliance — confirm with accountant/lawyer
+  - W-9 requirement at $250 — confirm with accountant
+    (IRS threshold is $600 but org policy may differ)
+  - Grant coding value (e.g. GS_NLC) — confirm with Ryan before
+    building Tremendous integration
+  - Age range discrepancy: privacy policy and terms say 14-19 but
+    program is 15-19. Update docs before pilot.
+  - Confirm Twilio numbers active + A2P 10DLC campaign approved
   - Confirm Resend sending domain verified
-  - Run full end-to-end test with fake youth before any real youth touch system
-  - Confirm stage deadline windows are right (defaults in config.js)
+  - Run full end-to-end test with fake youth before any real youth
 
 Ongoing:
-  - Champion registration: currently manual (staff adds champions directly
-    to DB or via seed). Champion self-registration form (forms/champion-register/)
-    is in the repo but not wired to a full flow yet. Confirm whether staff
-    approves before champion goes active, or auto-active on form submission.
+  - Champion registration: forms/champion-register/ exists but not fully
+    wired. Confirm whether staff approves or auto-active on submission.
+  - Video resubmission policy — one 48-hour chance? No resubmit logic yet.
+
+Resolved (moved from open):
+  - Payment method: Tremendous, ACH or Visa gift card (selected)
 
 
 ================================================================================
