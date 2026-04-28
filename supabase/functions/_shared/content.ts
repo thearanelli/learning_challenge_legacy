@@ -102,63 +102,30 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   grant_approved: {
-    email_subject: 'PLACEHOLDER — Your GripTape grant is approved!',
-    email_body: `<p>PLACEHOLDER — Hi {{first_name}},</p>
-<p>Great news — your grant has been approved by the GripTape team!</p>
-<p>To receive your $250 learning stipend, please complete your direct deposit information using the link below:</p>
-<p><a href="{{deposit_link}}">Set up direct deposit →</a></p>
-<p>Questions? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`,
-    sms: `PLACEHOLDER — GripTape: Your grant is approved! Set up direct deposit to receive your $250: {{deposit_link}}`,
+    email_subject: 'Your GripTape grant is approved',
+    email_body: `<p>Hi {{first_name}},</p>
+<p>GripTape is sending you \${{grant_amount}} to put toward your passion. This grant is yours — use it to learn, build, and go after what lights you up. Choose how you want to receive it below and let's get you funded. — The GripTape Team</p>
+<p><a href="{{redemption_link}}">Claim your grant →</a></p>
+<p>Questions? Visit <a href="https://learning-challenge-legacy.vercel.app/help">https://learning-challenge-legacy.vercel.app/help</a></p>`,
+    sms: `GripTape: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
+  },
+
+  tremendous_error: {
+    staff_email_subject: 'ACTION REQUIRED — Tremendous payout failed for {{first_name}} {{last_name}}',
+    staff_email_body: `<p>The Tremendous API call failed for youth <strong>{{first_name}} {{last_name}}</strong> (ID: {{youth_id}}).</p>
+<p>Grant request ID: {{grant_request_id}}</p>
+<p>The youth's status has NOT been advanced. Investigate and retry manually.</p>`,
   },
 
   ryan_notification: {
-    staff_email_subject: 'Grant disbursement — {{legal_name}}',
-    staff_email_body: `<p>A grant has been approved and is ready for disbursement.</p>
-
-<table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px;">
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Challenger name</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{first_name}} {{last_name}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Legal name</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{legal_name}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Email</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{email}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Phone</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{phone}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Grant amount</td>
-    <td style="padding:8px;border:1px solid #ddd;">\${{grant_amount}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Payment format</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{grant_format}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Grant coding</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{grant_coding}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Challenger Progress ID</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{youth_id}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Approved on</td>
-    <td style="padding:8px;border:1px solid #ddd;">{{approved_at}}</td>
-  </tr>
-  <tr>
-    <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">W-9</td>
-    <td style="padding:8px;border:1px solid #ddd;"><a href="{{w9_doc_url}}">View in BoldSign</a></td>
-  </tr>
-</table>
-
-<p style="margin-top:16px;color:#666;font-size:12px;">Tremendous disbursement pending — deposit link will be sent to challenger directly once wired.</p>`,
+    staff_email_subject: 'Challenger Grant, {{legal_name}}',
+    staff_email_body: `challengerProgressId: {{youth_id}}
+• Grant amount: ${{grant_amount}}
+• Grant format: {{grant_format}}
+• Youth email: {{email}}
+• Youth legal name: {{legal_name}}
+• Grant coding: LC26
+• Date sent to finance: {{approved_at}}`,
   },
 
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
