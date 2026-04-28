@@ -74,28 +74,17 @@ serve(async (req) => {
       return new Response('ok', { status: 200 });
     }
 
-    // Fetch grant_requests record explicitly — webhook payload may omit nullable columns
-    const { data: grantRequestRow, error: grError } = await supabase
-      .from('grant_requests')
-      .select('grant_amount, legal_name, grant_format, grant_coding, w9_doc_url')
-      .eq('id', record.id)
-      .single();
-
-    if (grError || !grantRequestRow) {
-      console.error(`[on-grant-approved] grant_requests not found for record ${record.id}`);
-      return new Response('ok', { status: 200 });
-    }
-
+    // grant_requests fields come from the webhook payload record (the updated row)
     const grantRequest = {
-      grant_amount: grantRequestRow.grant_amount,
-      legal_name:   grantRequestRow.legal_name  ?? null,
-      grant_format: grantRequestRow.grant_format ?? null,
-      grant_coding: grantRequestRow.grant_coding ?? null,
-      w9_doc_url:   grantRequestRow.w9_doc_url  ?? null,
+      grant_amount: record.grant_amount,
+      legal_name:   record.legal_name  ?? null,
+      grant_format: record.grant_format ?? null,
+      grant_coding: record.grant_coding ?? null,
+      w9_doc_url:   record.w9_doc_url  ?? null,
     };
 
     if (!grantRequest.grant_amount) {
-      console.error(`[on-grant-approved] grant_amount missing for record ${record.id}`);
+      console.error(`[on-grant-approved] grant_amount missing from payload for record ${record.id}`);
       return new Response('ok', { status: 200 });
     }
 
