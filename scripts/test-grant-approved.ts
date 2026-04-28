@@ -161,6 +161,8 @@ async function main() {
 
     log('INFO', 'View edge function logs: supabase functions logs on-grant-approved');
     log('INFO', 'Done');
+  } catch (err) {
+    log('FAIL', `Unexpected error: ${err}`);
   }
 }
 
