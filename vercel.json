@@ -11,6 +11,7 @@
     { "src": "/champion-register", "dest": "/forms/champion-register/index.html" },
     { "src": "/privacy", "dest": "/forms/privacy/index.html" },
     { "src": "/terms", "dest": "/forms/terms/index.html" },
+    { "src": "/receipts", "dest": "/forms/receipts/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

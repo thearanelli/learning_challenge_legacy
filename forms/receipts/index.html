@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Receipts — GripTape Learning Challenge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; background: #fff; }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; color: #001722; }
+    p { line-height: 1.6; color: #444; }
+    #loading, #form-section, #invalid-section { display: none; }
+
+    .drop-zone {
+      margin-top: 24px;
+      border: 2px dashed #EA5329;
+      border-radius: 8px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      color: #555;
+      transition: background 0.15s;
+    }
+    .drop-zone.dragover { background: #fff3ef; }
+    .drop-zone p { margin: 0; color: #555; }
+    .drop-zone span { color: #EA5329; font-weight: 600; }
+
+    input[type="file"] { display: none; }
+
+    #file-name {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #001722;
+      font-weight: 600;
+      min-height: 20px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      background: #EA5329;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #status { margin-top: 16px; font-size: 0.95rem; line-height: 1.5; }
+    .error { color: #c00; }
+    .success { color: #006630; }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><p>Verifying your link…</p></div>
+
+  <div id="invalid-section">
+    <h1>Link invalid or expired</h1>
+    <p>This link is invalid or expired. If you believe this is a mistake, please contact us.</p>
+  </div>
+
+  <div id="form-section">
+    <h1>Upload Your Receipts</h1>
+    <p>Hi <span id="first-name"></span>! As you spend your stipend, upload your receipts here — one at a time is fine. Images and PDFs both work.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <p>Drag and drop a file here, or <span>click to select</span></p>
+    </div>
+    <input type="file" id="file-input" accept="image/*,.pdf" />
+    <div id="file-name"></div>
+
+    <button id="upload-btn" disabled>Upload Receipt</button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    let selectedFile = null;
+
+    async function init() {
+      document.getElementById('loading').style.display = 'block';
+
+      if (!token) {
+        showInvalid();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/check-receipt-token?token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+
+        if (!data.valid) {
+          showInvalid();
+          return;
+        }
+
+        document.getElementById('first-name').textContent = data.first_name;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('form-section').style.display = 'block';
+      } catch {
+        showInvalid();
+      }
+    }
+
+    function showInvalid() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('invalid-section').style.display = 'block';
+    }
+
+    function setFile(file) {
+      selectedFile = file;
+      document.getElementById('file-name').textContent = file ? file.name : '';
+      document.getElementById('upload-btn').disabled = !file;
+    }
+
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) setFile(file);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) setFile(fileInput.files[0]);
+    });
+
+    document.getElementById('upload-btn').addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      const btn = document.getElementById('upload-btn');
+      const status = document.getElementById('status');
+
+      btn.disabled = true;
+      status.textContent = 'Uploading…';
+      status.className = '';
+
+      try {
+        const file_base64 = await toBase64(selectedFile);
+
+        const res = await fetch(`/api/receipt-upload?token=${encodeURIComponent(token)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file_base64,
+            file_name: selectedFile.name,
+            content_type: selectedFile.type || 'application/octet-stream',
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          status.textContent = 'Receipt uploaded! Keep uploading as you spend — every receipt helps.';
+          status.className = 'success';
+          // Reset for next upload
+          setFile(null);
+          fileInput.value = '';
+          btn.disabled = true;
+        } else {
+          status.textContent = 'Something went wrong. Please try again.';
+          status.className = 'error';
+          btn.disabled = false;
+        }
+      } catch {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.className = 'error';
+        btn.disabled = false;
+      }
+    });
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          // result is "data:[type];base64,[data]" — strip the prefix
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

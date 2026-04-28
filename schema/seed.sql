@@ -299,3 +299,28 @@ grant execute on function advance_status to service_role;
 -- CREATE POLICY "Service role full access" ON grant_requests
 --   FOR ALL USING (true)
 --   WITH CHECK (true);
+
+-- receipts: one row per uploaded receipt file. Created by api/receipt-upload.js.
+-- Youth upload spending receipts after grant is approved.
+-- Files stored in Supabase Storage bucket 'receipts' (private).
+
+-- CREATE TABLE IF NOT EXISTS receipts (
+--   id          uuid primary key default gen_random_uuid(),
+--   program_id  uuid,
+--   youth_id    uuid references youth(id),
+--   first_name  text,
+--   last_name   text,
+--   file_url    text not null,
+--   uploaded_at timestamptz default now()
+-- );
+--
+-- ALTER TABLE receipts ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY "Service role full access on receipts"
+--   ON receipts FOR ALL
+--   USING (true)
+--   WITH CHECK (true);
+--
+-- INSERT INTO storage.buckets (id, name, public)
+-- VALUES ('receipts', 'receipts', false)
+-- ON CONFLICT DO NOTHING;
