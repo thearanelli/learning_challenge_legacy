@@ -287,6 +287,7 @@ grant execute on function advance_status to service_role;
 --   agreement_doc_url       text,
 --   grant_coding            text default 'LC26',
 --   mailing_address         text,
+--   tremendous_reward_id    text,
 --   staff_approved          boolean default false,
 --   staff_approved_at       timestamptz,
 --   created_at              timestamptz default now(),

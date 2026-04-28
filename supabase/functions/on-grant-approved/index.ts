@@ -144,6 +144,15 @@ serve(async (req) => {
 
     const tremendousData = await tremendousRes.json();
     const redemptionLink: string = tremendousData?.order?.rewards?.[0]?.delivery?.link ?? '';
+    const tremendousRewardId: string = tremendousData?.order?.rewards?.[0]?.id ?? '';
+
+    // Store reward ID for later webhook matching
+    if (tremendousRewardId) {
+      await supabase
+        .from('grant_requests')
+        .update({ tremendous_reward_id: tremendousRewardId })
+        .eq('id', record.id);
+    }
 
     if (!redemptionLink) {
       console.error(`[on-grant-approved] No redemption_url in Tremendous response for youth ${youthId}`);
