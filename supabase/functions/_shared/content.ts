@@ -119,14 +119,14 @@ Note: approve/reject routes not built yet — coming next session.`,
 
   ryan_notification: {
     staff_email_subject: 'Challenger Grant, {{legal_name}}',
-    staff_email_body: `• Challenger Progress ID: {{youth_id}}
-• Preferred name: {{preferred_name}}
-• Grant amount: \${{grant_amount}}
-• Grant format: {{grant_format}}
-• Youth email: {{email}}
-• Youth legal name: {{legal_name}}
-• Grant coding: {{grant_coding}}
-• Date sent to finance: {{approved_at}}`,
+    staff_email_body: `<p>• Challenger Progress ID: {{youth_id}}</p>
+<p>• Preferred name: {{preferred_name}}</p>
+<p>• Grant amount: \${{grant_amount}}</p>
+<p>• Grant format: {{grant_format}}</p>
+<p>• Youth email: {{email}}</p>
+<p>• Youth legal name: {{legal_name}}</p>
+<p>• Grant coding: {{grant_coding}}</p>
+<p>• Date sent to finance: {{approved_at}}</p>`,
   },
 
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
