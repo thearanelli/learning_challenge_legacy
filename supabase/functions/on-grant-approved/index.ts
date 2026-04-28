@@ -18,6 +18,7 @@ import { sendNotification, sendStaffNotification } from '../_shared/dispatcher.t
 import { sendEmail } from '../_shared/email.ts';
 import { renderContent, content } from '../_shared/content.ts';
 import { config } from '../_shared/config.ts';
+import { generateToken } from '../_shared/tokens.ts';
 
 const TREMENDOUS_BASE_URL = 'https://testflight.tremendous.com/api/v2';
 const TREMENDOUS_CAMPAIGN_ID = 'XI17V0UOF7RX';
@@ -190,10 +191,24 @@ serve(async (req) => {
       throw new Error(`advance_status error: ${updateError.message}`);
     }
 
-    // Send grant_approved email + SMS to youth with redemption link
+    // Generate receipt upload token (365-day window, no hard deadline)
+    const { access_token, stage_deadline_at } = generateToken(365);
+    await supabase
+      .from('youth')
+      .update({
+        access_token:     access_token,
+        token_expires_at: stage_deadline_at,
+        updated_at:       new Date().toISOString(),
+      })
+      .eq('id', youth.id);
+
+    const receiptLink = `${config.BASE_URL}/receipts?token=${access_token}`;
+
+    // Send grant_approved email + SMS to youth with redemption link and receipt upload link
     await sendNotification('grant_approved', youth, {
       redemption_link: redemptionLink,
-      grant_amount: String(grantRequest.grant_amount),
+      grant_amount:    String(grantRequest.grant_amount),
+      receipt_link:    receiptLink,
     });
 
     // Send disbursement notification to Ryan

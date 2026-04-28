@@ -106,6 +106,8 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hi {{first_name}},</p>
 <p>GripTape is sending you \${{grant_amount}} to put toward your passion. This grant is yours — use it to learn, build, and go after what lights you up. Choose how you want to receive it below and let's get you funded. — The GripTape Team</p>
 <p><a href="{{redemption_link}}">Claim your grant →</a></p>
+<p>One important thing: as you spend your stipend, keep your receipts and upload them here — it helps GripTape track how funds are being used. Upload as you go, no deadline.</p>
+<p><a href="{{receipt_link}}">Upload your receipts →</a></p>
 <p>Questions? Visit <a href="https://learning-challenge-legacy.vercel.app/help">https://learning-challenge-legacy.vercel.app/help</a></p>`,
     sms: `GripTape: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
   },
