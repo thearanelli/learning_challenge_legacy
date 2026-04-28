@@ -285,6 +285,7 @@ grant execute on function advance_status to service_role;
 --   agreement_signed_at     timestamptz,
 --   w9_doc_url              text,
 --   agreement_doc_url       text,
+--   grant_coding            text,
 --   staff_approved          boolean default false,
 --   staff_approved_at       timestamptz,
 --   created_at              timestamptz default now(),
