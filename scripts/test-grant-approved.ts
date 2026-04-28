@@ -135,7 +135,7 @@ async function main() {
     log('INFO', 'Checking grant_requests row...');
     const { data: grCheck, error: grCheckError } = await supabase
       .from('grant_requests')
-      .select('staff_approved, staff_approved_at')
+      .select('staff_approved, staff_approved_at, tremendous_reward_id')
       .eq('id', grantRequestId)
       .single();
 
@@ -143,6 +143,11 @@ async function main() {
       log('FAIL', `Fetch grant_requests: ${grCheckError?.message}`);
     } else if (grCheck.staff_approved === true) {
       log('PASS', `grant_requests.staff_approved = true, staff_approved_at = ${grCheck.staff_approved_at ?? 'not set'}`);
+      if (grCheck.tremendous_reward_id) {
+        log('PASS', `tremendous_reward_id = ${grCheck.tremendous_reward_id}`);
+      } else {
+        log('FAIL', `tremendous_reward_id not set — check edge function logs`);
+      }
     } else {
       log('FAIL', `grant_requests.staff_approved is not true`);
     }
