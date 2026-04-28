@@ -201,12 +201,14 @@ serve(async (req) => {
     if (ryanEmail) {
       const block = (content as Record<string, any>)['ryan_notification'];
       const vars = {
-        youth_id:     youth.id,
-        grant_amount: String(grantRequest.grant_amount),
-        grant_format: grantRequest.grant_format ?? 'Not specified',
-        email:        youth.email,
-        legal_name:   grantRequest.legal_name   ?? 'Not provided',
-        approved_at:  new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        youth_id:       youth.id,
+        preferred_name: youth.first_name,
+        grant_amount:   String(grantRequest.grant_amount),
+        grant_format:   grantRequest.grant_format ?? 'Not specified',
+        email:          youth.email,
+        legal_name:     grantRequest.legal_name  ?? 'Not provided',
+        grant_coding:   grantRequest.grant_coding ?? 'GS_NLC',
+        approved_at:    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
       await sendEmail({
         to:      ryanEmail,

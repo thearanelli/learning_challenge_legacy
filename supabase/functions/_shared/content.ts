@@ -119,12 +119,13 @@ Note: approve/reject routes not built yet — coming next session.`,
 
   ryan_notification: {
     staff_email_subject: 'Challenger Grant, {{legal_name}}',
-    staff_email_body: `challengerProgressId: {{youth_id}}
+    staff_email_body: `• Challenger Progress ID: {{youth_id}}
+• Preferred name: {{preferred_name}}
 • Grant amount: \${{grant_amount}}
 • Grant format: {{grant_format}}
 • Youth email: {{email}}
 • Youth legal name: {{legal_name}}
-• Grant coding: LC26
+• Grant coding: {{grant_coding}}
 • Date sent to finance: {{approved_at}}`,
   },
 
