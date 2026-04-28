@@ -125,9 +125,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 • Youth email: {{email}}
 • Youth legal name: {{legal_name}}
 • Grant coding: LC26
-• Date sent to finance: {{approved_at}}
-• W9: <a href="{{w9_doc_url}}">View W9</a>
-• Participation Agreement: <a href="{{agreement_doc_url}}">View Participation Agreement</a>`,
+• Date sent to finance: {{approved_at}}`,
   },
 
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html

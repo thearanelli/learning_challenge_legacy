@@ -61,10 +61,14 @@ serve(async (req) => {
       return new Response('ok', { status: 200 });
     }
 
-    // Set staff_approved_at — only if not already set (idempotency)
+    // Set staff_approved_at and mailing_address — only if not already set (idempotency)
     await supabase
       .from('grant_requests')
-      .update({ staff_approved_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .update({
+        staff_approved_at: new Date().toISOString(),
+        updated_at:        new Date().toISOString(),
+        mailing_address:   youth.address ?? null,
+      })
       .eq('id', record.id)
       .is('staff_approved_at', null);
 
@@ -76,12 +80,10 @@ serve(async (req) => {
 
     // grant_requests fields come from the webhook payload record (the updated row)
     const grantRequest = {
-      grant_amount:      record.grant_amount,
-      legal_name:        record.legal_name        ?? null,
-      grant_format:      record.grant_format      ?? null,
-      grant_coding:      record.grant_coding      ?? null,
-      w9_doc_url:        record.w9_doc_url        ?? null,
-      agreement_doc_url: record.agreement_doc_url ?? null,
+      grant_amount: record.grant_amount,
+      legal_name:   record.legal_name   ?? null,
+      grant_format: record.grant_format ?? null,
+      grant_coding: record.grant_coding ?? null,
     };
 
     if (!grantRequest.grant_amount) {
@@ -190,14 +192,12 @@ serve(async (req) => {
     if (ryanEmail) {
       const block = (content as Record<string, any>)['ryan_notification'];
       const vars = {
-        youth_id:          youth.id,
-        grant_amount:      String(grantRequest.grant_amount),
-        grant_format:      grantRequest.grant_format      ?? 'Not specified',
-        email:             youth.email,
-        legal_name:        grantRequest.legal_name        ?? 'Not provided',
-        approved_at:       new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-        w9_doc_url:        grantRequest.w9_doc_url        ?? '',
-        agreement_doc_url: grantRequest.agreement_doc_url ?? '',
+        youth_id:     youth.id,
+        grant_amount: String(grantRequest.grant_amount),
+        grant_format: grantRequest.grant_format ?? 'Not specified',
+        email:        youth.email,
+        legal_name:   grantRequest.legal_name   ?? 'Not provided',
+        approved_at:  new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
       await sendEmail({
         to:      ryanEmail,

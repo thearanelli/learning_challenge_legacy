@@ -1,14 +1,16 @@
 // OWNER: send BoldSign signing documents to youth at grant_pending
 // Invoked directly by: process-orientation/index.ts via fetch
 // NOT triggered by webhook — direct invocation only.
-// Creates BoldSign documents from templates, updates grant_requests
-// with document IDs, sends signing links to youth via dispatcher.
+// Creates BoldSign documents from templates, fetches per-signer
+// signing links, updates grant_requests, and sends links to youth.
 //
-// BoldSign template/send response shape (confirmed 2026-04-22):
-//   POST /v1/template/send?templateId=... returns 201 on success.
-//   Response: { documentId, signingLink, status, createdDate, title }
-//   Both documentId and signingLink are top-level fields.
+// BoldSign API flow (confirmed 2026-04-22):
+//   POST /v1/template/send?templateId=...  → returns { documentId }
+//   GET  /v1/document/getEmbeddedSignLink?documentId=&signerEmail=&linkValidTill=
+//                                          → returns { signLink }
+//   signLink lifetime is set to grant_pending.deadline_days from config.
 //   Ref: https://developers.boldsign.com/documents/send-document-from-template/
+//        https://developers.boldsign.com/embedded-signing/get-embedded-signing-link/
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -64,6 +66,7 @@ serve(async (req) => {
 
     const boldSignApiKey = Deno.env.get('BOLDSIGN_API_KEY')!;
     const signerName = `${youth.first_name} ${youth.last_name}`;
+    const linkValidTill = config.STAGES.grant_pending.deadline_days;
 
     // Call BoldSign API — W-9
     const w9Res = await fetch(
@@ -76,7 +79,8 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           title: 'W-9 Form — GripTape Learning Challenge',
-          Roles: [
+          disableEmails: true, // BoldSign emails disabled — we send our own via dispatcher
+          roles: [
             {
               roleIndex: 1,
               signerName,
@@ -94,10 +98,7 @@ serve(async (req) => {
       throw new Error(`BoldSign W-9 request failed: ${w9Res.status} ${errText}`);
     }
 
-    // documentId and signingLink are top-level in the 201 response
-    const w9Data = await w9Res.json();
-    const w9DocumentId: string = w9Data.documentId;
-    const w9SigningUrl: string = w9Data.signingLink;
+    const w9DocumentId: string = (await w9Res.json()).documentId;
 
     // NOTE: if agreement call fails after W-9 succeeds, the W-9
     // document exists in BoldSign but grant_requests will not be
@@ -115,7 +116,8 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           title: 'Participation Agreement — GripTape Learning Challenge',
-          Roles: [
+          disableEmails: true, // BoldSign emails disabled — we send our own via dispatcher
+          roles: [
             {
               roleIndex: 1,
               signerName,
@@ -133,9 +135,37 @@ serve(async (req) => {
       throw new Error(`BoldSign agreement request failed: ${agreementRes.status} ${errText}`);
     }
 
-    const agreementData = await agreementRes.json();
-    const agreementDocumentId: string = agreementData.documentId;
-    const agreementSigningUrl: string = agreementData.signingLink;
+    const agreementDocumentId: string = (await agreementRes.json()).documentId;
+
+    // Fetch signing URLs — signLink is not in the template/send response.
+    // Must call getEmbeddedSignLink per document + signerEmail.
+    // linkValidTill matches grant_pending stage deadline from config.
+    const signerEmail = encodeURIComponent(youth.email);
+
+    const w9LinkRes = await fetch(
+      `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${w9DocumentId}&signerEmail=${signerEmail}&linkValidTill=${linkValidTill}`,
+      { headers: { 'X-API-KEY': boldSignApiKey } }
+    );
+
+    if (!w9LinkRes.ok) {
+      const errText = await w9LinkRes.text();
+      throw new Error(`BoldSign W-9 sign link fetch failed: ${w9LinkRes.status} ${errText}`);
+    }
+
+    const w9SigningUrl: string = (await w9LinkRes.json()).signLink;
+
+    const agreementLinkRes = await fetch(
+      `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${agreementDocumentId}&signerEmail=${signerEmail}&linkValidTill=${linkValidTill}`,
+      // linkValidTill matches grant_pending stage deadline from config
+      { headers: { 'X-API-KEY': boldSignApiKey } }
+    );
+
+    if (!agreementLinkRes.ok) {
+      const errText = await agreementLinkRes.text();
+      throw new Error(`BoldSign agreement sign link fetch failed: ${agreementLinkRes.status} ${errText}`);
+    }
+
+    const agreementSigningUrl: string = (await agreementLinkRes.json()).signLink;
 
     // Update grant_requests with both document IDs
     const { error: updateError } = await supabase
