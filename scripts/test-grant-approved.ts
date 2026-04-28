@@ -98,6 +98,10 @@ async function main() {
       .insert({
         youth_id:       youthId,
         grant_amount:   150,
+        legal_name:     'Ryan Testuser',
+        grant_format:   'ACH',
+        grant_coding:   'LC26',
+        w9_doc_url:     'https://example.com/test-w9.pdf',
         staff_approved: false,
       })
       .select('id')
