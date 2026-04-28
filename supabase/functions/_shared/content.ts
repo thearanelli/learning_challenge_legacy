@@ -120,7 +120,7 @@ Note: approve/reject routes not built yet — coming next session.`,
   ryan_notification: {
     staff_email_subject: 'Challenger Grant, {{legal_name}}',
     staff_email_body: `challengerProgressId: {{youth_id}}
-• Grant amount: ${{grant_amount}}
+• Grant amount: \${{grant_amount}}
 • Grant format: {{grant_format}}
 • Youth email: {{email}}
 • Youth legal name: {{legal_name}}
