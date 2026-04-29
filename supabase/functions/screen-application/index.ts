@@ -55,6 +55,10 @@ serve(async (req) => {
       });
 
     if (advanceError) {
+      if (advanceError.message?.includes('StatusConflictError')) {
+        console.log(`[SKIP] ${application.id} — StatusConflictError, already claimed`);
+        return new Response('Already claimed', { status: 200 });
+      }
       throw new Error(`advance_status error: ${advanceError.message}`);
     }
     if (!advanced) {
@@ -138,6 +142,10 @@ serve(async (req) => {
     });
 
     if (updateError) {
+      if (updateError.message?.includes('StatusConflictError')) {
+        console.log(`[SKIP] ${application.id} — StatusConflictError on screening → final, already processed`);
+        return new Response('Already processed', { status: 200 });
+      }
       throw new Error(`advance_status (screening → final) error: ${updateError.message}`);
     }
 
