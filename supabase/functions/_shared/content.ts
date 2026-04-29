@@ -131,6 +131,15 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>• Date sent to finance: {{approved_at}}</p>`,
   },
 
+  full_send_submitted: {
+    email_subject: "Your Full Send is in 🎉",
+    email_body: `<p>Hi {{first_name}},</p>
+<p>Let's go. Your Full Send video is officially submitted.</p>
+<p>You just did something real — you built something, learned something, and put it out into the world. That's what GripTape is about.</p>
+<p>The GripTape team will review your video and be in touch soon. Sit tight — you've earned it.</p>
+<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",

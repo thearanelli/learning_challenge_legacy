@@ -324,3 +324,33 @@ grant execute on function advance_status to service_role;
 -- INSERT INTO storage.buckets (id, name, public)
 -- VALUES ('receipts', 'receipts', false)
 -- ON CONFLICT DO NOTHING;
+
+-- ============================================================
+-- full_send_queue: staff view — youth awaiting Full Send review
+-- All youth where status = 'full_send_review'.
+-- Run in Supabase dashboard if not already created.
+-- ============================================================
+
+-- CREATE OR REPLACE VIEW full_send_queue AS
+-- SELECT
+--   y.id,
+--   y.first_name,
+--   y.last_name,
+--   y.email,
+--   y.full_send_url,
+--   y.champion_id,
+--   y.updated_at
+-- FROM youth y
+-- WHERE y.status = 'full_send_review';
+
+CREATE OR REPLACE VIEW full_send_queue AS
+SELECT
+  y.id,
+  y.first_name,
+  y.last_name,
+  y.email,
+  y.full_send_url,
+  y.champion_id,
+  y.updated_at
+FROM youth y
+WHERE y.status = 'full_send_review';

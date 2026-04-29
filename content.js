@@ -234,22 +234,17 @@ Need help? Visit ${config.BASE_URL}/help`, // help footer
     nudge_sms: 'Placeholder — replace before launch. Reminder {{first_name}}: final video due {{deadline_date}}: {{link}}',
   },
 
-  showcase_invited: {
-    email_subject: 'Placeholder — replace before launch. You\'re invited to the {{program_name}} Showcase!',
-    email_body: `Placeholder — replace before launch.
+  full_send_submitted: {
+    email_subject: "Your Full Send is in 🎉",
+    email_body: `Hi {{first_name}},
 
-Hi {{first_name}},
+Let's go. Your Full Send video is officially submitted.
 
-You're invited to present at the {{program_name}} Showcase!
+You just did something real — you built something, learned something, and put it out into the world. That's what GripTape is about.
 
-Details and RSVP: {{link}}
-
-Questions? Text {{support_number}}.
-
-— The GripTape Team
+The GripTape team will review your video and be in touch soon. Sit tight — you've earned it.
 
 Need help? Visit ${config.BASE_URL}/help`, // help footer
-    sms: 'Placeholder — replace before launch. {{first_name}}, you\'re invited to the {{program_name}} Showcase! RSVP: {{link}}',
   },
 
   completed: {

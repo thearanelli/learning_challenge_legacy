@@ -18,8 +18,8 @@ export const config = {
     grant_review:        { next: 'grant_approved',      deadline_days: null, nudge_day: null, auto_remove: false },
     grant_approved:      { next: 'active',              deadline_days: null, nudge_day: null, auto_remove: false },
     active:              { next: 'final_video_pending', deadline_days: null, nudge_day: null, auto_remove: false },
-    final_video_pending: { next: 'showcase_invited',    deadline_days: 14,   nudge_day: 5,    auto_remove: false },
-    showcase_invited:    { next: 'completed',           deadline_days: null, nudge_day: null, auto_remove: false },
+    final_video_pending: { next: 'full_send_review',    deadline_days: 14,   nudge_day: 5,    auto_remove: false },
+    full_send_review:    { next: 'completed',           deadline_days: null, nudge_day: null, auto_remove: false },
   },
 
   TERMINAL_STAGES: ['completed', 'rejected', 'removed'],
