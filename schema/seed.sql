@@ -68,6 +68,26 @@ create table if not exists youth (
 --   'orientation_complete'  Orientation call confirmed
 --   'removed'               Missed deadline or dropped out. TERMINAL.
 
+-- TABLE: comms_log
+-- Tracks every outbound email and SMS sent by the system
+CREATE TABLE IF NOT EXISTS comms_log (
+  id              uuid primary key default gen_random_uuid(),
+  program_id      text,
+  youth_id        uuid references youth(id),
+  champion_id     uuid references champions(id),
+  direction       text not null default 'outbound',
+  channel         text not null,
+  stage_key       text not null,
+  message_body    text,
+  sent_at         timestamptz not null default now(),
+  delivery_status text
+);
+
+ALTER TABLE comms_log ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access" ON comms_log
+  FOR ALL USING (auth.role() = 'service_role');
+
 -- Seed: 5 dummy champions covering distinct interest areas
 insert into champions (program_id, first_name, last_name, email, phone, bio, max_youth, active_youth_count, available)
 values
