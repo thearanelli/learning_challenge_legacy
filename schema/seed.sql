@@ -210,8 +210,9 @@ drop function if exists advance_status(uuid, text, text);
 -- applications uses screening_status; all other tables use status.
 
 -- Ensure updated_at exists on tables managed by advance_status
-alter table applications add column if not exists updated_at timestamptz;
-alter table youth       add column if not exists updated_at timestamptz;
+alter table applications add column if not exists updated_at    timestamptz;
+alter table applications add column if not exists notify_after  timestamptz;
+alter table youth       add column if not exists updated_at    timestamptz;
 
 create or replace function advance_status(
   record_id               uuid,

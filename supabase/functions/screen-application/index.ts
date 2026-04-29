@@ -122,6 +122,11 @@ serve(async (req) => {
       profileToken = crypto.randomUUID();
       additionalFields.profile_token = profileToken;
     }
+    if (decision === 'accepted' || decision === 'rejected') {
+      additionalFields.notify_after = new Date(
+        Date.now() + 48 * 60 * 60 * 1000
+      ).toISOString();
+    }
 
     // advance_status: screening -> declaration_pending | rejected | flagged
     const { error: updateError } = await supabase.rpc('advance_status', {
