@@ -12,6 +12,7 @@
     { "src": "/privacy", "dest": "/forms/privacy/index.html" },
     { "src": "/terms", "dest": "/forms/terms/index.html" },
     { "src": "/receipts", "dest": "/forms/receipts/index.html" },
+    { "src": "/final-video", "dest": "/forms/final-video/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
