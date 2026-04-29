@@ -16,9 +16,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { youth_id, token, full_send_url } = req.body;
-  if (!youth_id || !token || !full_send_url) {
-    return res.status(400).json({ error: 'Missing youth_id, token, or full_send_url' });
+  const { token, full_send_url } = req.body;
+  if (!token || !full_send_url) {
+    return res.status(400).json({ error: 'Missing token or full_send_url' });
   }
 
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -27,9 +27,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
-  // Look up youth by id
+  // Look up youth by access_token
   const lookupRes = await fetch(
-    `${supabaseUrl}/rest/v1/youth?id=eq.${encodeURIComponent(youth_id)}&select=id,status,access_token,token_expires_at`,
+    `${supabaseUrl}/rest/v1/youth?access_token=eq.${encodeURIComponent(token)}&select=id,status,access_token,token_expires_at`,
     {
       headers: {
         'apikey': supabaseKey,

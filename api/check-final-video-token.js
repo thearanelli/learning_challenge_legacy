@@ -18,9 +18,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { token, youth_id } = req.query;
-  if (!token || !youth_id) {
-    return res.status(400).json({ error: 'Missing token or youth_id' });
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).json({ error: 'Missing token' });
   }
 
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/youth?id=eq.${encodeURIComponent(youth_id)}&select=id,first_name,status,access_token,token_expires_at`,
+      `${supabaseUrl}/rest/v1/youth?access_token=eq.${encodeURIComponent(token)}&select=id,first_name,status,access_token,token_expires_at`,
       {
         headers: {
           'apikey': supabaseKey,

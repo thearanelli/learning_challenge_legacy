@@ -43,19 +43,18 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
-    const youth_id = params.get('youth_id');
 
     async function init() {
       document.getElementById('loading').style.display = 'block';
 
-      if (!token || !youth_id) {
+      if (!token) {
         showInvalid();
         return;
       }
 
       try {
         const res = await fetch(
-          `/api/check-final-video-token?token=${encodeURIComponent(token)}&youth_id=${encodeURIComponent(youth_id)}`
+          `/api/check-final-video-token?token=${encodeURIComponent(token)}`
         );
         const data = await res.json();
 
@@ -109,7 +108,7 @@
         const res = await fetch('/api/final-video-submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ youth_id, token, full_send_url }),
+          body: JSON.stringify({ token, full_send_url }),
         });
         const data = await res.json();
 
