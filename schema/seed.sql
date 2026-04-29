@@ -338,9 +338,10 @@ grant execute on function advance_status to service_role;
 --   y.last_name,
 --   y.email,
 --   y.full_send_url,
---   y.champion_id,
---   y.updated_at
+--   y.updated_at,
+--   a.screening_status
 -- FROM youth y
+-- JOIN applications a ON a.id = y.application_id
 -- WHERE y.status = 'full_send_review';
 
 CREATE OR REPLACE VIEW full_send_queue AS
@@ -350,7 +351,8 @@ SELECT
   y.last_name,
   y.email,
   y.full_send_url,
-  y.champion_id,
-  y.updated_at
+  y.updated_at,
+  a.screening_status
 FROM youth y
+JOIN applications a ON a.id = y.application_id
 WHERE y.status = 'full_send_review';
