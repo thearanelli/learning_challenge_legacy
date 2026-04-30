@@ -57,9 +57,10 @@ export const content = {
   },
 
   mentor_pending: {
-    email_subject: 'Placeholder — replace before launch',
+    email_subject: "You've been matched with your Champion",
     email_body: `Placeholder — replace before launch. Variables available: {{youth_first_name}}, {{champion_first_name}}, {{champion_name}}, {{deadline_date}}, {{program_name}}
 <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+    sms: "Hey {{first_name}}, you've been matched with your GripTape Champion! Check your email for next steps.",
     nudge_email_subject: 'Placeholder — replace before launch',
     nudge_email_body: `Placeholder — replace before launch
 <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
@@ -69,7 +70,7 @@ export const content = {
   },
 
   grant_pending: {
-    email_subject: 'PLACEHOLDER — Sign your documents to unlock your stipend',
+    email_subject: 'Complete your grant paperwork to unlock your $250',
     email_body: `<p>PLACEHOLDER — Hi {{first_name}},</p>
 <p>Your orientation call is complete. You are one step away from unlocking your $250 GripTape Learning Challenge stipend.</p>
 <p>You need to sign two documents:</p>
@@ -138,6 +139,90 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>You just did something real — you built something, learned something, and put it out into the world. That's what GripTape is about.</p>
 <p>The GripTape team will review your video and be in touch soon. Sit tight — you've earned it.</p>
 <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+  },
+
+  // ── Nudges ────────────────────────────────────────────────────────────────
+
+  nudge_declaration: {
+    email_subject: "Don't forget — complete your declaration",
+    email_body: `<p>Hey {{first_name}}, just a reminder to complete your declaration form. You have a few days left. {{link}}</p>`,
+    sms: "Hey {{first_name}}, don't forget to complete your GripTape declaration: {{link}}",
+  },
+
+  nudge_first_drop_1: {
+    email_subject: 'Reminder — submit your First Drop video',
+    email_body: `<p>Hey {{first_name}}, your First Drop video is due soon. Submit your YouTube link here: {{link}}</p>`,
+    sms: 'Hey {{first_name}}, your First Drop video is due soon: {{link}}',
+  },
+
+  nudge_first_drop_2: {
+    email_subject: 'Last chance — First Drop due tomorrow',
+    email_body: `<p>Hey {{first_name}}, your First Drop deadline is almost here. Submit now: {{link}}</p>`,
+    sms: 'Hey {{first_name}}, last chance to submit your First Drop: {{link}}',
+  },
+
+  nudge_orientation_1: {
+    email_subject: 'Schedule your orientation call',
+    email_body: `<p>Hey {{first_name}}, don't forget to connect with your Champion for your orientation call. Reach out to {{champion_name}} to get it scheduled.</p>`,
+    sms: 'Hey {{first_name}}, reach out to your Champion {{champion_name}} to schedule your orientation call.',
+  },
+
+  nudge_orientation_2: {
+    email_subject: 'Orientation call — deadline coming up',
+    email_body: `<p>Hey {{first_name}}, your orientation call deadline is coming up fast. Connect with {{champion_name}} today.</p>`,
+    sms: 'Hey {{first_name}}, your orientation call is due soon — connect with {{champion_name}} today.',
+  },
+
+  nudge_grant: {
+    email_subject: 'Complete your grant paperwork',
+    email_body: `<p>Hey {{first_name}}, your grant paperwork is still waiting. Complete it to unlock your $250 stipend: {{link}}</p>`,
+    sms: "Hey {{first_name}}, don't forget your grant paperwork — unlock your $250 here: {{link}}",
+  },
+
+  nudge_full_send_1: {
+    email_subject: 'Your Full Send is due in one week',
+    email_body: `<p>Hey {{first_name}}, one week left to submit your Full Send video. Submit your YouTube link here: {{link}}</p>`,
+    sms: 'Hey {{first_name}}, one week left to submit your Full Send: {{link}}',
+  },
+
+  nudge_full_send_2: {
+    email_subject: 'Final reminder — Full Send due in 2 days',
+    email_body: `<p>Hey {{first_name}}, your Full Send deadline is almost here. Submit now: {{link}}</p>`,
+    sms: 'Hey {{first_name}}, last chance — your Full Send is due soon: {{link}}',
+  },
+
+  // ── Removals ──────────────────────────────────────────────────────────────
+
+  removed_declaration: {
+    email_subject: 'Your GripTape application has expired',
+    email_body: `<p>Hey {{first_name}}, unfortunately your declaration deadline has passed and your spot has been released. We hope to see you apply again in the future.</p>`,
+    sms: 'Hey {{first_name}}, your GripTape declaration deadline passed. Your spot has been released.',
+  },
+
+  removed_first_drop: {
+    email_subject: 'Your GripTape application has expired',
+    email_body: `<p>Hey {{first_name}}, unfortunately your First Drop deadline has passed and your spot has been released. We hope to see you apply again in the future.</p>`,
+    sms: 'Hey {{first_name}}, your First Drop deadline passed. Your spot has been released.',
+  },
+
+  removed_orientation: {
+    email_subject: 'Your GripTape spot has been released',
+    email_body: `<p>Hey {{first_name}}, unfortunately your orientation call deadline has passed and your spot has been released. We hope to see you apply again.</p>`,
+    sms: 'Hey {{first_name}}, your orientation deadline passed. Your spot has been released.',
+  },
+
+  removed_full_send: {
+    email_subject: 'Your GripTape program has ended',
+    email_body: `<p>Hey {{first_name}}, unfortunately your Full Send deadline has passed. Your program has ended. We hope you had a great experience.</p>`,
+    sms: 'Hey {{first_name}}, your Full Send deadline passed. Your GripTape program has ended.',
+  },
+
+  // ── Full Send link dispatch ───────────────────────────────────────────────
+
+  full_send_link: {
+    email_subject: "It's time — submit your Full Send",
+    email_body: `<p>Hey {{first_name}}, you've made it to the final step. Submit your Full Send video — a YouTube link showing what you built, learned, or created during the program: {{link}}</p>`,
+    sms: 'Hey {{first_name}}, time to submit your Full Send! Submit your video here: {{link}}',
   },
 
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
