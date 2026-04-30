@@ -355,8 +355,9 @@ serve(async (_req) => {
             expected_current_status: removal.stage,
             next_status:             'rejected',
             additional_fields: {
-              ai_reasoning:    'deadline_missed',
-              stage_entered_at: new Date().toISOString(),
+              ai_reasoning:         'deadline_missed',
+              dropped_off_at_stage: removal.stage,
+              stage_entered_at:     new Date().toISOString(),
             },
           });
 
