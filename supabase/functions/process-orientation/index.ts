@@ -53,6 +53,7 @@ serve(async (req) => {
       additional_fields: {
         access_token: tokenData.access_token,
         token_expires_at: tokenData.stage_deadline_at,
+        stage_entered_at: new Date().toISOString(),
       },
     });
 

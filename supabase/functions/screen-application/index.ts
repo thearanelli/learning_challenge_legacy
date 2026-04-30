@@ -52,6 +52,9 @@ serve(async (req) => {
         table_name: 'applications',
         expected_current_status: config.STATUS.SUBMITTED,
         next_status: config.STATUS.SCREENING,
+        additional_fields: {
+          stage_entered_at: new Date().toISOString(),
+        },
       });
 
     if (advanceError) {
@@ -116,6 +119,7 @@ serve(async (req) => {
       ai_decision: decision,
       ai_reasoning: reasoning,
       failed_criteria: failed_criteria ?? null,
+      stage_entered_at: new Date().toISOString(),
     };
     let profileToken: string | undefined;
     if (tokenData) {

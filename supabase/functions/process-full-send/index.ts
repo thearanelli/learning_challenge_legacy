@@ -50,6 +50,7 @@ serve(async (req) => {
       next_status: config.STATUS.FULL_SEND_REVIEW,
       additional_fields: {
         full_send_url,
+        stage_entered_at: new Date().toISOString(),
       },
     });
 

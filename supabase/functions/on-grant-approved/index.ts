@@ -180,7 +180,9 @@ serve(async (req) => {
       table_name: 'youth',
       expected_current_status: 'grant_review',
       next_status: 'grant_approved',
-      additional_fields: {},
+      additional_fields: {
+        stage_entered_at: new Date().toISOString(),
+      },
     });
 
     if (updateError) {

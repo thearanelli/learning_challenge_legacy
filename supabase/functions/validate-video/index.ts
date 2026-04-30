@@ -40,6 +40,9 @@ serve(async (req) => {
         table_name: 'applications',
         expected_current_status: config.STATUS.VIDEO_PENDING,
         next_status: config.STATUS.VIDEO_REVIEW,
+        additional_fields: {
+          stage_entered_at: new Date().toISOString(),
+        },
       });
 
     if (advanceError) {

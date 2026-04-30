@@ -196,6 +196,7 @@ serve(async (req) => {
         champion_id:      selectedChampion.id,
         access_token:     accessToken,
         token_expires_at: expiresAt,
+        stage_entered_at: new Date().toISOString(),
       },
     });
 
