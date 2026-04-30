@@ -4,7 +4,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendNotification, sendStaffNotification } from '../_shared/dispatcher.ts';
+import { sendStaffNotification } from '../_shared/dispatcher.ts';
 import { config } from '../_shared/config.ts';
 import { generateToken } from '../_shared/tokens.ts';
 import {
@@ -149,24 +149,13 @@ serve(async (req) => {
       throw new Error(`advance_status (screening → final) error: ${updateError.message}`);
     }
 
-    if (decision === 'accepted') {
-      const declareLink = `${config.BASE_URL}/declare?token=${tokenData!.access_token}`;
-      const profileLink = `${config.BASE_URL}/profile?token=${profileToken}`;
-      await sendNotification(config.STATUS.DECLARATION_PENDING, application, {
-        link: declareLink,
-        profile_link: profileLink,
-      });
-
-    } else if (decision === 'rejected') {
-      await sendNotification(config.STATUS.REJECTED, application);
-
-    } else {
+    if (decision === 'flagged') {
       // Flagged — notify staff only, no email to youth
       await sendStaffNotification(config.STATUS.FLAGGED, {
         first_name: application.first_name,
         last_name: application.last_name,
         reasoning,
-      });
+      }, { application_id: application.id });
     }
 
     return new Response(
