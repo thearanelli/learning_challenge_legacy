@@ -295,8 +295,8 @@ serve(async (_req) => {
               await sendNotification(
                 nudge.content_key,
                 { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
-                { champion_name: championName },
-                { champion_id: champion.id },
+                { champion_name: championName, youth_name: `${youth.first_name} ${youth.last_name}` },
+                { champion_id: champion.id, youth_id: youth.id },
               );
             }
           }
@@ -543,7 +543,7 @@ serve(async (_req) => {
             throw new Error(`advance_status error: ${advanceError.message}`);
           }
 
-          const fullSendLink = `${config.BASE_URL}/full-send?token=${tokenData.access_token}`;
+          const fullSendLink = `${config.BASE_URL}/final-video?token=${tokenData.access_token}`;
           const recipient = {
             first_name: youth.first_name,
             last_name: youth.last_name,
