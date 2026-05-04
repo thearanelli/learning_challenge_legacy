@@ -69,9 +69,10 @@ serve(async (_req) => {
               recipient,
               { link: declareLink, profile_link: profileLink },
               {},
+              { skipSms: !app.sms_consent },
             );
             // Write comms_log with application_id (dispatcher cannot do this)
-            await supabase.from('comms_log').insert([
+            const declPendingEntries: object[] = [
               {
                 program_id:      config.PROGRAM_ID,
                 application_id:  app.id,
@@ -82,7 +83,9 @@ serve(async (_req) => {
                 sent_at:         new Date().toISOString(),
                 delivery_status: 'sent',
               },
-              {
+            ];
+            if (app.sms_consent) {
+              declPendingEntries.push({
                 program_id:      config.PROGRAM_ID,
                 application_id:  app.id,
                 direction:       'outbound',
@@ -91,12 +94,13 @@ serve(async (_req) => {
                 message_body:    'declaration_pending sms',
                 sent_at:         new Date().toISOString(),
                 delivery_status: 'sent',
-              },
-            ]);
+              });
+            }
+            await supabase.from('comms_log').insert(declPendingEntries);
             console.log(`[daily-scheduler] S1 sent declaration_pending to app ${app.id}`);
           } else if (app.screening_status === 'rejected') {
-            await sendNotification('rejected', recipient, {}, {});
-            await supabase.from('comms_log').insert([
+            await sendNotification('rejected', recipient, {}, {}, { skipSms: !app.sms_consent });
+            const rejectedEntries: object[] = [
               {
                 program_id:      config.PROGRAM_ID,
                 application_id:  app.id,
@@ -107,7 +111,9 @@ serve(async (_req) => {
                 sent_at:         new Date().toISOString(),
                 delivery_status: 'sent',
               },
-              {
+            ];
+            if (app.sms_consent) {
+              rejectedEntries.push({
                 program_id:      config.PROGRAM_ID,
                 application_id:  app.id,
                 direction:       'outbound',
@@ -116,8 +122,9 @@ serve(async (_req) => {
                 message_body:    'rejected sms',
                 sent_at:         new Date().toISOString(),
                 delivery_status: 'sent',
-              },
-            ]);
+              });
+            }
+            await supabase.from('comms_log').insert(rejectedEntries);
             console.log(`[daily-scheduler] S1 sent rejected to app ${app.id}`);
           }
         } catch (err) {
@@ -186,9 +193,9 @@ serve(async (_req) => {
             phone: app.phone,
           };
 
-          await sendNotification(nudge.content_key, recipient, { link }, {});
+          await sendNotification(nudge.content_key, recipient, { link }, {}, { skipSms: !app.sms_consent });
 
-          await supabase.from('comms_log').insert([
+          const nudgeEntries: object[] = [
             {
               program_id:      config.PROGRAM_ID,
               application_id:  app.id,
@@ -199,7 +206,9 @@ serve(async (_req) => {
               sent_at:         new Date().toISOString(),
               delivery_status: 'sent',
             },
-            {
+          ];
+          if (app.sms_consent) {
+            nudgeEntries.push({
               program_id:      config.PROGRAM_ID,
               application_id:  app.id,
               direction:       'outbound',
@@ -208,8 +217,9 @@ serve(async (_req) => {
               message_body:    nudge.content_key,
               sent_at:         new Date().toISOString(),
               delivery_status: 'sent',
-            },
-          ]);
+            });
+          }
+          await supabase.from('comms_log').insert(nudgeEntries);
 
           console.log(`[daily-scheduler] S2 sent ${nudge.content_key} to app ${app.id}`);
         } catch (err) {
@@ -376,9 +386,9 @@ serve(async (_req) => {
             phone: app.phone,
           };
 
-          await sendNotification(removal.content_key, recipient, {}, {});
+          await sendNotification(removal.content_key, recipient, {}, {}, { skipSms: !app.sms_consent });
 
-          await supabase.from('comms_log').insert([
+          const removalEntries: object[] = [
             {
               program_id:      config.PROGRAM_ID,
               application_id:  app.id,
@@ -389,7 +399,9 @@ serve(async (_req) => {
               sent_at:         new Date().toISOString(),
               delivery_status: 'sent',
             },
-            {
+          ];
+          if (app.sms_consent) {
+            removalEntries.push({
               program_id:      config.PROGRAM_ID,
               application_id:  app.id,
               direction:       'outbound',
@@ -398,8 +410,9 @@ serve(async (_req) => {
               message_body:    removal.content_key,
               sent_at:         new Date().toISOString(),
               delivery_status: 'sent',
-            },
-          ]);
+            });
+          }
+          await supabase.from('comms_log').insert(removalEntries);
 
           console.log(`[daily-scheduler] S3 removed app ${app.id} from ${removal.stage}`);
         } catch (err) {

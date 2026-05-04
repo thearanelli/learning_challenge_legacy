@@ -15,7 +15,8 @@ create table applications (
   ai_reasoning          text,
   failed_criteria       text,
   submitted_at          timestamptz not null default now(),
-  application_responses jsonb       not null default '{}'::jsonb
+  application_responses jsonb       not null default '{}'::jsonb,
+  sms_consent           boolean     default false
 );
 create index idx_applications_screening_status on applications(screening_status);
 create index idx_applications_submitted_at on applications(submitted_at desc);

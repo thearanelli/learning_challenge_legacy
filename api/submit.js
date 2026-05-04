@@ -38,6 +38,7 @@ async function writeToSupabase(fields) {
     address:               String(fields.address).trim(),
     email:                 String(fields.email).trim().toLowerCase(),
     phone:                 String(fields.phone).trim(),
+    sms_consent:           fields.sms_consent === true,
     screening_status:      'submitted',
     submitted_at:          new Date().toISOString(),
     application_responses: fields.application_responses || {},

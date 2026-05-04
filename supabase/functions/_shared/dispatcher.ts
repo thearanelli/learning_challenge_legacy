@@ -37,7 +37,8 @@ export async function sendNotification(
   stageKey: string,
   recipient: { first_name: string; last_name?: string; email: string; phone: string },
   vars: Record<string, string> = {},
-  meta: { youth_id?: string; champion_id?: string } = {}
+  meta: { youth_id?: string; champion_id?: string } = {},
+  options: { skipSms?: boolean } = {}
 ): Promise<void> {
   const block = (content as Record<string, unknown>)[stageKey];
   if (!block) {
@@ -59,7 +60,7 @@ export async function sendNotification(
     });
     await logComms({ channel: 'email', stage_key: stageKey, message_body: subject, ...meta });
   }
-  if (b.sms) {
+  if (b.sms && !options.skipSms) {
     const body = renderContent(b.sms, allVars);
     await sendSMS({
       to: recipient.phone,

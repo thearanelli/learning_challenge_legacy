@@ -734,6 +734,7 @@ let step = 0;
 let awaitingDeepDive = false;
 let passionDraft = '';
 let contactStep = 0; // 0 = email, 1 = phone
+let smsConsent = false;
 let userName = '';
 
 function getTime() {
@@ -879,19 +880,18 @@ function sendAnswer() {
         hideTyping();
         addAiMsg("Perfect! Last one — what's your phone number? 📱", null);
 
-        var notice = document.createElement('p');
-        notice.style.cssText = 'font-size:0.8rem;color:#999;line-height:1.5;max-width:680px;margin:-0.25rem auto 0;padding:0 0.5rem 0 calc(36px + 0.85rem);';
-        notice.textContent = 'By submitting this application, you agree to receive SMS updates from GripTape about your application status and program participation. Message and data rates may apply. Reply STOP to unsubscribe at any time.';
-        document.getElementById('chat').appendChild(notice);
-        scrollBottom();
-
         setEnabled(true);
       }, 700);
       return;
     } else {
       answers['phone'] = val;
-      setProgress(8, 8);
-      submitApp();
+      setEnabled(false);
+      showTyping();
+      setTimeout(() => {
+        hideTyping();
+        addAiMsg("Almost done! One last thing before we submit:", null);
+        showConsentStep();
+      }, 700);
       return;
     }
   }
@@ -941,6 +941,31 @@ function sendAnswer() {
   }
 }
 
+function showConsentStep() {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'consent-step';
+  el.style.cssText = 'margin:0.75rem 0;padding:0 0 0 calc(36px + 0.85rem);max-width:640px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
+  el.innerHTML = `
+    <label style="display:flex;gap:12px;cursor:pointer;align-items:flex-start;background:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <input type="checkbox" id="sms-opt-in" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#C8F135;cursor:pointer;">
+      <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;">I agree to receive SMS notifications from GripTape about my application status, program updates, and deadline reminders. Message frequency varies \u2014 up to 8 messages per program cycle. Message and data rates may apply. Reply STOP to unsubscribe.</span>
+    </label>
+    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Submit Application \u2192</button>
+  `;
+  chat.appendChild(el);
+  setProgress(8, 8);
+  scrollBottom();
+}
+
+function handleConsentSubmit() {
+  smsConsent = document.getElementById('sms-opt-in').checked;
+  const btn = document.getElementById('consent-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting\u2026';
+  submitApp();
+}
+
 async function submitApp() {
   showTyping();
   setTimeout(() => {
@@ -955,6 +980,7 @@ async function submitApp() {
     address:      answers['address']     || '',
     email:        answers['email']       || '',
     phone:        answers['phone']       || '',
+    sms_consent:  smsConsent,
     application_responses: {
       passion:  answers['passion']  || '',
       why_join: answers['why_join'] || '',
