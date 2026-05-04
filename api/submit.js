@@ -43,7 +43,6 @@ async function writeToSupabase(fields) {
     phone:                 String(fields.phone).trim(),
     gender:                fields.gender   ?? null,
     pronouns:              fields.pronouns ?? null,
-    passion:               fields.passion  ?? null,
     sms_consent:           fields.sms_consent === true,
     screening_status:      'submitted',
     submitted_at:          new Date().toISOString(),

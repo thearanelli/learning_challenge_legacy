@@ -96,14 +96,14 @@ serve(async (req) => {
       .replace(/```json\n?/gi, '')
       .replace(/```\n?/g, '')
       .trim();
-    let aiResult: { decision: string; reasoning: string; failed_criteria: string | null };
+    let aiResult: { decision: string; reasoning: string; failed_criteria: string | null; passion: string | null };
     try {
       aiResult = JSON.parse(cleaned);
     } catch {
       throw new Error(`Claude returned invalid JSON: ${rawText}`);
     }
 
-    const { decision, reasoning, failed_criteria } = aiResult;
+    const { decision, reasoning, failed_criteria, passion } = aiResult;
     console.log(`[SCREEN] ${application.id}: ${decision}`);
 
     // next stage per config.STAGES.screening.next
@@ -119,6 +119,7 @@ serve(async (req) => {
       ai_decision: decision,
       ai_reasoning: reasoning,
       failed_criteria: failed_criteria ?? null,
+      passion: passion ?? null,
       stage_entered_at: new Date().toISOString(),
     };
     let profileToken: string | undefined;

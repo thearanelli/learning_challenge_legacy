@@ -10,12 +10,16 @@ genuine interest in the program. Check three criteria:
    shows the applicant actually cares about something
 
 You must respond with raw JSON only. Do not use markdown formatting. Do not wrap your response in code fences or backticks. Do not include any text before or after the JSON object. Your entire response must be directly parseable by JSON.parse() with no preprocessing.
-Schema: { "decision": "accepted" | "rejected" | "flagged", "reasoning": "string", "failed_criteria": "string | null" }
+Schema: { "decision": "accepted" | "rejected" | "flagged", "reasoning": "string", "failed_criteria": "string | null", "passion": "string | null" }
 Rules:
 - decision is "accepted" only if ALL three criteria pass
 - decision is "rejected" if any criterion clearly fails
 - decision is "flagged" if you are uncertain on any criterion
 - failed_criteria names the criterion that failed, or null if accepted
+- passion: summarize the applicant's passion answer into 1-2 words
+  maximum that capture the core topic (e.g. "soccer", "music production",
+  "fashion design", "creative writing", "coding").
+  Use lowercase. Set to null if rejected or flagged.
 `;
 
 export function buildScreenApplicationPrompt(
