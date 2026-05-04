@@ -720,13 +720,16 @@ h1 {
 // The form posts to /api/submit which handles Airtable + Supabase writes.
 
 const QUESTIONS = [
-  { key: 'first_name', q: "Hey! 👋 What's your first name?",                                                                                                         hint: null },
-  { key: 'last_name',  q: "Nice to meet you, {name}! And your last name?",                                                                                           hint: null },
-  { key: 'birthdate',  q: "What's your date of birth? 🎂",                                                                                                           hint: 'Format: MM/DD/YYYY' },
-  { key: 'address',    q: "What's your full home address? 📍",                                                                                                       hint: 'Street address, city, state, zip' },
-  { key: 'passion',    q: "Here's the big one 🔥 — what are you passionate about? The teens who get accepted really go deep. Don't hold back — tell us everything.", deepDive: true, hint: 'Aim for 40+ words — more detail = better chance' },
-  { key: 'why_join',   q: "Why The Learning Challenge specifically? What do you want to get out of this?",                                                            hint: null },
-  { key: 'email',      q: "Almost there! What's your email address? 📧",                                                                                             hint: null },
+  { key: 'first_name',     q: "Hey! 👋 What's your first name?",                                                                                                         hint: null },
+  { key: 'last_name',      q: "Nice to meet you, {name}! And your last name?",                                                                                           hint: null },
+  { key: 'birthdate',      q: "What's your date of birth? 🎂",                                                                                                           hint: 'Format: MM/DD/YYYY' },
+  { key: 'street_address', q: "What's your street address? 📍",                                                                                                          hint: null },
+  { key: 'city',           q: "What city do you live in?",                                                                                                               hint: null },
+  { key: 'state',          q: "What state?",                                                                                                                             hint: 'Two-letter code, e.g. NY' },
+  { key: 'zip',            q: "And your zip code?",                                                                                                                      hint: null },
+  { key: 'passion',        q: "Here's the big one 🔥 — what are you passionate about? The teens who get accepted really go deep. Don't hold back — tell us everything.", deepDive: true, hint: 'Aim for 40+ words — more detail = better chance' },
+  { key: 'why_join',       q: "Why The Learning Challenge specifically? What do you want to get out of this?",                                                            hint: null },
+  { key: 'email',          q: "Almost there! What's your email address? 📧",                                                                                             hint: null },
 ];
 
 const answers = {};
@@ -840,7 +843,7 @@ function handleInput(el) {
 function startApp() {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app-screen').classList.add('active');
-  setProgress(0, 8);
+  setProgress(0, 13);
   setTimeout(() => askQ(0), 700);
 }
 
@@ -870,28 +873,42 @@ function sendAnswer() {
   addUserMsg(val);
   setEnabled(false);
 
-  // Phone step (after email — email is index 6, phone follows)
-  if (step === 6) {
+  // Phone/gender/pronouns steps (after email — email is index 9, phone follows)
+  if (step === 9) {
     if (contactStep === 0) {
       answers['email'] = val;
       contactStep = 1;
       showTyping();
       setTimeout(() => {
         hideTyping();
+        setProgress(10, 13);
         addAiMsg("Perfect! Last one — what's your phone number? 📱", null);
-
         setEnabled(true);
       }, 700);
       return;
     } else {
       answers['phone'] = val;
       setEnabled(false);
-      showTyping();
-      setTimeout(() => {
-        hideTyping();
-        addAiMsg("Almost done! One last thing before we submit:", null);
-        showConsentStep();
-      }, 700);
+      showChoiceStep(
+        'What is your gender?',
+        ['Male', 'Female', 'Non-binary', 'Prefer not to say'],
+        'gender',
+        11, 13,
+        () => showChoiceStep(
+          'What are your pronouns?',
+          ['He/Him', 'She/Her', 'They/Them', 'Prefer not to say'],
+          'pronouns',
+          12, 13,
+          () => {
+            showTyping();
+            setTimeout(() => {
+              hideTyping();
+              addAiMsg("Almost done! One last thing before we submit:", null);
+              showConsentStep();
+            }, 700);
+          }
+        )
+      );
       return;
     }
   }
@@ -924,7 +941,7 @@ function sendAnswer() {
       hideTyping();
       addAiMsg("That's what we're talking about! 🔥", { type: 'good', icon: '✅', text: `${wc} words — strong answer` });
       step++;
-      setProgress(step, 8);
+      setProgress(step, 13);
       setTimeout(() => askQ(step), 600);
     }, 600);
     return;
@@ -935,10 +952,39 @@ function sendAnswer() {
   }
 
   step++;
-  setProgress(step, 8);
+  setProgress(step, 13);
   if (step < QUESTIONS.length) {
     setTimeout(() => askQ(step), 450);
   }
+}
+
+function showChoiceStep(question, options, fieldKey, progressStep, totalSteps, onSelect) {
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    setProgress(progressStep, totalSteps);
+    addAiMsg(question, null);
+    const chat = document.getElementById('chat');
+    const el = document.createElement('div');
+    el.id = 'choice-step-' + fieldKey;
+    el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;flex-wrap:wrap;gap:8px;';
+    options.forEach(function(opt) {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.style.cssText = 'padding:10px 18px;background:#161616;border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:#F5F5F0;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:border-color 0.15s,color 0.15s;';
+      btn.onmouseover = function() { btn.style.borderColor = '#C8F135'; btn.style.color = '#C8F135'; };
+      btn.onmouseout  = function() { btn.style.borderColor = 'rgba(255,255,255,0.15)'; btn.style.color = '#F5F5F0'; };
+      btn.onclick = function() {
+        answers[fieldKey] = opt;
+        addUserMsg(opt);
+        el.remove();
+        onSelect();
+      };
+      el.appendChild(btn);
+    });
+    chat.appendChild(el);
+    scrollBottom();
+  }, 700);
 }
 
 function showConsentStep() {
@@ -954,7 +1000,7 @@ function showConsentStep() {
     <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Submit Application \u2192</button>
   `;
   chat.appendChild(el);
-  setProgress(8, 8);
+  setProgress(13, 13);
   scrollBottom();
 }
 
@@ -974,13 +1020,20 @@ async function submitApp() {
   }, 400);
 
   const payload = {
-    first_name:   answers['first_name']  || '',
-    last_name:    answers['last_name']   || '',
-    birthdate:    answers['birthdate']   || '',
-    address:      answers['address']     || '',
-    email:        answers['email']       || '',
-    phone:        answers['phone']       || '',
-    sms_consent:  smsConsent,
+    first_name:     answers['first_name']     || '',
+    last_name:      answers['last_name']      || '',
+    birthdate:      answers['birthdate']      || '',
+    street_address: answers['street_address'] || '',
+    city:           answers['city']           || '',
+    state:          answers['state']          || '',
+    zip:            answers['zip']            || '',
+    email:          answers['email']          || '',
+    phone:          answers['phone']          || '',
+    gender:         answers['gender']         || null,
+    pronouns:       answers['pronouns']       || null,
+    passion:        answers['passion']        || '',
+    lc_topic:       answers['why_join']       || '',
+    sms_consent:    smsConsent,
     application_responses: {
       passion:  answers['passion']  || '',
       why_join: answers['why_join'] || '',

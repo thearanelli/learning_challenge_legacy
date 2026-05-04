@@ -16,7 +16,15 @@ create table applications (
   failed_criteria       text,
   submitted_at          timestamptz not null default now(),
   application_responses jsonb       not null default '{}'::jsonb,
-  sms_consent           boolean     default false
+  sms_consent           boolean     default false,
+  gender                text,
+  pronouns              text,
+  street_address        text,
+  city                  text,
+  state                 text,
+  zip                   text,
+  passion               text,
+  lc_topic              text
 );
 create index idx_applications_screening_status on applications(screening_status);
 create index idx_applications_submitted_at on applications(submitted_at desc);
@@ -36,7 +44,9 @@ create table if not exists champions (
   available           boolean default true,
   registration_token  text,
   registered_at       timestamptz,
-  created_at          timestamptz default now()
+  created_at          timestamptz default now(),
+  gender              text,
+  pronouns            text
 );
 
 -- Youth: accepted participants, created on video approval
@@ -60,7 +70,15 @@ create table if not exists youth (
   full_send_url                 text,
   accepted_at                   timestamptz default now(),
   orientation_call_completed_at timestamptz,
-  sms_consent                   boolean default false
+  sms_consent                   boolean default false,
+  gender                        text,
+  pronouns                      text,
+  street_address                text,
+  city                          text,
+  state                         text,
+  zip                           text,
+  passion                       text,
+  lc_topic                      text
 );
 -- NOTE: champion_id has no foreign key constraint intentionally.
 -- The constraint will be added later once both tables are stable.
@@ -150,7 +168,9 @@ create table if not exists champions (
   available           boolean default true,
   registration_token  text,
   registered_at       timestamptz,
-  created_at          timestamptz default now()
+  created_at          timestamptz default now(),
+  gender              text,
+  pronouns            text
 );
 
 -- Youth: accepted participants, created on video approval
@@ -173,7 +193,15 @@ create table if not exists youth (
   first_drop_url                text,
   full_send_url                 text,
   accepted_at                   timestamptz default now(),
-  orientation_call_completed_at timestamptz
+  orientation_call_completed_at timestamptz,
+  gender                        text,
+  pronouns                      text,
+  street_address                text,
+  city                          text,
+  state                         text,
+  zip                           text,
+  passion                       text,
+  lc_topic                      text
 );
 
 -- Seed: 5 dummy champions for pilot testing

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (!fields) {
     return res.status(400).json({ error: 'Missing fields in request body' });
   }
-  const required = ['first_name', 'last_name', 'birthdate', 'address', 'email', 'phone'];
+  const required = ['first_name', 'last_name', 'birthdate', 'street_address', 'city', 'state', 'zip', 'email', 'phone'];
   for (const f of required) {
     if (!fields[f]) {
       return res.status(400).json({ error: `Missing required field: ${f}` });
@@ -35,9 +35,16 @@ async function writeToSupabase(fields) {
     first_name:            String(fields.first_name).trim(),
     last_name:             String(fields.last_name).trim(),
     birthdate:             String(fields.birthdate).trim(),
-    address:               String(fields.address).trim(),
+    street_address:        String(fields.street_address).trim(),
+    city:                  String(fields.city).trim(),
+    state:                 String(fields.state).trim(),
+    zip:                   String(fields.zip).trim(),
     email:                 String(fields.email).trim().toLowerCase(),
     phone:                 String(fields.phone).trim(),
+    gender:                fields.gender   ?? null,
+    pronouns:              fields.pronouns ?? null,
+    passion:               fields.passion  ?? null,
+    lc_topic:              fields.lc_topic ?? null,
     sms_consent:           fields.sms_consent === true,
     screening_status:      'submitted',
     submitted_at:          new Date().toISOString(),
