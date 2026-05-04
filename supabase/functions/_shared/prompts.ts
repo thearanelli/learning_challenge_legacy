@@ -39,7 +39,7 @@ Eligibility criteria:
 Application:
 Name: ${application.first_name} ${application.last_name}
 Age (calculated from birthdate ${birthdate}): ${age}
-Address: ${application.address}
+Address: ${application.street_address}, ${application.city}, ${application.state} ${application.zip}
 Passion: ${responses.passion || '(empty)'}
 Why join: ${responses.why_join || '(empty)'}
   `.trim();

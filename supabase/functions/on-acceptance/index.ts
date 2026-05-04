@@ -63,7 +63,6 @@ serve(async (req) => {
         last_name:      application.last_name,
         email:          application.email,
         phone:          application.phone,
-        address:        application.address,
         street_address: application.street_address ?? null,
         city:           application.city           ?? null,
         state:          application.state          ?? null,
