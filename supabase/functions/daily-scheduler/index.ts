@@ -321,7 +321,7 @@ serve(async (_req) => {
             vars.link = `${config.BASE_URL}/full-send?token=${youth.access_token}`;
           }
 
-          await sendNotification(nudge.content_key, recipient, vars, { youth_id: youth.id });
+          await sendNotification(nudge.content_key, recipient, vars, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
 
           console.log(`[daily-scheduler] S2 sent ${nudge.content_key} to youth ${youth.id}`);
@@ -494,7 +494,7 @@ serve(async (_req) => {
             phone: youth.phone,
           };
 
-          await sendNotification(removal.content_key, recipient, {}, { youth_id: youth.id });
+          await sendNotification(removal.content_key, recipient, {}, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
 
           console.log(`[daily-scheduler] S3 removed youth ${youth.id} from ${removal.stage}`);
         } catch (err) {
@@ -564,7 +564,7 @@ serve(async (_req) => {
             phone: youth.phone,
           };
 
-          await sendNotification('full_send_link', recipient, { link: fullSendLink }, { youth_id: youth.id });
+          await sendNotification('full_send_link', recipient, { link: fullSendLink }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
 
           console.log(`[daily-scheduler] S4 sent full_send_link to youth ${youth.id}, advanced to final_video_pending`);

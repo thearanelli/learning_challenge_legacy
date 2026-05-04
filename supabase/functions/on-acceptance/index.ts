@@ -68,6 +68,7 @@ serve(async (req) => {
         status:         INITIAL_STATUS,
         first_drop_url: application.video_url ?? null,
         accepted_at:    new Date().toISOString(),
+        sms_consent:    application.sms_consent ?? false,
       })
       .select('id')
       .single();

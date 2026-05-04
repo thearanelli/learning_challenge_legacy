@@ -59,7 +59,8 @@ create table if not exists youth (
   first_drop_url                text,
   full_send_url                 text,
   accepted_at                   timestamptz default now(),
-  orientation_call_completed_at timestamptz
+  orientation_call_completed_at timestamptz,
+  sms_consent                   boolean default false
 );
 -- NOTE: champion_id has no foreign key constraint intentionally.
 -- The constraint will be added later once both tables are stable.
