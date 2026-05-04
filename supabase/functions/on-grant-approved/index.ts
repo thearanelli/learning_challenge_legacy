@@ -220,6 +220,7 @@ serve(async (req) => {
       const vars = {
         youth_id:       youth.id,
         preferred_name: youth.first_name,
+        last_name:      youth.last_name,
         grant_amount:   String(grantRequest.grant_amount),
         grant_format:   grantRequest.grant_format ?? 'Not specified',
         email:          youth.email,
