@@ -34,18 +34,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ANIMATED BG GRID */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(200,241,53,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(200,241,53,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-  z-index: 0;
-}
 
 /* FLOATING BLOBS */
 .blob {
@@ -67,7 +55,7 @@ body::before {
 }
 
 /* ── LANDING ── */
-#landing { min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+#landing { position: relative; z-index: 1; background: #0D0D0D; }
 
 nav {
   display: flex;
@@ -117,27 +105,29 @@ nav {
 }
 .nav-pill.active { background: var(--lime); color: #000; border-color: var(--lime); }
 
-.hero {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 55% 45%;
-  min-height: calc(100vh - 65px);
+/* ── LANDING HERO ── */
+.landing-hero {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
-.hero-left {
+.hero-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 5rem 3.5rem 5rem 2.5rem;
-  border-right: 1px solid var(--border);
-  position: relative;
+  padding: 40px 20px 48px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .tag-row {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .tag {
@@ -156,10 +146,10 @@ nav {
 h1 {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: clamp(3.5rem, 7vw, 6.5rem);
+  font-size: clamp(2.8rem, 10vw, 5rem);
   line-height: 0.93;
   letter-spacing: -0.03em;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .highlight {
@@ -187,30 +177,40 @@ h1 {
 }
 
 .hero-desc {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--gray);
   line-height: 1.7;
-  max-width: 440px;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.25rem;
 }
 
-.cta-group { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.hero-quote {
+  font-size: 0.95rem;
+  color: var(--white);
+  font-style: italic;
+  line-height: 1.6;
+  border-left: 2px solid var(--lime);
+  padding-left: 1rem;
+  margin-bottom: 1.75rem;
+  opacity: 0.85;
+}
 
 .btn-main {
   background: var(--lime);
   color: #000;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   letter-spacing: 0.02em;
-  padding: 1rem 2rem;
+  height: 56px;
+  padding: 0 2rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.25s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
   position: relative;
   overflow: hidden;
 }
@@ -227,69 +227,200 @@ h1 {
 .btn-main:hover::before { transform: translateX(0); }
 .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200,241,53,0.3); }
 
-.btn-outline {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--gray);
-  font-family: 'Instrument Sans', sans-serif;
-  font-size: 0.85rem;
-  padding: 0.9rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-outline:hover { border-color: var(--white); color: var(--white); }
+.cta-wrap { max-width: 400px; width: 100%; }
 
-/* STATS GRID */
-.hero-right {
-  display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-  background: var(--border);
-  gap: 1px;
+.cta-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  margin-top: 10px;
 }
 
-.stat-card {
-  background: var(--bg);
-  padding: 2rem;
+/* ── LANDING SECTIONS ── */
+.section-header {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  padding: 32px 20px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.landing-section {
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+
+/* STATS */
+.stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.stat-big-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--lime);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.stat-big-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+
+/* HERO INNER — two-column container (stacked on mobile, grid on desktop) */
+.hero-inner {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  transition: background 0.3s;
+}
+
+.hero-shorts-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  padding: 32px 20px 16px;
+}
+
+/* SHORTS STRIP */
+.shorts-inner {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 20px 32px;
+}
+.shorts-inner::-webkit-scrollbar { display: none; }
+
+.short-card {
   position: relative;
+  display: block;
+  width: 140px;
+  flex-shrink: 0;
+  aspect-ratio: 9/16;
+  border-radius: 12px;
   overflow: hidden;
+  text-decoration: none;
 }
 
-.stat-card::before {
-  content: '';
+.short-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.short-play {
   position: absolute;
-  top: 0; left: 0;
-  width: 3px;
-  height: 0;
-  background: var(--lime);
-  transition: height 0.4s ease;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
 }
 
-.stat-card:hover { background: var(--bg2); }
-.stat-card:hover::before { height: 100%; }
+/* PERKS GRID */
+.perks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
 
-.stat-emoji { font-size: 2rem; line-height: 1; filter: saturate(1.2); }
+.perk-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  text-align: center;
+}
 
-.stat-num {
+.perk-emoji {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.perk-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.perk-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.4;
+}
+
+/* QUOTE SECTION */
+.landing-quote-section {
+  padding: 40px 24px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.landing-quote-text {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 1.5;
+  font-style: italic;
+  text-align: center;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.landing-quote-attr {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 12px;
+  text-align: center;
+  display: block;
+}
+
+/* FINAL CTA */
+.landing-final-cta {
+  background: var(--bg);
+  padding: 48px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.landing-final-cta h2 {
   font-family: 'Syne', sans-serif;
+  font-size: 28px;
   font-weight: 800;
-  font-size: 2.8rem;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--lime);
+  color: var(--white);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
 }
-
-.stat-desc { font-size: 0.85rem; color: var(--gray); line-height: 1.5; max-width: 260px; }
-
-.stat-card.featured { background: var(--purple); border: none; }
-.stat-card.featured:hover { background: var(--purple-light); }
-.stat-card.featured::before { background: var(--lime); }
-.stat-card.featured .stat-num { color: var(--lime); }
-.stat-card.featured .stat-desc { color: rgba(255,255,255,0.7); }
 
 /* ── APP SCREEN ── */
 #app-screen { display: none; min-height: 100vh; flex-direction: column; position: relative; z-index: 1; }
@@ -401,6 +532,7 @@ h1 {
   font-size: 0.97rem;
   line-height: 1.65;
   color: var(--white);
+  white-space: pre-wrap;
 }
 
 /* USER MESSAGE */
@@ -430,6 +562,7 @@ h1 {
   font-weight: 500;
   max-width: 80%;
   word-break: break-word;
+  position: relative;
 }
 
 /* TYPING */
@@ -464,56 +597,6 @@ h1 {
 .reaction-card.good { border-color: rgba(200,241,53,0.3); color: var(--lime); background: var(--lime-glow); }
 .reaction-card.warn { border-color: rgba(255,188,64,0.3); color: #FFB840; background: rgba(255,184,64,0.08); }
 
-/* INPUT ZONE */
-.input-zone {
-  border-top: 1px solid var(--border);
-  padding: 1.25rem 1.5rem;
-  background: rgba(13,13,13,0.95);
-  backdrop-filter: blur(12px);
-}
-
-.input-inner { max-width: 680px; margin: 0 auto; display: flex; gap: 0.75rem; align-items: flex-end; }
-
-.textarea-wrap {
-  flex: 1;
-  background: var(--bg2);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  padding: 0.9rem 1rem 0.6rem;
-  transition: border-color 0.25s, box-shadow 0.25s;
-}
-
-.textarea-wrap:focus-within {
-  border-color: rgba(200,241,53,0.5);
-  box-shadow: 0 0 0 3px rgba(200,241,53,0.08);
-}
-
-#answer-input {
-  width: 100%; background: none; border: none; outline: none;
-  color: var(--white);
-  font-family: 'Instrument Sans', sans-serif;
-  font-size: 0.97rem;
-  resize: none; min-height: 24px; max-height: 120px; line-height: 1.5;
-}
-#answer-input::placeholder { color: var(--gray); }
-
-.input-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
-.word-count { font-size: 0.65rem; color: var(--gray); }
-.word-count.low { color: #FFB840; }
-.word-count.good { color: var(--lime); }
-.key-hint { font-size: 0.65rem; color: var(--gray); opacity: 0.6; }
-
-.send-btn {
-  width: 48px; height: 48px;
-  background: var(--lime);
-  border: none; border-radius: 12px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; flex-shrink: 0;
-}
-.send-btn:hover { background: var(--lime-dark); transform: scale(1.05); box-shadow: 0 4px 20px rgba(200,241,53,0.3); }
-.send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
-.send-btn svg { width: 18px; height: 18px; fill: #000; }
 
 /* ── SUCCESS ── */
 #success-screen {
@@ -571,6 +654,21 @@ h1 {
 .success-stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; color: var(--lime); }
 .success-stat-label { font-size: 0.75rem; color: var(--gray); margin-top: 0.2rem; }
 
+/* ENHANCEMENT 3 — heartbeat glow on commitment gate button */
+@keyframes heartbeat {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200,241,53,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(200,241,53,0); }
+}
+
+/* ENHANCEMENT 5 — emoji reaction fade */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: scale(0.5); }
+  15% { opacity: 1; transform: scale(1.3); }
+  30% { opacity: 1; transform: scale(1); }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* CONFETTI */
 .confetti-piece { position: fixed; pointer-events: none; z-index: 999; animation: confettiFall linear forwards; }
 @keyframes confettiFall {
@@ -579,17 +677,104 @@ h1 {
   100% { transform: translateY(110vh) rotate(600deg) scale(0.5); opacity: 0; }
 }
 
-/* RESPONSIVE */
+/* ── RESPONSIVE ── */
+
+/* Mobile: hide nav pills, large h1 */
+@media (max-width: 767px) {
+  .nav-pills { display: none; }
+  h1 { font-size: clamp(48px, 12vw, 72px); }
+}
+
+/* App screen + general mobile */
 @media (max-width: 768px) {
-  .hero { grid-template-columns: 1fr; }
-  .hero-right { display: none; }
   nav { padding: 1rem 1.25rem; }
-  .hero-left { padding: 3rem 1.25rem; }
   .chat-wrap { padding: 1.5rem 0.75rem; }
-  .input-zone { padding: 1rem; }
   .app-header { padding: 0.75rem 1rem; }
   .progress-section { max-width: 160px; }
-  h1 { font-size: 3.2rem; }
+  button { min-height: 44px; }
+  input, textarea, select { font-size: 16px !important; }
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  /* Hero: two-column */
+  .landing-hero { min-height: 100vh; }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px;
+    min-height: calc(100vh - 73px);
+    align-items: center;
+    gap: 48px;
+  }
+  .hero-body {
+    flex: unset;
+    min-height: unset;
+    max-width: none;
+    margin: 0;
+    padding: 80px 0;
+  }
+  .hero-shorts-label { display: none; }
+  .shorts-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    overflow-x: visible;
+    padding: 0;
+  }
+  .short-card { width: auto; flex-shrink: 1; }
+
+  /* Stats: horizontal row */
+  .stats-section {
+    display: flex;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+  .stats-section .stat-row {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-bottom: none;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    padding: 32px 24px;
+    max-width: none;
+    margin: 0;
+    gap: 8px;
+  }
+  .stats-section .stat-row:last-child { border-right: none; }
+  .stats-section .stat-big-num { font-size: 72px; }
+
+  /* Section headers */
+  .stats-header, .perks-header {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 48px 16px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* Perks: 4-column row */
+  .perks-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+  .perks-section .perks-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: none;
+  }
+
+  /* Quote */
+  .landing-quote-section { max-width: 700px; margin: 0 auto; }
+  .landing-quote-text { font-size: 28px; max-width: 600px; }
+
+  /* Final CTA */
+  .landing-final-cta { padding: 80px 48px; }
 }
 </style>
 </head>
@@ -601,57 +786,126 @@ h1 {
 
 <!-- ── LANDING ── -->
 <div id="landing">
-  <nav>
-    <div class="logo">
-      <div class="logo-dot"></div>
-      The Learning Challenge
+
+  <!-- HERO + SHORTS (two-column on desktop, stacked on mobile) -->
+  <section class="landing-hero">
+    <nav>
+      <div class="logo">
+        <div class="logo-dot"></div>
+        The Learning Challenge
+      </div>
+      <div class="nav-pills">
+        <div class="nav-pill active">NYC</div>
+        <div class="nav-pill">Ages 15–19</div>
+        <div class="nav-pill">Free</div>
+      </div>
+    </nav>
+    <div class="hero-inner">
+      <div class="hero-body">
+        <div class="tag-row">
+          <span class="tag lime">Applications Open</span>
+          <span class="tag purple">6-Week Program</span>
+          <span class="tag">Since 2016</span>
+        </div>
+        <h1>The <span class="highlight">Learning</span><br>Challenge.</h1>
+        <p class="hero-desc">You pick the passion. You design the project. We back you with $250, a mentor, and 6 weeks.</p>
+        <blockquote class="hero-quote">"This is something that could make my life better." — Maya, 17</blockquote>
+        <div class="cta-wrap">
+          <button class="btn-main" onclick="startApp()">I'm ready →</button>
+        </div>
+        <p class="cta-sub">4,000+ teenagers since 2016 · Ages 15–19 · NYC &amp; NJ</p>
+      </div>
+      <div class="hero-shorts">
+        <div class="hero-shorts-label">Hear from challengers</div>
+        <div class="shorts-inner">
+          <a href="https://youtube.com/shorts/gj3diKJiPIs" target="_blank" class="short-card">
+            <img src="https://img.youtube.com/vi/gj3diKJiPIs/0.jpg" alt="GripTape challenger">
+            <div class="short-play">▶</div>
+          </a>
+          <a href="https://youtube.com/shorts/cqZimmYNlLg" target="_blank" class="short-card">
+            <img src="https://img.youtube.com/vi/cqZimmYNlLg/0.jpg" alt="GripTape challenger">
+            <div class="short-play">▶</div>
+          </a>
+          <a href="https://youtube.com/shorts/qKBjqL-8hRk" target="_blank" class="short-card">
+            <img src="https://img.youtube.com/vi/qKBjqL-8hRk/0.jpg" alt="GripTape challenger">
+            <div class="short-play">▶</div>
+          </a>
+          <a href="https://youtube.com/shorts/k_a6-73ub2k" target="_blank" class="short-card">
+            <img src="https://img.youtube.com/vi/k_a6-73ub2k/0.jpg" alt="GripTape challenger">
+            <div class="short-play">▶</div>
+          </a>
+          <a href="https://youtube.com/shorts/PD_cZs0KyEs" target="_blank" class="short-card">
+            <img src="https://img.youtube.com/vi/PD_cZs0KyEs/0.jpg" alt="GripTape challenger">
+            <div class="short-play">▶</div>
+          </a>
+          <a href="https://youtube.com/shorts/O4ATypbCDew" target="_blank" class="short-card">
+            <img src="https://img.youtube.com/vi/O4ATypbCDew/0.jpg" alt="GripTape challenger">
+            <div class="short-play">▶</div>
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="nav-pills">
-      <div class="nav-pill active">NYC</div>
-      <div class="nav-pill">Ages 15–19</div>
-      <div class="nav-pill">Free</div>
+  </section>
+
+  <!-- STATS -->
+  <div class="section-header stats-header">What 4,000+ challengers say</div>
+  <div class="landing-section stats-section">
+    <div class="stat-row">
+      <span class="stat-big-num">96%</span>
+      <span class="stat-big-label">said it was a valuable experience</span>
     </div>
-  </nav>
-
-  <div class="hero">
-    <div class="hero-left">
-      <div class="tag-row">
-        <span class="tag lime">Applications Open</span>
-        <span class="tag purple">8–10 Week Program</span>
-        <span class="tag">Summer 2025</span>
-      </div>
-
-      <h1>Turn Your <span class="highlight">Passion</span><br>Into Something<br>Real.</h1>
-
-      <p class="hero-desc">Stop waiting for "someday." NYC's most ambitious teens are building, creating, and launching right now — with funding, a mentor, and a crew behind them.</p>
-
-      <div class="cta-group">
-        <button class="btn-main" onclick="startApp()">
-          Apply Now
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-        <button class="btn-outline">See past projects ↗</button>
-      </div>
+    <div class="stat-row">
+      <span class="stat-big-num">98%</span>
+      <span class="stat-big-label">gained skills valuable to their future</span>
     </div>
+    <div class="stat-row">
+      <span class="stat-big-num">100%</span>
+      <span class="stat-big-label">would recommend it to a friend</span>
+    </div>
+  </div>
 
-    <div class="hero-right">
-      <div class="stat-card featured">
-        <div class="stat-emoji">💸</div>
-        <div class="stat-num">$250</div>
-        <div class="stat-desc">Project funding — no strings attached. Your vision, your call.</div>
+  <!-- WHAT YOU GET -->
+  <div class="section-header perks-header">Here's what you get</div>
+  <div class="landing-section perks-section">
+    <div class="perks-grid">
+      <div class="perk-card">
+        <span class="perk-emoji">💰</span>
+        <span class="perk-title">$250</span>
+        <span class="perk-desc">Yours to invest in your passion</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-emoji">🧭</div>
-        <div class="stat-num">1:1</div>
-        <div class="stat-desc">A personal mentor (we call them Champions) who actually shows up for you.</div>
+      <div class="perk-card">
+        <span class="perk-emoji">🤝</span>
+        <span class="perk-title">A Champion</span>
+        <span class="perk-desc">A mentor matched to what you care about</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-emoji">🏙️</div>
-        <div class="stat-num" style="font-size:1.8rem;letter-spacing:-0.02em">NYC<br>Community</div>
-        <div class="stat-desc">Real people, real meetups, real connections. Manhattan HQ.</div>
+      <div class="perk-card">
+        <span class="perk-emoji">⏱</span>
+        <span class="perk-title">6 Weeks</span>
+        <span class="perk-desc">To go deep on your own terms</span>
+      </div>
+      <div class="perk-card">
+        <span class="perk-emoji">🏙️</span>
+        <span class="perk-title">Community</span>
+        <span class="perk-desc">In-person events with teenagers like you</span>
       </div>
     </div>
   </div>
+
+  <!-- QUOTE -->
+  <div class="landing-quote-section">
+    <p class="landing-quote-text">"GripTape is a good way to test out a career. I feel like I have a path in front of me."</p>
+    <span class="landing-quote-attr">— Isaac, 17</span>
+  </div>
+
+  <!-- FINAL CTA -->
+  <div class="landing-final-cta">
+    <h2>Ready to go all in?</h2>
+    <div class="cta-wrap">
+      <button class="btn-main" onclick="startApp()">I'm ready →</button>
+    </div>
+    <p class="cta-sub">Takes 5 minutes. No resume needed.</p>
+  </div>
+
 </div>
 
 <!-- ── APP SCREEN ── -->
@@ -660,8 +914,8 @@ h1 {
     <div class="app-logo">The Learning Challenge</div>
     <div class="progress-section">
       <div class="progress-meta">
-        <span class="progress-step" id="step-label">Step 1 of 8</span>
-        <span class="progress-pct" id="pct-label">0% there 🔥</span>
+        <span class="progress-step" id="step-label">Step 1 of 13</span>
+        <span class="progress-pct" id="pct-label">0% there ✨</span>
       </div>
       <div class="progress-track">
         <div class="progress-fill" id="progress-fill"></div>
@@ -670,40 +924,27 @@ h1 {
     <button class="exit-btn" onclick="saveExit()">Save & exit</button>
   </div>
 
+  <div id="today-counter" style="text-align:center;padding:8px 0;font-size:11px;color:rgba(255,255,255,0.4);"></div>
   <div class="chat-wrap" id="chat-wrap">
     <div class="chat-inner" id="chat"></div>
   </div>
 
-  <div class="input-zone">
-    <div class="input-inner">
-      <div class="textarea-wrap">
-        <textarea id="answer-input" rows="1" placeholder="Type your answer here..." onkeydown="handleKey(event)" oninput="handleInput(this)"></textarea>
-        <div class="input-footer">
-          <span class="word-count" id="word-count"></span>
-          <span class="key-hint">Enter to send · Shift+Enter for new line</span>
-        </div>
-      </div>
-      <button class="send-btn" id="send-btn" onclick="sendAnswer()" disabled>
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
-    </div>
-  </div>
 </div>
 
 <!-- ── SUCCESS ── -->
 <div id="success-screen">
   <div class="success-ring">🚀</div>
   <div class="success-label">Application received</div>
-  <div class="success-title">You're In<br><em>The Running.</em></div>
-  <p class="success-body">We'll review your application and reach out soon. In the meantime — keep building. That's what we're about.</p>
-  <p class="success-sub">📱 Watch your email and phone for updates.</p>
+  <div class="success-title" id="success-title">You're in<br><em>The Running.</em></div>
+  <p class="success-body">We got you. Decision within 48 hours.<br><br><em style="color:var(--white);opacity:0.8">"It's life-changing. I feel like I have a path in front of me."</em> — Isaac, 19</p>
+  <p class="success-sub">Now go tell a friend.</p>
   <div class="success-stats">
     <div class="success-stat">
       <div class="success-stat-num">$250</div>
       <div class="success-stat-label">You could win</div>
     </div>
     <div class="success-stat">
-      <div class="success-stat-num">10</div>
+      <div class="success-stat-num">6</div>
       <div class="success-stat-label">Weeks of support</div>
     </div>
     <div class="success-stat">
@@ -717,28 +958,78 @@ h1 {
 <script>
 // ── CONFIG ──
 // No API tokens live here. All secrets are in Vercel environment variables.
-// The form posts to /api/submit which handles Airtable + Supabase writes.
+// The form posts to /api/submit which handles Supabase writes.
+
+function typeMessage(element, text, speed = 28) {
+  return new Promise(resolve => {
+    let i = 0;
+    function tick() {
+      if (i < text.length) {
+        element.textContent += text[i++];
+        scrollBottom();
+        setTimeout(tick, speed);
+      } else {
+        resolve();
+      }
+    }
+    tick();
+  });
+}
+
+// ── ENHANCEMENT UTILITIES ──
+
+function haptic(pattern = [10]) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+const ANSWER_EMOJIS = {
+  first_name:     '\uD83D\uDC4B',
+  last_name:      '\u270C\uFE0F',
+  passion:        '\uD83D\uDD25',
+  why_join:       '\uD83D\uDCAA',
+  email:          '\u2705',
+  phone:          '\uD83D\uDCF1',
+  birthdate:      '\uD83C\uDF82',
+  street_address: '\uD83D\uDCCD',
+  gender:         '\uD83D\uDCAB',
+  pronouns:       '\uD83D\uDCAB',
+};
 
 const QUESTIONS = [
-  { key: 'first_name',     q: "Hey! 👋 What's your first name?",                                                                                                         hint: null },
-  { key: 'last_name',      q: "Nice to meet you, {name}! And your last name?",                                                                                           hint: null },
-  { key: 'birthdate',      q: "What's your date of birth? 🎂",                                                                                                           hint: 'Format: MM/DD/YYYY' },
-  { key: 'street_address', q: "What's your street address? 📍",                                                                                                          hint: null },
-  { key: 'city',           q: "What city do you live in?",                                                                                                               hint: null },
-  { key: 'state',          q: "What state?",                                                                                                                             hint: 'Two-letter code, e.g. NY' },
-  { key: 'zip',            q: "And your zip code?",                                                                                                                      hint: null },
-  { key: 'passion',        q: "Here's the big one 🔥 — what are you passionate about? The teens who get accepted really go deep. Don't hold back — tell us everything.", deepDive: true, hint: 'Aim for 40+ words — more detail = better chance' },
-  { key: 'why_join',       q: "Why The Learning Challenge specifically? What do you want to get out of this?",                                                            hint: null },
-  { key: 'email',          q: "Almost there! What's your email address? 📧",                                                                                             hint: null },
+  { key: 'first_name', q: "What's your first name?",                hint: null },
+  { key: 'last_name',  q: "Last name, {name}?",                     hint: null },
+  {
+    key: 'passion',
+    q: "Okay {name} — what are you into?\n\nWhat takes up your brain? What do you care about enough to spend 6 weeks going deep on?\n\nDon't perform. Don't write what sounds good.\nTell us what's actually real for you.",
+    deepDive: true,
+    hint: 'Aim for 40+ words — more detail = better chance',
+  },
+  { key: 'why_join',  q: "What would you actually DO with 6 weeks and $250?\n\nBe specific. What would you build, learn, or make happen?", hint: null },
+  { key: 'email',     q: "What's your email? We'll send your decision here.",                hint: null },
+  { key: 'phone',     q: "Phone number? We'll text you updates.",                           hint: null },
+  { key: 'birthdate', q: "Date of birth? (MM/DD/YYYY)",                                     hint: 'Format: MM/DD/YYYY' },
 ];
+
+// Step indices for flow control
+const STEP_PASSION   = 2; // index in QUESTIONS
+const STEP_WHY_JOIN  = 3;
+const STEP_EMAIL     = 4;
+const STEP_PHONE     = 5;
+const STEP_BIRTHDATE = 6;
+// After QUESTIONS we do: address block, gender, pronouns, consent
+// Total counted steps = 13 (pauses don't count)
+
+const TOTAL_STEPS = 13;
 
 const answers = {};
 let step = 0;
-let awaitingDeepDive = false;
 let passionDraft = '';
-let contactStep = 0; // 0 = email, 1 = phone
 let smsConsent = false;
 let userName = '';
+
+// Track which logical phase we're in after QUESTIONS array ends
+// 'address' | 'gender' | 'pronouns' | 'consent' | 'done'
+let postQPhase = null;
 
 function getTime() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -756,44 +1047,60 @@ function setProgress(s, total) {
   document.getElementById('pct-label').textContent = `${pct}% there ${emoji}`;
 }
 
-function setEnabled(val) {
-  document.getElementById('answer-input').disabled = !val;
-  document.getElementById('send-btn').disabled = !val;
-  if (val) setTimeout(() => document.getElementById('answer-input').focus(), 100);
-}
+function setEnabled(val) { /* no-op: persistent input removed */ }
 
 function scrollBottom() {
   const w = document.getElementById('chat-wrap');
   setTimeout(() => { w.scrollTop = w.scrollHeight; }, 60);
 }
 
-function addAiMsg(text, reaction) {
+async function addAiMsg(text, reaction) {
   const chat = document.getElementById('chat');
   const el = document.createElement('div');
   el.className = 'ai-msg';
   el.innerHTML = `
-    <div class="ai-avatar">🤖</div>
+    <div class="ai-avatar"><img src="https://media.licdn.com/dms/image/v2/C4D0BAQFfspr0aCujTw/company-logo_200_200/company-logo_200_200/0/1631356754936/griptape_logo?e=2147483647&v=beta&t=Um62ojZzPcyq3p4GqNpi2sP8I3RvIY5PN-YsCsbDP4U" alt="GripTape" style="width:32px;height:32px;object-fit:cover;border-radius:50%;"></div>
     <div class="ai-content">
-      <div class="ai-name">TLC · Just now</div>
-      <div class="ai-bubble">${text}</div>
-      ${reaction ? `<div class="reaction-card ${reaction.type}">${reaction.icon} ${reaction.text}</div>` : ''}
+      <div class="ai-name">GRIPTAPE</div>
+      <div class="ai-bubble"></div>
     </div>`;
   chat.appendChild(el);
   scrollBottom();
+  const bubble = el.querySelector('.ai-bubble');
+  await typeMessage(bubble, text);
+  if (reaction) {
+    const rc = document.createElement('div');
+    rc.className = `reaction-card ${reaction.type}`;
+    rc.textContent = `${reaction.icon} ${reaction.text}`;
+    el.querySelector('.ai-content').appendChild(rc);
+    scrollBottom();
+  }
 }
 
-function addUserMsg(text) {
+function addUserMsg(text, emojiKey) {
   const chat = document.getElementById('chat');
   const el = document.createElement('div');
   el.className = 'user-msg';
   el.innerHTML = `
-    <div class="user-avatar">😊</div>
-    <div class="user-content">
-      <div class="user-name">You · ${getTime()}</div>
-      <div class="user-bubble">${escHtml(text)}</div>
-    </div>`;
+    <div class="user-content" style="flex:0 1 auto;max-width:80%;">
+      <div class="user-name">You \u00B7 ${getTime()}</div>
+      <div class="user-bubble" style="max-width:100%;">${escHtml(text)}</div>
+    </div>
+    <span style="font-size:20px;line-height:1;flex-shrink:0;margin-right:6px;align-self:flex-end;">👤</span>`;
   chat.appendChild(el);
   scrollBottom();
+  if (emojiKey && ANSWER_EMOJIS[emojiKey]) {
+    setTimeout(() => {
+      const bubble = el.querySelector('.user-bubble');
+      if (bubble) {
+        const span = document.createElement('span');
+        span.textContent = ANSWER_EMOJIS[emojiKey];
+        span.style.cssText = 'position:absolute;bottom:-8px;right:-4px;font-size:24px;animation:fadeInOut 3s ease forwards;pointer-events:none;';
+        bubble.appendChild(span);
+        setTimeout(() => span.remove(), 3100);
+      }
+    }, 50);
+  }
 }
 
 function escHtml(s) {
@@ -806,7 +1113,7 @@ function showTyping() {
   el.className = 'typing-msg';
   el.id = 'typing-indicator';
   el.innerHTML = `
-    <div class="ai-avatar">🤖</div>
+    <div class="ai-avatar"><img src="https://media.licdn.com/dms/image/v2/C4D0BAQFfspr0aCujTw/company-logo_200_200/company-logo_200_200/0/1631356754936/griptape_logo?e=2147483647&v=beta&t=Um62ojZzPcyq3p4GqNpi2sP8I3RvIY5PN-YsCsbDP4U" alt="GripTape" style="width:32px;height:32px;object-fit:cover;border-radius:50%;"></div>
     <div class="typing-bubble">
       <div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>`;
@@ -819,155 +1126,477 @@ function hideTyping() {
   if (el) el.remove();
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAnswer(); }
-}
-
-function handleInput(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-  const val = el.value.trim();
-  document.getElementById('send-btn').disabled = !val;
-  const wc = val ? wordCount(val) : 0;
-  const wcEl = document.getElementById('word-count');
-  const q = QUESTIONS[step];
-  if (q && q.deepDive && !awaitingDeepDive) {
-    wcEl.textContent = `${wc} words`;
-    wcEl.className = 'word-count' + (wc >= 40 ? ' good' : wc > 15 ? ' low' : '');
-  } else {
-    wcEl.textContent = '';
-    wcEl.className = 'word-count';
-  }
-}
 
 function startApp() {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app-screen').classList.add('active');
-  setProgress(0, 13);
-  setTimeout(() => askQ(0), 700);
+  setProgress(0, TOTAL_STEPS);
+  // Enhancement 4 — today counter
+  const counts = [14, 19, 23, 27, 31, 17, 22, 28];
+  const n = counts[Math.floor(Math.random() * counts.length)];
+  document.getElementById('today-counter').textContent = `\uD83D\uDFE2 ${n} teenagers started their Challenge today`;
+  setTimeout(() => showCommitmentGate(), 700);
 }
 
-function askQ(idx) {
+async function showCommitmentGate() {
   setEnabled(false);
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg("Hey, welcome. We\u2019re glad you\u2019re here.", null);
+  showTyping();
+  await new Promise(r => setTimeout(r, 800));
+  hideTyping();
+  await addAiMsg("Before you dive in \u2014 the Learning Challenge is for teenagers who have something they genuinely care about and are ready to put real effort into it. No experience needed. No perfect plan.", null);
+  showTyping();
+  await new Promise(r => setTimeout(r, 800));
+  hideTyping();
+  await addAiMsg("Just you and whatever you\u2019re into.\n\nThat you?", null);
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'commitment-gate';
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;gap:10px;flex-wrap:wrap;';
+  el.innerHTML = `
+    <button onclick="commitmentYes()" style="padding:14px 24px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Yes, that\u2019s me \u2192</button>
+    <button onclick="commitmentNotSure()" style="padding:14px 24px;background:none;border:1px solid rgba(255,255,255,0.15);color:#777;border-radius:12px;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:all 0.2s;">Not sure yet</button>
+  `;
+  chat.appendChild(el);
+  // Enhancement 3 — heartbeat pulse on Yes button
+  const yesBtn = el.querySelector('button');
+  if (yesBtn) yesBtn.style.animation = 'heartbeat 2s ease-in-out infinite';
+  scrollBottom();
+}
+
+function commitmentYes() {
+  haptic();
+  const el = document.getElementById('commitment-gate');
+  if (el) el.remove();
+  addUserMsg("Yes, that's me \u2192");
+  setTimeout(() => showIntroMessages(), 400);
+}
+
+function commitmentNotSure() {
+  window.open('#', '_blank');
+}
+
+async function showIntroMessages() {
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg("You pick the passion. You design the project. We back you with $250, a mentor, community, and 6 weeks to actually make something happen.", null);
+  showTyping();
+  await new Promise(r => setTimeout(r, 800));
+  hideTyping();
+  await addAiMsg("Let\u2019s start \u2014 what\u2019s your first name?", null);
+  injectInlineBlock('first-name-block', `<input id="first-name-input" type="text" placeholder="First name" style="${INLINE_INPUT_STYLE}">`, 'submitFirstNameBlock');
+}
+
+async function askQ(idx) {
   showTyping();
   const delay = 800 + Math.random() * 500;
-  setTimeout(() => {
-    hideTyping();
-    let text = QUESTIONS[idx].q.replace('{name}', userName || 'you');
-    const hint = QUESTIONS[idx].hint;
-    const reaction = hint ? { type: 'warn', icon: '💡', text: hint } : null;
-    addAiMsg(text, reaction);
-    setEnabled(true);
-  }, delay);
+  await new Promise(r => setTimeout(r, delay));
+  hideTyping();
+  let text = QUESTIONS[idx].q.replace('{name}', userName || 'you');
+  const hint = QUESTIONS[idx].hint;
+  const reaction = hint ? { type: 'warn', icon: '\u{1F4A1}', text: hint } : null;
+  await addAiMsg(text, reaction);
+  const key = QUESTIONS[idx].key;
+  if (key === 'last_name') {
+    injectInlineBlock('last-name-block', `<input id="last-name-input" type="text" placeholder="Your last name" style="${INLINE_INPUT_STYLE}">`, 'submitLastNameBlock');
+  } else if (key === 'passion') {
+    injectTextareaBlock('passion-block', 'Tell us what you\'re into...', 'submitPassionBlock');
+  } else if (key === 'why_join') {
+    injectTextareaBlock('why-join-block', 'Be specific \u2014 what would you build, learn, or make happen?', 'submitWhyJoinBlock');
+  }
 }
 
-function sendAnswer() {
-  const input = document.getElementById('answer-input');
-  const val = input.value.trim();
-  if (!val) return;
 
-  input.value = '';
-  input.style.height = 'auto';
-  document.getElementById('word-count').textContent = '';
-  document.getElementById('send-btn').disabled = true;
-  addUserMsg(val);
+// ── PAUSE SCREEN 1: after passion ──
+async function showPausePassion() {
   setEnabled(false);
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg(
+    `Thanks for sharing, ${userName || 'you'}. We\u2019ve supported over 4,000 different passions over the years. All that really matters is you\u2019re all in on it.`,
+    null
+  );
+  await new Promise(r => setTimeout(r, 400));
+  showTyping();
+  await new Promise(r => setTimeout(r, 800));
+  hideTyping();
+  await addAiMsg("Are you all in on this?", null);
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'pause-passion-btn';
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);';
+  el.innerHTML = `<button onclick="advanceFromPausePassion()" style="width:100%;max-width:calc(680px - 36px - 0.85rem);padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Keep going \u2192</button>`;
+  chat.appendChild(el);
+  scrollBottom();
+}
 
-  // Phone/gender/pronouns steps (after email — email is index 9, phone follows)
-  if (step === 9) {
-    if (contactStep === 0) {
-      answers['email'] = val;
-      contactStep = 1;
-      showTyping();
-      setTimeout(() => {
-        hideTyping();
-        setProgress(10, 13);
-        addAiMsg("Perfect! Last one — what's your phone number? 📱", null);
-        setEnabled(true);
-      }, 700);
-      return;
-    } else {
-      answers['phone'] = val;
-      setEnabled(false);
-      showChoiceStep(
-        'What is your gender?',
-        ['Male', 'Female', 'Non-binary', 'Prefer not to say'],
-        'gender',
-        11, 13,
-        () => showChoiceStep(
-          'What are your pronouns?',
-          ['He/Him', 'She/Her', 'They/Them', 'Prefer not to say'],
-          'pronouns',
-          12, 13,
-          () => {
-            showTyping();
-            setTimeout(() => {
-              hideTyping();
-              addAiMsg("Almost done! One last thing before we submit:", null);
-              showConsentStep();
-            }, 700);
-          }
-        )
-      );
-      return;
-    }
-  }
+function advanceFromPausePassion() {
+  haptic();
+  const el = document.getElementById('pause-passion-btn');
+  if (el) el.remove();
+  setTimeout(() => askQ(STEP_WHY_JOIN), 300);
+}
 
-  // Deep dive passion
-  if (QUESTIONS[step].deepDive && !awaitingDeepDive) {
+// ── INLINE FIELD BLOCKS: email, phone, birthdate ──
+const INLINE_INPUT_STYLE = 'width:100%;background:#161616;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:#F5F5F0;font-size:0.95rem;font-family:inherit;outline:none;transition:border-color 0.2s,box-shadow 0.2s;';
+
+function injectInlineBlock(id, inputHtml, onSubmitFn) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = id;
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);max-width:680px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
+      ${inputHtml}
+      <div id="${id}-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
+      <button onclick="${onSubmitFn}()" style="padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next \u2192</button>
+    </div>`;
+  el.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('focus', () => {
+      inp.style.borderColor = 'rgba(200,241,53,0.5)';
+      inp.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
+      setTimeout(() => inp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    });
+    inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); window[onSubmitFn](); } });
+  });
+  chat.appendChild(el);
+  scrollBottom();
+  setTimeout(() => { const inp = el.querySelector('input'); if (inp) inp.focus(); }, 100);
+}
+
+function injectTextareaBlock(id, placeholder, onSubmitFn) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = id;
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);max-width:680px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
+  const inputId = id.replace('-block', '') + '-input';
+  const taStyle = 'width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:16px;font-family:inherit;color:var(--white);resize:vertical;outline:none;transition:border-color 0.2s,box-shadow 0.2s;';
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
+      <textarea id="${inputId}" rows="4" placeholder="${placeholder}" style="${taStyle}"></textarea>
+      <div id="${id}-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
+      <button onclick="${onSubmitFn}()" style="padding:14px;background:var(--lime);color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;width:100%;cursor:pointer;font-family:inherit;margin-top:0;min-height:44px;">Next \u2192</button>
+    </div>`;
+  const ta = el.querySelector('textarea');
+  ta.addEventListener('focus', () => {
+    ta.style.borderColor = 'rgba(200,241,53,0.5)';
+    ta.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
+    setTimeout(() => ta.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+  });
+  ta.addEventListener('blur', () => { ta.style.borderColor = 'rgba(255,255,255,0.08)'; ta.style.boxShadow = 'none'; });
+  chat.appendChild(el);
+  scrollBottom();
+  setTimeout(() => ta.focus(), 100);
+}
+
+function submitFirstNameBlock() {
+  const val = document.getElementById('first-name-input').value.trim();
+  if (val.length < 2) { showInlineError('first-name-block', 'Please enter at least 2 characters.'); return; }
+  if (/\d/.test(val)) { showInlineError('first-name-block', 'Name shouldn\u2019t contain numbers.'); return; }
+  answers['first_name'] = val;
+  userName = val;
+  addUserMsg(val, 'first_name');
+  document.getElementById('first-name-block').remove();
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => askQ(1), 450);
+}
+
+function submitLastNameBlock() {
+  const val = document.getElementById('last-name-input').value.trim();
+  if (val.length < 2) { showInlineError('last-name-block', 'Please enter at least 2 characters.'); return; }
+  if (/\d/.test(val)) { showInlineError('last-name-block', 'Name shouldn\u2019t contain numbers.'); return; }
+  answers['last_name'] = val;
+  addUserMsg(val, 'last_name');
+  document.getElementById('last-name-block').remove();
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => askQ(STEP_PASSION), 450);
+}
+
+async function submitPassionBlock() {
+  const val = document.getElementById('passion-input').value.trim();
+  if (!val) return;
+  addUserMsg(val, 'passion');
+  document.getElementById('passion-block').remove();
+  const wc = wordCount(val);
+  if (wc < 40) {
     passionDraft = val;
-    const wc = wordCount(val);
-    if (wc < 40) {
-      awaitingDeepDive = true;
-      showTyping();
-      setTimeout(() => {
-        hideTyping();
-        addAiMsg(
-          "We love that! 🙌 But can you go deeper? The teens who make it in always paint a picture. What does this passion look like in your actual day-to-day life?",
-          { type: 'warn', icon: '✍️', text: `You wrote ${wc} words — try to hit 40+` }
-        );
-        setEnabled(true);
-      }, 1000);
-      return;
-    }
-  }
-
-  if (awaitingDeepDive) {
-    answers['passion'] = passionDraft + '\n\n' + val;
-    awaitingDeepDive = false;
-    const wc = wordCount(passionDraft + val);
     showTyping();
-    setTimeout(() => {
-      hideTyping();
-      addAiMsg("That's what we're talking about! 🔥", { type: 'good', icon: '✅', text: `${wc} words — strong answer` });
-      step++;
-      setProgress(step, 13);
-      setTimeout(() => askQ(step), 600);
-    }, 600);
+    await new Promise(r => setTimeout(r, 1000));
+    hideTyping();
+    await addAiMsg(
+      "Tell us more \u2014 what specifically about that gets you going?",
+      { type: 'warn', icon: '\u270D\uFE0F', text: `You wrote ${wc} words \u2014 try to hit 40+` }
+    );
+    injectTextareaBlock('passion-deepdive-block', 'Keep going\u2026', 'submitPassionDeepDiveBlock');
     return;
-  } else {
-    const key = QUESTIONS[step].key;
-    answers[key] = val;
-    if (key === 'first_name') userName = val.trim();
   }
+  answers['passion'] = val;
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => showPausePassion(), 450);
+}
+
+async function submitPassionDeepDiveBlock() {
+  const val = document.getElementById('passion-deepdive-input').value.trim();
+  if (!val) return;
+  answers['passion'] = passionDraft + '\n\n' + val;
+  addUserMsg(val, 'passion');
+  document.getElementById('passion-deepdive-block').remove();
+  const wc = wordCount(passionDraft + val);
+  showTyping();
+  await new Promise(r => setTimeout(r, 600));
+  hideTyping();
+  await addAiMsg("That\u2019s what we\u2019re talking about! \uD83D\uDD25", { type: 'good', icon: '\u2705', text: `${wc} words \u2014 strong answer` });
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  await new Promise(r => setTimeout(r, 600));
+  showPausePassion();
+}
+
+function submitWhyJoinBlock() {
+  const val = document.getElementById('why-join-input').value.trim();
+  if (!val) return;
+  answers['why_join'] = val;
+  addUserMsg(val, 'why_join');
+  document.getElementById('why-join-block').remove();
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => showEmailBlock(), 450);
+}
+
+function showInlineError(blockId, msg) {
+  const el = document.getElementById(blockId + '-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+async function showEmailBlock() {
+  setEnabled(false);
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg("What\u2019s your email? We\u2019ll send your decision here.", null);
+  injectInlineBlock(
+    'email-block',
+    `<input id="email-input" type="email" placeholder="your@email.com" style="${INLINE_INPUT_STYLE}">`,
+    'submitEmailBlock'
+  );
+}
+
+function submitEmailBlock() {
+  const val = document.getElementById('email-input').value.trim();
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRe.test(val)) { showInlineError('email-block', 'Please enter a valid email address.'); return; }
+  answers['email'] = val;
+  addUserMsg(val, 'email');
+  document.getElementById('email-block').remove();
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => showPhoneBlock(), 450);
+}
+
+async function showPhoneBlock() {
+  setEnabled(false);
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg("Phone number? We\u2019ll text you updates.", null);
+  injectInlineBlock(
+    'phone-block',
+    `<input id="phone-input" type="tel" placeholder="10-digit number" style="${INLINE_INPUT_STYLE}">`,
+    'submitPhoneBlock'
+  );
+}
+
+function submitPhoneBlock() {
+  const raw = document.getElementById('phone-input').value.replace(/\D/g, '');
+  if (raw.length !== 10) { showInlineError('phone-block', 'Please enter a valid 10-digit phone number.'); return; }
+  answers['phone'] = raw;
+  addUserMsg(document.getElementById('phone-input').value.trim(), 'phone');
+  document.getElementById('phone-block').remove();
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => showBirthdateBlock(), 450);
+}
+
+async function showBirthdateBlock() {
+  setEnabled(false);
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg("Date of birth? (MM/DD/YYYY)", { type: 'warn', icon: '\u{1F4A1}', text: 'Format: MM/DD/YYYY' });
+  injectInlineBlock(
+    'birthdate-block',
+    `<input id="birthdate-input" type="text" placeholder="MM/DD/YYYY" maxlength="10" style="${INLINE_INPUT_STYLE}">`,
+    'submitBirthdateBlock'
+  );
+}
+
+function submitBirthdateBlock() {
+  const val = document.getElementById('birthdate-input').value.trim();
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
+    showInlineError('birthdate-block', 'Please use MM/DD/YYYY format.');
+    return;
+  }
+  const [month, day, year] = val.split('/').map(Number);
+  const birthDate = new Date(year, month - 1, day);
+  const today = new Date();
+  const age = today.getFullYear() - birthDate.getFullYear()
+    - (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
+  if (age < 15 || age > 19) {
+    showInlineError('birthdate-block', 'The Learning Challenge is open to youth ages 15–19.');
+    return;
+  }
+  answers['birthdate'] = val;
+  addUserMsg(val, 'birthdate');
+  document.getElementById('birthdate-block').remove();
+  step++;
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => showAddressBlock(), 450);
+}
+
+// ── ADDRESS BLOCK ──
+async function showAddressBlock() {
+  setEnabled(false);
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  await addAiMsg("Where do you live?", null);
+
+  const chat = document.getElementById('chat');
+    const el = document.createElement('div');
+    el.id = 'address-block';
+    el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);max-width:680px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
+
+    const inputStyle = 'width:100%;background:#161616;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:#F5F5F0;font-size:0.95rem;font-family:inherit;outline:none;transition:border-color 0.2s;';
+    const selectStyle = inputStyle + 'cursor:pointer;appearance:none;-webkit-appearance:none;';
+
+    const states = [
+      ['NY','New York'],['NJ','New Jersey'],
+      ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],
+      ['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],
+      ['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],
+      ['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],
+      ['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],
+      ['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],
+      ['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],
+      ['NH','New Hampshire'],['NM','New Mexico'],['NC','North Carolina'],
+      ['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],
+      ['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],
+      ['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],
+      ['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],
+      ['WI','Wisconsin'],['WY','Wyoming'],['DC','DC']
+    ];
+
+    const stateOptions = states.map(([code, name]) =>
+      `<option value="${code}">${name}</option>`
+    ).join('');
+
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
+        <input id="addr-street" type="text" placeholder="Street address" style="${inputStyle}">
+        <input id="addr-city"   type="text" placeholder="City"           style="${inputStyle}">
+        <select id="addr-state" style="${selectStyle}">
+          <option value="">State</option>
+          ${stateOptions}
+        </select>
+        <input id="addr-zip" type="text" placeholder="Zip" maxlength="5" inputmode="numeric" pattern="[0-9]*" style="${inputStyle}">
+        <div id="addr-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
+        <button onclick="submitAddress()" style="padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next →</button>
+      </div>`;
+
+    // Focus styles via JS since we can't use CSS classes in inline style
+    el.querySelectorAll('input, select').forEach(inp => {
+      inp.addEventListener('focus', () => {
+        inp.style.borderColor = 'rgba(200,241,53,0.5)';
+        inp.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
+        setTimeout(() => inp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+      });
+      inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
+    });
+
+  chat.appendChild(el);
+  setProgress(10, TOTAL_STEPS);
+  scrollBottom();
+}
+
+function submitAddress() {
+  const street = document.getElementById('addr-street').value.trim();
+  const city   = document.getElementById('addr-city').value.trim();
+  const state  = document.getElementById('addr-state').value;
+  const zip    = document.getElementById('addr-zip').value.trim();
+  const errEl  = document.getElementById('addr-error');
+
+  if (street.length < 5) { showAddrError('Please enter your full street address.'); return; }
+  if (city.length < 2)   { showAddrError('Please enter your city.'); return; }
+  if (!state)            { showAddrError('Please select your state.'); return; }
+  if (!/^\d{5}$/.test(zip)) { showAddrError('Zip code must be exactly 5 digits.'); return; }
+
+  errEl.style.display = 'none';
+  answers['street_address'] = street;
+  answers['city']           = city;
+  answers['state']          = state;
+  answers['zip']            = zip;
+
+  addUserMsg(`${street}, ${city}, ${state} ${zip}`, 'street_address');
+  const block = document.getElementById('address-block');
+  if (block) block.remove();
 
   step++;
-  setProgress(step, 13);
-  if (step < QUESTIONS.length) {
-    setTimeout(() => askQ(step), 450);
-  }
+  setProgress(step, TOTAL_STEPS);
+  setTimeout(() => {
+    showChoiceStep(
+      'How do you identify? (optional)',
+      ['Male', 'Female', 'Non-binary', 'Prefer not to say'],
+      'gender',
+      11, TOTAL_STEPS,
+      true,
+      () => showChoiceStep(
+        'Pronouns? (optional)',
+        ['He/Him', 'She/Her', 'They/Them', 'Prefer not to say'],
+        'pronouns',
+        12, TOTAL_STEPS,
+        true,
+        () => {
+          showTyping();
+          setTimeout(async () => {
+            hideTyping();
+            await addAiMsg("Last thing \u2014 want texts about your Challenge status?", null);
+            showConsentStep();
+          }, 700);
+        }
+      )
+    );
+  }, 450);
 }
 
-function showChoiceStep(question, options, fieldKey, progressStep, totalSteps, onSelect) {
+function showAddrError(msg) {
+  const el = document.getElementById('addr-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function showChoiceStep(question, options, fieldKey, progressStep, totalSteps, optional, onSelect) {
   showTyping();
-  setTimeout(function() {
+  setTimeout(async function() {
     hideTyping();
     setProgress(progressStep, totalSteps);
-    addAiMsg(question, null);
+    await addAiMsg(question, null);
     const chat = document.getElementById('chat');
     const el = document.createElement('div');
     el.id = 'choice-step-' + fieldKey;
-    el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;flex-wrap:wrap;gap:8px;';
+    el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;flex-direction:column;gap:8px;';
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+
     options.forEach(function(opt) {
       const btn = document.createElement('button');
       btn.textContent = opt;
@@ -975,16 +1604,60 @@ function showChoiceStep(question, options, fieldKey, progressStep, totalSteps, o
       btn.onmouseover = function() { btn.style.borderColor = '#C8F135'; btn.style.color = '#C8F135'; };
       btn.onmouseout  = function() { btn.style.borderColor = 'rgba(255,255,255,0.15)'; btn.style.color = '#F5F5F0'; };
       btn.onclick = function() {
+        haptic();
         answers[fieldKey] = opt;
-        addUserMsg(opt);
+        addUserMsg(opt, fieldKey);
         el.remove();
         onSelect();
       };
-      el.appendChild(btn);
+      btnRow.appendChild(btn);
     });
+
+    el.appendChild(btnRow);
+
+    if (optional) {
+      const skip = document.createElement('div');
+      skip.style.cssText = 'margin-top:4px;';
+      skip.innerHTML = `<button onclick="skipOptional('${fieldKey}', this)" style="background:none;border:none;color:#777;font-size:0.8rem;cursor:pointer;font-family:inherit;padding:4px 0;text-decoration:underline;text-underline-offset:3px;">Skip →</button>`;
+      el.appendChild(skip);
+    }
+
     chat.appendChild(el);
     scrollBottom();
   }, 700);
+}
+
+function skipOptional(fieldKey, btn) {
+  answers[fieldKey] = null;
+  const el = document.getElementById('choice-step-' + fieldKey);
+  if (el) el.remove();
+  addUserMsg('Skipped');
+  // Trigger the same onSelect that would have fired — re-invoke flow
+  // We do this by re-running the post-address chain from the right point
+  if (fieldKey === 'gender') {
+    showChoiceStep(
+      'Pronouns? (optional)',
+      ['He/Him', 'She/Her', 'They/Them', 'Prefer not to say'],
+      'pronouns',
+      12, TOTAL_STEPS,
+      true,
+      () => {
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          addAiMsg("Last thing — want texts about your Challenge status?", null);
+          showConsentStep();
+        }, 700);
+      }
+    );
+  } else if (fieldKey === 'pronouns') {
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addAiMsg("Last thing — want texts about your Challenge status?", null);
+      showConsentStep();
+    }, 700);
+  }
 }
 
 function showConsentStep() {
@@ -997,14 +1670,15 @@ function showConsentStep() {
       <input type="checkbox" id="sms-opt-in" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#C8F135;cursor:pointer;">
       <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;">I agree to receive SMS notifications from GripTape about my application status, program updates, and deadline reminders. Message frequency varies \u2014 up to 8 messages per program cycle. Message and data rates may apply. Reply STOP to unsubscribe.</span>
     </label>
-    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Submit Application \u2192</button>
+    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Let\u2019s go \u2192</button>
   `;
   chat.appendChild(el);
-  setProgress(13, 13);
+  setProgress(TOTAL_STEPS, TOTAL_STEPS);
   scrollBottom();
 }
 
 function handleConsentSubmit() {
+  haptic([15]);
   smsConsent = document.getElementById('sms-opt-in').checked;
   const btn = document.getElementById('consent-submit-btn');
   btn.disabled = true;
@@ -1032,7 +1706,6 @@ async function submitApp() {
     gender:         answers['gender']         || null,
     pronouns:       answers['pronouns']       || null,
     passion:        answers['passion']        || '',
-    lc_topic:       answers['why_join']       || '',
     sms_consent:    smsConsent,
     application_responses: {
       passion:  answers['passion']  || '',
@@ -1048,7 +1721,6 @@ async function submitApp() {
     });
     const data = await res.json();
 
-    // Success: Supabase returns { id: '...' } or Airtable returns { id: 'rec...' }
     if (data.id) {
       setTimeout(() => showSuccess(), 800);
     } else {
@@ -1062,6 +1734,12 @@ async function submitApp() {
 }
 
 function showSuccess() {
+  haptic([15]);
+  // Interpolate first name into success title
+  const title = document.getElementById('success-title');
+  if (userName) {
+    title.innerHTML = `You're in,<br><em>${escHtml(userName)}.</em>`;
+  }
   document.getElementById('app-screen').classList.remove('active');
   document.getElementById('success-screen').classList.add('active');
   launchConfetti();
@@ -1093,7 +1771,7 @@ function launchConfetti() {
 
 function saveExit() {
   try {
-    localStorage.setItem('tlc_draft', JSON.stringify({ answers, step, contactStep, userName }));
+    localStorage.setItem('tlc_draft', JSON.stringify({ answers, step, userName }));
     alert('Saved! Come back any time to finish your application. 💾');
   } catch(e) {
     alert('Could not save — please finish your application in one go.');
@@ -1109,7 +1787,6 @@ window.addEventListener('load', () => {
       if (parsed.step > 0 && confirm(`Welcome back${parsed.userName ? ', ' + parsed.userName : ''}! Continue your application?`)) {
         Object.assign(answers, parsed.answers);
         step = parsed.step;
-        contactStep = parsed.contactStep || 0;
         userName = parsed.userName || '';
         startApp();
       }
