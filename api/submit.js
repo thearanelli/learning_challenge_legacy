@@ -44,7 +44,6 @@ async function writeToSupabase(fields) {
     gender:                fields.gender   ?? null,
     pronouns:              fields.pronouns ?? null,
     passion:               fields.passion  ?? null,
-    lc_topic:              fields.lc_topic ?? null,
     sms_consent:           fields.sms_consent === true,
     screening_status:      'submitted',
     submitted_at:          new Date().toISOString(),

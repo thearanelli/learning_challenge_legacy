@@ -23,8 +23,7 @@ create table applications (
   city                  text,
   state                 text,
   zip                   text,
-  passion               text,
-  lc_topic              text
+  passion               text
 );
 create index idx_applications_screening_status on applications(screening_status);
 create index idx_applications_submitted_at on applications(submitted_at desc);
@@ -77,8 +76,7 @@ create table if not exists youth (
   city                          text,
   state                         text,
   zip                           text,
-  passion                       text,
-  lc_topic                      text
+  passion                       text
 );
 -- NOTE: champion_id has no foreign key constraint intentionally.
 -- The constraint will be added later once both tables are stable.
@@ -200,8 +198,7 @@ create table if not exists youth (
   city                          text,
   state                         text,
   zip                           text,
-  passion                       text,
-  lc_topic                      text
+  passion                       text
 );
 
 -- Seed: 5 dummy champions for pilot testing

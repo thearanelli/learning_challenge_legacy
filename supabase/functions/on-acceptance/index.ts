@@ -72,7 +72,6 @@ serve(async (req) => {
         gender:         application.gender         ?? null,
         pronouns:       application.pronouns       ?? null,
         passion:        application.passion        ?? application.application_responses?.passion  ?? null,
-        lc_topic:       application.lc_topic       ?? application.application_responses?.why_join ?? null,
         status:         INITIAL_STATUS,
         first_drop_url: application.video_url ?? null,
         accepted_at:    new Date().toISOString(),
