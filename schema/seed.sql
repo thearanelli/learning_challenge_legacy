@@ -22,7 +22,8 @@ create table applications (
   city                  text,
   state                 text,
   zip                   text,
-  passion               text
+  passion               text,
+  first_drop_goal       text
 );
 create index idx_applications_screening_status on applications(screening_status);
 create index idx_applications_submitted_at on applications(submitted_at desc);

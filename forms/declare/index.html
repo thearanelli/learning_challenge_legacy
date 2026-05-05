@@ -28,7 +28,7 @@
     }
 
     .page {
-      max-width: 560px;
+      max-width: 680px;
       margin: 0 auto;
       padding: 32px 24px;
     }
@@ -95,7 +95,46 @@
       margin: 28px 0;
     }
 
-    /* Greeting */
+    /* Journey bar */
+    .journey-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .journey-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .journey-step.done  { color: rgba(255,255,255,0.4); }
+    .journey-step.active { color: var(--orange); }
+    .journey-step.locked { color: rgba(255,255,255,0.2); }
+
+    .journey-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .journey-step.done   .journey-dot { background: rgba(255,255,255,0.4); }
+    .journey-step.active .journey-dot { background: var(--orange); }
+    .journey-step.locked .journey-dot { background: rgba(255,255,255,0.15); }
+
+    .journey-arrow {
+      flex-shrink: 0;
+      margin: 0 10px;
+      color: rgba(255,255,255,0.15);
+      font-size: 0.7rem;
+    }
+
+    /* Greeting / headings */
     .greeting {
       font-family: 'Syne', sans-serif;
       font-size: 1.2rem;
@@ -103,13 +142,19 @@
       margin: 0 0 4px;
     }
 
-    /* Heading */
     .main-heading {
       font-family: 'Syne', sans-serif;
       font-size: 2rem;
       font-weight: 800;
       color: var(--white);
       line-height: 1.1;
+      margin: 0 0 16px;
+    }
+
+    .main-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.95rem;
+      line-height: 1.65;
       margin: 0 0 28px;
     }
 
@@ -139,7 +184,7 @@
       margin: 4px 0 0;
     }
 
-    /* Past builders */
+    /* Section label */
     .section-label {
       font-size: 9px;
       letter-spacing: 0.14em;
@@ -148,54 +193,110 @@
       margin: 0 0 12px;
     }
 
-    .builder-card {
+    /* Video card */
+    .video-card {
       background: var(--bg2);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      margin-bottom: 24px;
     }
 
-    .builder-name {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
+    .video-thumb {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-play-btn {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      background: rgba(234,83,41,0.92);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-play-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
+      margin-left: 3px;
+    }
+
+    .video-label {
+      padding: 12px 16px 14px;
+    }
+
+    .video-label-title {
+      font-size: 0.88rem;
       font-weight: 600;
       color: var(--white);
+      margin: 0 0 2px;
     }
 
-    .builder-passion {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 400;
-      color: var(--gray);
-    }
-
-    .builder-built {
+    .video-label-sub {
+      font-size: 0.78rem;
       color: var(--muted);
-      font-size: 0.8rem;
-      max-width: 160px;
-      text-align: right;
+      margin: 0;
     }
 
-    /* Declaration block */
-    .declare-heading {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 800;
+    .video-embed {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      border: none;
+      display: block;
+    }
+
+    /* Goal textarea */
+    .goal-label {
+      font-size: 0.88rem;
+      font-weight: 600;
       color: var(--white);
-      margin: 0 0 8px;
+      display: block;
+      margin-bottom: 8px;
     }
 
-    .declare-sub {
-      color: var(--gray);
-      font-size: 0.9rem;
+    .goal-textarea {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
       line-height: 1.6;
-      margin: 0 0 24px;
+      padding: 12px 14px;
+      resize: vertical;
+      min-height: 90px;
+      margin-bottom: 16px;
+      outline: none;
     }
 
+    .goal-textarea:focus {
+      border-color: rgba(234,83,41,0.5);
+    }
+
+    .goal-textarea::placeholder {
+      color: var(--muted);
+    }
+
+    /* Button */
     .declare-btn {
       width: 100%;
       background: var(--orange);
@@ -210,13 +311,21 @@
       letter-spacing: 0.02em;
     }
 
-    .declare-btn:hover {
+    .declare-btn:hover:not(:disabled) {
       opacity: 0.9;
     }
 
     .declare-btn:disabled {
-      opacity: 0.6;
+      opacity: 0.45;
       cursor: not-allowed;
+    }
+
+    .declare-disclaimer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin: 10px 0 0;
+      line-height: 1.5;
     }
 
     .declare-error {
@@ -239,11 +348,12 @@
 
     .success-heading {
       font-family: 'Syne', sans-serif;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: var(--white);
       text-align: center;
       margin: 24px 0 12px;
+      line-height: 1.15;
     }
 
     .success-sub {
@@ -253,6 +363,12 @@
       line-height: 1.7;
       max-width: 360px;
       margin: 0 auto;
+    }
+
+    @media (max-width: 480px) {
+      .main-heading { font-size: 1.65rem; }
+      .journey-step { font-size: 0.72rem; }
+      .journey-arrow { margin: 0 7px; }
     }
   </style>
 </head>
@@ -296,61 +412,43 @@
 
     <hr class="divider" />
 
-    <p class="greeting" id="greeting"></p>
-    <h1 class="main-heading">You showed up for your passion. We want to back you.</h1>
-    <p class="block-desc" style="margin:0 0 28px;color:rgba(255,255,255,0.5);">Here's what that could look like.</p>
-
-    <hr class="divider-slim" />
-
-    <p class="section-label">4,000+ teens have been where you are</p>
-
-    <div style="display:flex;gap:12px;margin-bottom:28px;">
-
-      <div style="background:#0a2230;border:1px solid rgba(255,255,255,0.07);border-radius:12px;flex:1;overflow:hidden;display:flex;flex-direction:column;">
-        <div style="width:100%;aspect-ratio:16/9;background:#001722;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,0.07);">
-          <div style="width:36px;height:36px;background:rgba(234,83,41,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-            <div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;"></div>
-          </div>
-        </div>
-        <div style="padding:12px 14px 16px;">
-          <p style="font-size:0.88rem;font-weight:600;color:#F5F5F0;margin:0 0 2px;">Jordan T.</p>
-          <p style="font-size:0.75rem;color:#EA5329;margin:0 0 8px;font-weight:600;letter-spacing:0.03em;">Skateboarding & Film</p>
-          <p style="font-size:0.75rem;color:rgba(255,255,255,0.45);line-height:1.55;margin:0;">Made a short documentary about Crown Heights skaters. Used GripTape funding to rent a camera and edit suite.</p>
-        </div>
+    <!-- FIX 1: Journey bar -->
+    <div class="journey-bar">
+      <div class="journey-step done">
+        <span class="journey-dot"></span>Applied ✓
       </div>
-
-      <div style="background:#0a2230;border:1px solid rgba(255,255,255,0.07);border-radius:12px;flex:1;overflow:hidden;display:flex;flex-direction:column;">
-        <div style="width:100%;aspect-ratio:16/9;background:#001722;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,0.07);">
-          <div style="width:36px;height:36px;background:rgba(234,83,41,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-            <div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;"></div>
-          </div>
-        </div>
-        <div style="padding:12px 14px 16px;">
-          <p style="font-size:0.88rem;font-weight:600;color:#F5F5F0;margin:0 0 2px;">Amara S.</p>
-          <p style="font-size:0.75rem;color:#EA5329;margin:0 0 8px;font-weight:600;letter-spacing:0.03em;">Music Production</p>
-          <p style="font-size:0.75rem;color:rgba(255,255,255,0.45);line-height:1.55;margin:0;">Recorded and released her first EP. Used her stipend to book studio time and master her tracks.</p>
-        </div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step active">
+        <span class="journey-dot"></span>Declare
       </div>
-
-      <div style="background:#0a2230;border:1px solid rgba(255,255,255,0.07);border-radius:12px;flex:1;overflow:hidden;display:flex;flex-direction:column;">
-        <div style="width:100%;aspect-ratio:16/9;background:#001722;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,0.07);">
-          <div style="width:36px;height:36px;background:rgba(234,83,41,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-            <div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;"></div>
-          </div>
-        </div>
-        <div style="padding:12px 14px 16px;">
-          <p style="font-size:0.88rem;font-weight:600;color:#F5F5F0;margin:0 0 2px;">Dev P.</p>
-          <p style="font-size:0.75rem;color:#EA5329;margin:0 0 8px;font-weight:600;letter-spacing:0.03em;">App Development</p>
-          <p style="font-size:0.75rem;color:rgba(255,255,255,0.45);line-height:1.55;margin:0;">Built a study tool now used by 200+ students. Learned to code from scratch with Champion support.</p>
-        </div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step locked">
+        <span class="journey-dot"></span>First Drop
       </div>
-
     </div>
 
+    <!-- FIX 2: Hero copy -->
+    <p class="greeting" id="greeting"></p>
+    <h1 class="main-heading">This is where it gets real.</h1>
+    <p class="main-sub">Commit to 10 days of real work on your passion. Submit your First Drop video. GripTape backs you with funding, a Champion, and a community of 4,000+ who've been right where you are.</p>
+
     <hr class="divider-slim" />
 
-    <h2 class="declare-heading">Ready to go all in?</h2>
-    <p class="declare-sub"><strong>Your spot isn't given. It's earned.</strong> Commit to 10 days of real work on your passion, submit your First Drop video, and GripTape backs you with everything we've got — funding, a Champion, 8 weeks, and a community of 4,000+ who've been right where you're standing.</p>
+    <!-- FIX 3: First Drop video -->
+    <p class="section-label">What's a First Drop video?</p>
+
+    <div class="video-card" id="video-card" onclick="expandVideo()">
+      <div class="video-thumb" id="video-thumb">
+        <img src="https://i.ytimg.com/vi/gj3diKJiPIs/hqdefault.jpg" alt="First Drop example" onerror="this.style.display='none'" />
+        <div class="video-play-btn">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+      <div class="video-label">
+        <p class="video-label-title">Watch a real First Drop example</p>
+        <p class="video-label-sub">Tap to play · 2 min</p>
+      </div>
+    </div>
 
     <hr class="divider-slim" />
 
@@ -373,7 +471,17 @@
 
     <hr class="divider-slim" />
 
-    <button class="declare-btn" id="declare-btn" style="background:#EA5329 !important;color:#ffffff !important;opacity:1 !important;">I'm in. Start my 10 days.</button>
+    <!-- FIX 4: Goal textarea -->
+    <label class="goal-label" for="goal-input">What will you have to show for it in 10 days?</label>
+    <textarea
+      id="goal-input"
+      class="goal-textarea"
+      placeholder="Describe what you'll actually build, make, or do..."
+    ></textarea>
+
+    <!-- FIX 5: Button + disclaimer -->
+    <button class="declare-btn" id="declare-btn" disabled>I'm in. Start my 10 days.</button>
+    <p class="declare-disclaimer">By clicking, you're committing to 10 days of real work. No backing out.</p>
     <p class="declare-error" id="declare-error" style="display:none;"></p>
 
   </div>
@@ -381,13 +489,23 @@
 </div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('token');
 
   function showState(id) {
     ['state-loading', 'state-invalid', 'state-expired', 'state-declaration'].forEach(function(s) {
-      document.getElementById(s).style.display = s === id ? (id === 'state-declaration' ? 'block' : 'block') : 'none';
+      document.getElementById(s).style.display = s === id ? 'block' : 'none';
     });
+  }
+
+  // FIX 3: Tap-to-expand video
+  function expandVideo() {
+    var card = document.getElementById('video-card');
+    card.onclick = null;
+    card.style.cursor = 'default';
+    card.innerHTML =
+      '<iframe class="video-embed" src="https://www.youtube.com/embed/gj3diKJiPIs?autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>' +
+      '<div class="video-label"><p class="video-label-title">First Drop example</p><p class="video-label-sub">GripTape Learning Challenge</p></div>';
   }
 
   async function init() {
@@ -397,8 +515,8 @@
     }
 
     try {
-      const res = await fetch('/api/check-declare-token?token=' + encodeURIComponent(token));
-      const data = await res.json();
+      var res = await fetch('/api/check-declare-token?token=' + encodeURIComponent(token));
+      var data = await res.json();
 
       if (data.valid === false && data.expired === true) {
         showState('state-expired');
@@ -419,38 +537,50 @@
     }
   }
 
-  document.getElementById('declare-btn').addEventListener('click', async function() {
-    var btn = document.getElementById('declare-btn');
-    var errEl = document.getElementById('declare-error');
+  // FIX 4: Enable button only when goal is filled
+  var goalInput = document.getElementById('goal-input');
+  var declareBtn = document.getElementById('declare-btn');
 
-    btn.disabled = true;
-    btn.textContent = 'Submitting...';
+  goalInput.addEventListener('input', function() {
+    declareBtn.disabled = goalInput.value.trim().length < 10;
+  });
+
+  declareBtn.addEventListener('click', async function() {
+    var errEl = document.getElementById('declare-error');
+    var goal = goalInput.value.trim();
+
+    if (goal.length < 10) return;
+
+    declareBtn.disabled = true;
+    declareBtn.textContent = 'Submitting...';
     errEl.style.display = 'none';
 
     try {
+      // FIX 6: Pass first_drop_goal
       var res = await fetch('/api/declare-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token }),
+        body: JSON.stringify({ token: token, first_drop_goal: goal }),
       });
       var data = await res.json();
 
       if (data.success) {
+        // FIX 7: Success copy
         document.getElementById('app').innerHTML =
           '<div class="page"><div class="success-wrap">' +
           '<img class="success-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="GripTape" />' +
-          '<h1 class="success-heading">You\'re in.</h1>' +
-          '<p class="success-sub">Your 10 days have started. Check your email — your video submission link and builder profile are on their way.</p>' +
+          '<h1 class="success-heading">You\'re locked in,<br>get to work!</h1>' +
+          '<p class="success-sub">We\'ll send you the submission link in a few days.</p>' +
           '</div></div>';
       } else {
-        btn.disabled = false;
-        btn.textContent = 'I\'m in — start my 10 days';
+        declareBtn.disabled = false;
+        declareBtn.textContent = 'I\'m in. Start my 10 days.';
         errEl.textContent = 'Something went wrong — please try again or email griptape@griptape.org';
         errEl.style.display = 'block';
       }
     } catch (e) {
-      btn.disabled = false;
-      btn.textContent = 'I\'m in — start my 10 days';
+      declareBtn.disabled = false;
+      declareBtn.textContent = 'I\'m in. Start my 10 days.';
       errEl.textContent = 'Something went wrong — please try again or email griptape@griptape.org';
       errEl.style.display = 'block';
     }

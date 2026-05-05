@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { token } = req.body;
+  const { token, first_drop_goal } = req.body;
   if (!token) {
     return res.status(400).json({ error: 'Missing token' });
   }
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
       },
-      body: JSON.stringify({ application_id: application.id }),
+      body: JSON.stringify({ application_id: application.id, first_drop_goal: first_drop_goal || null }),
     }
   );
 

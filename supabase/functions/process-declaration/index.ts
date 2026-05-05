@@ -15,7 +15,7 @@ import { generateToken } from '../_shared/tokens.ts';
 
 serve(async (req) => {
   try {
-    const { application_id } = await req.json();
+    const { application_id, first_drop_goal } = await req.json();
 
     if (!application_id) {
       return new Response('Missing application_id', { status: 400 });
@@ -39,6 +39,17 @@ serve(async (req) => {
     if (application.screening_status !== config.STATUS.DECLARATION_PENDING) {
       console.log(`[SKIP] ${application_id} is ${application.screening_status}`);
       return new Response('Not declaration_pending', { status: 200 });
+    }
+
+    // Save first_drop_goal before advancing status
+    if (first_drop_goal) {
+      const { error: goalError } = await supabase
+        .from('applications')
+        .update({ first_drop_goal })
+        .eq('id', application_id);
+      if (goalError) {
+        console.warn(`[process-declaration] first_drop_goal update failed: ${goalError.message}`);
+      }
     }
 
     const tokenData = generateToken(config.STAGES.video_pending.deadline_days);
