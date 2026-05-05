@@ -219,6 +219,20 @@
       margin: 0 0 12px;
     }
 
+    /* Video section heading */
+    .video-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      margin: 0 0 14px;
+    }
+
+    @media (max-width: 480px) {
+      .video-heading { font-size: 1.6rem; }
+    }
+
     /* Video embed */
     .video-wrap {
       position: relative;
@@ -415,12 +429,12 @@
     <!-- FIX 2: Hero copy -->
     <p class="greeting" id="greeting"></p>
     <h1 class="main-heading">This is where it gets real.</h1>
-    <p class="main-sub">Declare your intent to work on your passion project for the next 10 days. At the end, submit your First Drop video. If it's real work, you're officially in.</p>
+    <p class="main-sub">Declare your intent to work on your passion project for the next 10 days. At the end, submit your First Drop video. Show us what you built. If it's real and honest, you're officially in.</p>
 
     <hr class="divider-slim" />
 
     <!-- FIX 4: First Drop video — inline iframe, 16/9 -->
-    <p class="section-label">Watch a First Drop — this is the bar.</p>
+    <h2 class="video-heading">Watch a First Drop — this is the bar.</h2>
 
     <div class="video-wrap">
       <iframe
@@ -429,7 +443,7 @@
         allowfullscreen
       ></iframe>
     </div>
-    <p class="video-caption">Every GripTape builder submits one. Watch before you declare.</p>
+    <p class="video-caption">Every GripTape Challenger submits one. Watch before you declare.</p>
 
     <hr class="divider-slim" />
 
