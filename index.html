@@ -1083,11 +1083,12 @@ function scrollBottom() {
   scrollBottom._t = setTimeout(function() {
     const lastChild = chat.lastElementChild;
     if (lastChild) {
-      // Position latest bubble near the top of the visible chat area
+      // Position latest bubble ~33% from the top of the visible chat area
       const wRect = w.getBoundingClientRect();
       const elRect = lastChild.getBoundingClientRect();
-      const target = w.scrollTop + (elRect.top - wRect.top) - 24;
-      w.scrollTo({ top: target, behavior: 'smooth' });
+      const offset = Math.round(wRect.height * 0.33);
+      const target = w.scrollTop + (elRect.top - wRect.top) - offset;
+      w.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
     } else {
       w.scrollTo({ top: w.scrollHeight, behavior: 'smooth' });
     }
@@ -1108,6 +1109,7 @@ async function addAiMsg(text, reaction) {
   scrollBottom();
   const bubble = el.querySelector('.ai-bubble');
   await typeMessage(bubble, text);
+  scrollBottom(); // scroll once bubble has its final rendered height
   if (reaction) {
     const rc = document.createElement('div');
     rc.className = `reaction-card ${reaction.type}`;
@@ -1300,7 +1302,7 @@ function injectInlineBlock(id, inputHtml, onSubmitFn) {
     inp.addEventListener('focus', () => {
       inp.style.borderColor = 'rgba(200,241,53,0.5)';
       inp.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
-      setTimeout(() => inp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+      setTimeout(() => scrollBottom(), 300); // scroll latest bubble into upper-middle after keyboard settles
     });
     inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); window[onSubmitFn](); } });
@@ -1327,7 +1329,7 @@ function injectTextareaBlock(id, placeholder, onSubmitFn) {
   ta.addEventListener('focus', () => {
     ta.style.borderColor = 'rgba(200,241,53,0.5)';
     ta.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
-    setTimeout(() => ta.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    setTimeout(() => scrollBottom(), 300); // scroll latest bubble into upper-middle after keyboard settles
   });
   ta.addEventListener('blur', () => { ta.style.borderColor = 'rgba(255,255,255,0.08)'; ta.style.boxShadow = 'none'; });
   chat.appendChild(el);
@@ -1557,7 +1559,7 @@ async function showAddressBlock() {
       inp.addEventListener('focus', () => {
         inp.style.borderColor = 'rgba(200,241,53,0.5)';
         inp.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
-        setTimeout(() => inp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+        setTimeout(() => scrollBottom(), 300); // scroll latest bubble into upper-middle after keyboard settles
       });
       inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
     });
