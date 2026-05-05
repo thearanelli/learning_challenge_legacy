@@ -65,22 +65,21 @@
       font-size: 0.9rem;
     }
 
-    /* Nav */
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    /* Logo header */
+    .page-logo {
+      display: block;
+      margin: 0 auto 8px;
+      height: 48px;
     }
 
-    .nav img {
-      height: 22px;
-    }
-
-    .nav-label {
+    .page-logo-label {
+      display: block;
+      text-align: center;
       color: var(--muted);
       font-size: 9px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
     .divider {
@@ -95,44 +94,71 @@
       margin: 28px 0;
     }
 
-    /* Journey bar */
+    /* Journey bar — bold progress track */
     .journey-bar {
       display: flex;
-      align-items: center;
-      margin-bottom: 28px;
+      align-items: flex-start;
+      margin-bottom: 36px;
+      padding: 20px 0 4px;
     }
 
     .journey-step {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      gap: 8px;
+    }
+
+    .journey-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .journey-step.done   .journey-badge {
+      background: var(--amber);
+      color: #001722;
+    }
+
+    .journey-step.active .journey-badge {
+      background: var(--orange);
+      color: #fff;
+      box-shadow: 0 0 0 4px rgba(234,83,41,0.2), 0 0 20px rgba(234,83,41,0.45);
+    }
+
+    .journey-step.locked .journey-badge {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .journey-step-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       white-space: nowrap;
     }
 
-    .journey-step.done  { color: rgba(255,255,255,0.4); }
-    .journey-step.active { color: var(--orange); }
-    .journey-step.locked { color: rgba(255,255,255,0.2); }
+    .journey-step.done   .journey-step-label { color: var(--amber); }
+    .journey-step.active .journey-step-label { color: var(--orange); }
+    .journey-step.locked .journey-step-label { color: rgba(255,255,255,0.18); }
 
-    .journey-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .journey-connector {
+      flex: 1;
+      height: 2px;
+      margin: 19px 6px 0;
     }
 
-    .journey-step.done   .journey-dot { background: rgba(255,255,255,0.4); }
-    .journey-step.active .journey-dot { background: var(--orange); }
-    .journey-step.locked .journey-dot { background: rgba(255,255,255,0.15); }
-
-    .journey-arrow {
-      flex-shrink: 0;
-      margin: 0 10px;
-      color: rgba(255,255,255,0.15);
-      font-size: 0.7rem;
-    }
+    .journey-connector.done    { background: var(--amber); }
+    .journey-connector.pending { background: rgba(255,255,255,0.08); }
 
     /* Greeting / headings */
     .greeting {
@@ -193,74 +219,29 @@
       margin: 0 0 12px;
     }
 
-    /* Video card */
-    .video-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      margin-bottom: 24px;
-    }
-
-    .video-thumb {
-      width: 100%;
-      aspect-ratio: 9 / 16;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Video embed */
+    .video-wrap {
       position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      margin-bottom: 10px;
+      border-radius: 10px;
       overflow: hidden;
     }
 
-    .video-thumb img {
+    .video-wrap iframe {
+      position: absolute;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      display: block;
+      border: none;
+      border-radius: 10px;
     }
 
-    .video-play-btn {
-      position: absolute;
-      width: 52px;
-      height: 52px;
-      background: rgba(234,83,41,0.92);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .video-play-btn svg {
-      width: 22px;
-      height: 22px;
-      fill: #fff;
-      margin-left: 3px;
-    }
-
-    .video-label {
-      padding: 12px 16px 14px;
-    }
-
-    .video-label-title {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--white);
-      margin: 0 0 2px;
-    }
-
-    .video-label-sub {
+    .video-caption {
       font-size: 0.78rem;
       color: var(--muted);
-      margin: 0;
-    }
-
-    .video-embed {
-      width: 100%;
-      aspect-ratio: 9 / 16;
-      border: none;
-      display: block;
+      margin: 0 0 24px;
     }
 
     /* Goal textarea */
@@ -367,8 +348,9 @@
 
     @media (max-width: 480px) {
       .main-heading { font-size: 1.65rem; }
-      .journey-step { font-size: 0.72rem; }
-      .journey-arrow { margin: 0 7px; }
+      .journey-badge { width: 34px; height: 34px; font-size: 0.78rem; }
+      .journey-connector { margin-top: 16px; }
+      .journey-step-label { font-size: 0.6rem; letter-spacing: 0.07em; }
     }
   </style>
 </head>
@@ -405,78 +387,58 @@
   <!-- Declaration page -->
   <div id="state-declaration" class="page" style="display:none;">
 
-    <div class="nav">
-      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="GripTape" />
-      <span class="nav-label">Learning Challenge · NYC 2026</span>
-    </div>
+    <img class="page-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png"
+      alt="GripTape" />
+    <span class="page-logo-label">Learning Challenge · NYC 2026</span>
 
     <hr class="divider" />
 
     <!-- FIX 1: Journey bar -->
     <div class="journey-bar">
       <div class="journey-step done">
-        <span class="journey-dot"></span>Applied ✓
+        <div class="journey-badge">✓</div>
+        <span class="journey-step-label">Applied</span>
       </div>
-      <div class="journey-arrow">→</div>
+      <div class="journey-connector done"></div>
       <div class="journey-step active">
-        <span class="journey-dot"></span>Declare
+        <div class="journey-badge">2</div>
+        <span class="journey-step-label">Declare</span>
       </div>
-      <div class="journey-arrow">→</div>
+      <div class="journey-connector pending"></div>
       <div class="journey-step locked">
-        <span class="journey-dot"></span>First Drop
+        <div class="journey-badge">3</div>
+        <span class="journey-step-label">First Drop</span>
       </div>
     </div>
 
     <!-- FIX 2: Hero copy -->
     <p class="greeting" id="greeting"></p>
     <h1 class="main-heading">This is where it gets real.</h1>
-    <p class="main-sub">Commit to 10 days of real work on your passion. Submit your First Drop video. GripTape backs you with funding, a Champion, and a community of 4,000+ who've been right where you are.</p>
+    <p class="main-sub">Declare your intent to work on your passion project for the next 10 days. At the end, submit your First Drop video. If it's real work, you're officially in.</p>
 
     <hr class="divider-slim" />
 
-    <!-- FIX 3: First Drop video -->
-    <p class="section-label">What's a First Drop video?</p>
+    <!-- FIX 4: First Drop video — inline iframe, 16/9 -->
+    <p class="section-label">Watch a First Drop — this is the bar.</p>
 
-    <div class="video-card" id="video-card" onclick="expandVideo()">
-      <div class="video-thumb" id="video-thumb">
-        <img src="https://i.ytimg.com/vi/gj3diKJiPIs/hqdefault.jpg" alt="First Drop example" onerror="this.style.display='none'" />
-        <div class="video-play-btn">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </div>
-      </div>
-      <div class="video-label">
-        <p class="video-label-title">Watch a real First Drop example</p>
-        <p class="video-label-sub">Tap to play · 2 min</p>
-      </div>
+    <div class="video-wrap">
+      <iframe
+        src="https://www.youtube.com/embed/2n4wa2uce48"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+        allowfullscreen
+      ></iframe>
     </div>
-
-    <hr class="divider-slim" />
-
-    <p class="section-label">Your First Drop video needs to answer these three things</p>
-
-    <div class="program-block">
-      <span class="block-label">01 &nbsp; Who are you and what's your passion?</span>
-      <p class="block-desc">What are you trying to bring to life and why does it matter to you?</p>
-      <p class="block-desc" style="color:var(--muted);font-style:italic;">Ex: My name is Taylor, and I am passionate about restaurant owners because I want to help people in my community tell their stories.</p>
-    </div>
-    <div class="program-block">
-      <span class="block-label">02 &nbsp; What did you accomplish in the past 10 days?</span>
-      <p class="block-desc">Tell us AND show us — your quilt, website, 3D model, recording, whatever you built.</p>
-    </div>
-    <div class="program-block">
-      <span class="block-label">03 &nbsp; Where are you headed next?</span>
-      <p class="block-desc">What do you want to learn or do over the next 8 weeks?</p>
-      <p class="block-desc" style="color:var(--muted);font-style:italic;">Ex: I plan to dive deeper into editing and storytelling. I will tell the stories of 5 restaurant owners in my community.</p>
-    </div>
+    <p class="video-caption">Every GripTape builder submits one. Watch before you declare.</p>
 
     <hr class="divider-slim" />
 
     <!-- FIX 4: Goal textarea -->
-    <label class="goal-label" for="goal-input">What will you have to show for it in 10 days?</label>
+    <label class="goal-label" for="goal-input">What will you have to show in 10 days?</label>
     <textarea
       id="goal-input"
       class="goal-textarea"
-      placeholder="Describe what you'll actually build, make, or do..."
+      placeholder="e.g. I'll record my first original track. / I'll write the opening chapter of my book."
     ></textarea>
 
     <!-- FIX 5: Button + disclaimer -->
@@ -496,16 +458,6 @@
     ['state-loading', 'state-invalid', 'state-expired', 'state-declaration'].forEach(function(s) {
       document.getElementById(s).style.display = s === id ? 'block' : 'none';
     });
-  }
-
-  // FIX 3: Tap-to-expand video
-  function expandVideo() {
-    var card = document.getElementById('video-card');
-    card.onclick = null;
-    card.style.cursor = 'default';
-    card.innerHTML =
-      '<iframe class="video-embed" src="https://www.youtube.com/embed/gj3diKJiPIs?autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>' +
-      '<div class="video-label"><p class="video-label-title">First Drop example</p><p class="video-label-sub">GripTape Learning Challenge</p></div>';
   }
 
   async function init() {
