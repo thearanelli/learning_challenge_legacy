@@ -9,14 +9,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --lime: #C8F135;
+  --lime: #EA5329;
   --lime-dark: #A8D020;
-  --lime-glow: rgba(200,241,53,0.12);
-  --purple: #7B2FFF;
-  --purple-light: #9B5FFF;
+  --lime-glow: rgba(234,83,41,0.12);
+  --purple: #F79227;
+  --purple-light: #F9A84D;
   --coral: #FF5C5C;
   --sky: #38CFFF;
-  --bg: #0D0D0D;
+  --bg: #001722;
   --bg2: #161616;
   --bg3: #1F1F1F;
   --bg4: #2A2A2A;
@@ -44,8 +44,8 @@ body {
   z-index: 0;
   animation: blobFloat 8s ease-in-out infinite;
 }
-.blob1 { width: 400px; height: 400px; background: rgba(123,47,255,0.15); top: -100px; right: -100px; animation-delay: 0s; }
-.blob2 { width: 300px; height: 300px; background: rgba(200,241,53,0.08); bottom: 100px; left: -80px; animation-delay: -3s; }
+.blob1 { width: 400px; height: 400px; background: rgba(247,146,39,0.15); top: -100px; right: -100px; animation-delay: 0s; }
+.blob2 { width: 300px; height: 300px; background: rgba(234,83,41,0.08); bottom: 100px; left: -80px; animation-delay: -3s; }
 .blob3 { width: 200px; height: 200px; background: rgba(56,207,255,0.08); top: 50%; left: 40%; animation-delay: -5s; }
 
 @keyframes blobFloat {
@@ -55,7 +55,7 @@ body {
 }
 
 /* ── LANDING ── */
-#landing { position: relative; z-index: 1; background: #0D0D0D; }
+#landing { position: relative; z-index: 1; background: #001722; }
 
 nav {
   display: flex;
@@ -88,8 +88,8 @@ nav {
 }
 
 @keyframes logoPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(200,241,53,0.4); }
-  50% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(200,241,53,0); }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234,83,41,0.4); }
+  50% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(234,83,41,0); }
 }
 
 .nav-pills { display: flex; gap: 0.5rem; }
@@ -140,8 +140,8 @@ nav {
   border: 1px solid var(--border);
   color: var(--gray);
 }
-.tag.lime { background: var(--lime-glow); border-color: rgba(200,241,53,0.3); color: var(--lime); }
-.tag.purple { background: rgba(123,47,255,0.15); border-color: rgba(123,47,255,0.3); color: #b490ff; }
+.tag.lime { background: var(--lime-glow); border-color: rgba(234,83,41,0.3); color: var(--lime); }
+.tag.purple { background: rgba(247,146,39,0.15); border-color: rgba(247,146,39,0.3); color: #F9A84D; }
 
 h1 {
   font-family: 'Syne', sans-serif;
@@ -225,7 +225,7 @@ h1 {
 }
 
 .btn-main:hover::before { transform: translateX(0); }
-.btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200,241,53,0.3); }
+.btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(234,83,41,0.3); }
 
 .cta-wrap { max-width: 400px; width: 100%; }
 
@@ -436,7 +436,7 @@ h1 {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(13,13,13,0.9);
+  background: rgba(0,23,34,0.9);
   gap: 1rem;
 }
 
@@ -558,7 +558,7 @@ h1 {
   padding: 1rem 1.2rem;
   font-size: 0.97rem;
   line-height: 1.65;
-  color: #0D0D0D;
+  color: #001722;
   font-weight: 500;
   max-width: 80%;
   word-break: break-word;
@@ -594,7 +594,7 @@ h1 {
   margin-top: 0.6rem;
   animation: slideUp 0.4s ease both; animation-delay: 0.3s;
 }
-.reaction-card.good { border-color: rgba(200,241,53,0.3); color: var(--lime); background: var(--lime-glow); }
+.reaction-card.good { border-color: rgba(234,83,41,0.3); color: var(--lime); background: var(--lime-glow); }
 .reaction-card.warn { border-color: rgba(255,188,64,0.3); color: #FFB840; background: rgba(255,184,64,0.08); }
 
 
@@ -621,19 +621,19 @@ h1 {
 
 .success-ring::before {
   content: ''; position: absolute; inset: -12px;
-  border-radius: 50%; border: 1px solid rgba(200,241,53,0.2);
+  border-radius: 50%; border: 1px solid rgba(234,83,41,0.2);
   animation: ringExpand 2.5s ease-in-out infinite;
 }
 
 .success-ring::after {
   content: ''; position: absolute; inset: -24px;
-  border-radius: 50%; border: 1px solid rgba(200,241,53,0.1);
+  border-radius: 50%; border: 1px solid rgba(234,83,41,0.1);
   animation: ringExpand 2.5s ease-in-out infinite 0.3s;
 }
 
 @keyframes ringPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(200,241,53,0.3); }
-  50% { box-shadow: 0 0 30px rgba(200,241,53,0.2); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234,83,41,0.3); }
+  50% { box-shadow: 0 0 30px rgba(234,83,41,0.2); }
 }
 @keyframes ringExpand {
   0% { transform: scale(1); opacity: 1; }
@@ -656,8 +656,8 @@ h1 {
 
 /* ENHANCEMENT 3 — heartbeat glow on commitment gate button */
 @keyframes heartbeat {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(200,241,53,0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(200,241,53,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234,83,41,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(234,83,41,0); }
 }
 
 /* ENHANCEMENT 5 — emoji reaction fade */
@@ -1199,7 +1199,7 @@ async function showCommitmentGate() {
   el.id = 'commitment-gate';
   el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;gap:10px;flex-wrap:wrap;';
   el.innerHTML = `
-    <button onclick="commitmentYes()" style="padding:14px 24px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Yes, that\u2019s me \u2192</button>
+    <button onclick="commitmentYes()" style="padding:14px 24px;background:#EA5329;color:#001722;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Yes, that\u2019s me \u2192</button>
     <button onclick="commitmentNotSure()" style="padding:14px 24px;background:none;border:1px solid rgba(255,255,255,0.15);color:#777;border-radius:12px;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:all 0.2s;">Not sure yet</button>
   `;
   chat.appendChild(el);
@@ -1272,7 +1272,7 @@ async function showPausePassion() {
   const el = document.createElement('div');
   el.id = 'pause-passion-btn';
   el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);';
-  el.innerHTML = `<button onclick="advanceFromPausePassion()" style="width:100%;max-width:calc(680px - 36px - 0.85rem);padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Keep going \u2192</button>`;
+  el.innerHTML = `<button onclick="advanceFromPausePassion()" style="width:100%;max-width:calc(680px - 36px - 0.85rem);padding:14px 20px;background:#EA5329;color:#001722;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Keep going \u2192</button>`;
   chat.appendChild(el);
   scrollBottom();
 }
@@ -1296,12 +1296,12 @@ function injectInlineBlock(id, inputHtml, onSubmitFn) {
     <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
       ${inputHtml}
       <div id="${id}-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
-      <button onclick="${onSubmitFn}()" style="padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next \u2192</button>
+      <button onclick="${onSubmitFn}()" style="padding:14px 20px;background:#EA5329;color:#001722;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next \u2192</button>
     </div>`;
   el.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('focus', () => {
-      inp.style.borderColor = 'rgba(200,241,53,0.5)';
-      inp.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
+      inp.style.borderColor = 'rgba(234,83,41,0.5)';
+      inp.style.boxShadow = '0 0 0 3px rgba(234,83,41,0.08)';
       setTimeout(() => scrollBottom(), 300); // scroll latest bubble into upper-middle after keyboard settles
     });
     inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
@@ -1323,12 +1323,12 @@ function injectTextareaBlock(id, placeholder, onSubmitFn) {
     <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
       <textarea id="${inputId}" rows="4" placeholder="${placeholder}" style="${taStyle}"></textarea>
       <div id="${id}-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
-      <button onclick="${onSubmitFn}()" style="padding:14px;background:var(--lime);color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;width:100%;cursor:pointer;font-family:inherit;margin-top:0;min-height:44px;">Next \u2192</button>
+      <button onclick="${onSubmitFn}()" style="padding:14px;background:var(--lime);color:#001722;border:none;border-radius:12px;font-weight:700;font-size:1rem;width:100%;cursor:pointer;font-family:inherit;margin-top:0;min-height:44px;">Next \u2192</button>
     </div>`;
   const ta = el.querySelector('textarea');
   ta.addEventListener('focus', () => {
-    ta.style.borderColor = 'rgba(200,241,53,0.5)';
-    ta.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
+    ta.style.borderColor = 'rgba(234,83,41,0.5)';
+    ta.style.boxShadow = '0 0 0 3px rgba(234,83,41,0.08)';
     setTimeout(() => scrollBottom(), 300); // scroll latest bubble into upper-middle after keyboard settles
   });
   ta.addEventListener('blur', () => { ta.style.borderColor = 'rgba(255,255,255,0.08)'; ta.style.boxShadow = 'none'; });
@@ -1551,14 +1551,14 @@ async function showAddressBlock() {
         </select>
         <input id="addr-zip" type="text" placeholder="Zip" maxlength="5" inputmode="numeric" pattern="[0-9]*" style="${inputStyle}">
         <div id="addr-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
-        <button onclick="submitAddress()" style="padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next →</button>
+        <button onclick="submitAddress()" style="padding:14px 20px;background:#EA5329;color:#001722;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next →</button>
       </div>`;
 
     // Focus styles via JS since we can't use CSS classes in inline style
     el.querySelectorAll('input, select').forEach(inp => {
       inp.addEventListener('focus', () => {
-        inp.style.borderColor = 'rgba(200,241,53,0.5)';
-        inp.style.boxShadow = '0 0 0 3px rgba(200,241,53,0.08)';
+        inp.style.borderColor = 'rgba(234,83,41,0.5)';
+        inp.style.boxShadow = '0 0 0 3px rgba(234,83,41,0.08)';
         setTimeout(() => scrollBottom(), 300); // scroll latest bubble into upper-middle after keyboard settles
       });
       inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
@@ -1643,7 +1643,7 @@ function showChoiceStep(question, options, fieldKey, progressStep, totalSteps, o
       const btn = document.createElement('button');
       btn.textContent = opt;
       btn.style.cssText = 'padding:10px 18px;background:#161616;border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:#F5F5F0;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:border-color 0.15s,color 0.15s;';
-      btn.onmouseover = function() { btn.style.borderColor = '#C8F135'; btn.style.color = '#C8F135'; };
+      btn.onmouseover = function() { btn.style.borderColor = '#EA5329'; btn.style.color = '#EA5329'; };
       btn.onmouseout  = function() { btn.style.borderColor = 'rgba(255,255,255,0.15)'; btn.style.color = '#F5F5F0'; };
       btn.onclick = function() {
         haptic();
@@ -1709,10 +1709,10 @@ function showConsentStep() {
   el.style.cssText = 'margin:0.75rem 0;padding:0 0 0 calc(36px + 0.85rem);max-width:640px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
   el.innerHTML = `
     <label style="display:flex;gap:12px;cursor:pointer;align-items:flex-start;background:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
-      <input type="checkbox" id="sms-opt-in" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#C8F135;cursor:pointer;">
+      <input type="checkbox" id="sms-opt-in" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#EA5329;cursor:pointer;">
       <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;">I agree to receive SMS notifications from GripTape about my application status, program updates, and deadline reminders. Message frequency varies \u2014 up to 8 messages per program cycle. Message and data rates may apply. Reply STOP to unsubscribe.</span>
     </label>
-    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#C8F135;color:#0D0D0D;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Let\u2019s go \u2192</button>
+    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#EA5329;color:#001722;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Let\u2019s go \u2192</button>
   `;
   chat.appendChild(el);
   setProgress(TOTAL_STEPS, TOTAL_STEPS);
@@ -1789,7 +1789,7 @@ function showSuccess() {
 
 function launchConfetti() {
   const shapes = ['circle', 'square', 'rect'];
-  const colors = ['#C8F135', '#7B2FFF', '#38CFFF', '#FF5C5C', '#FFB840', '#FFFFFF'];
+  const colors = ['#EA5329', '#F79227', '#38CFFF', '#FF5C5C', '#FFB840', '#FFFFFF'];
   for (let i = 0; i < 100; i++) {
     setTimeout(() => {
       const el = document.createElement('div');
