@@ -677,6 +677,78 @@ h1 {
   100% { transform: translateY(110vh) rotate(600deg) scale(0.5); opacity: 0; }
 }
 
+/* PROJECT CAROUSEL */
+.project-carousel-section {
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.carousel-container {
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.carousel-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 28px;
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 180px;
+}
+
+.carousel-card.active { display: flex; }
+
+.carousel-project {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 700;
+  color: var(--lime);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.carousel-name {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+}
+
+.carousel-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.carousel-dot.active {
+  background: var(--lime);
+  transform: scale(1.3);
+}
+
+@media (min-width: 768px) {
+  .project-carousel-section { max-width: 900px; margin: 0 auto; padding: 40px 48px; }
+  .carousel-container { max-width: none; }
+  .carousel-card { padding: 48px 40px; min-height: 200px; }
+  .carousel-project { font-size: 2.2rem; }
+}
+
 /* ── RESPONSIVE ── */
 
 /* Mobile: hide nav pills, large h1 */
@@ -791,26 +863,24 @@ h1 {
   <section class="landing-hero">
     <nav>
       <div class="logo">
-        <div class="logo-dot"></div>
-        The Learning Challenge
+        <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="GripTape" style="height:28px;">
       </div>
       <div class="nav-pills">
-        <div class="nav-pill active">NYC</div>
-        <div class="nav-pill">Ages 15–19</div>
+        <div class="nav-pill active">4,000+ Alumni</div>
+        <div class="nav-pill">Nonprofit Since 2016</div>
         <div class="nav-pill">Free</div>
       </div>
     </nav>
     <div class="hero-inner">
       <div class="hero-body">
         <div class="tag-row">
-          <span class="tag lime">Applications Open</span>
-          <span class="tag purple">6-Week Program</span>
-          <span class="tag">Since 2016</span>
+          <span class="tag lime">Now Open</span>
+          <span class="tag purple">NYC + NJ</span>
+          <span class="tag">Ages 15–19</span>
         </div>
         <h1>The <span class="highlight">Learning</span><br>Challenge.</h1>
-        <p class="hero-desc">You pick the passion. You design the project. We back you with $250, a mentor, and 6 weeks.</p>
-        <blockquote class="hero-quote">"This is something that could make my life better." — Maya, 17</blockquote>
-        <div class="cta-wrap">
+        <p class="hero-desc">What would you build if someone actually backed you? GripTape gives teens up to $250, a personal mentor, and a chance to do something real.</p>
+<div class="cta-wrap">
           <button class="btn-main" onclick="startApp()">I'm ready →</button>
         </div>
         <p class="cta-sub">4,000+ teenagers since 2016 · Ages 15–19 · NYC &amp; NJ</p>
@@ -847,6 +917,37 @@ h1 {
     </div>
   </section>
 
+  <!-- PROJECT CAROUSEL -->
+  <div class="project-carousel-section">
+    <div class="carousel-container">
+      <div class="carousel-card">
+        <p class="carousel-project">Recorded and released an original EP</p>
+        <span class="carousel-name">Maya, 17</span>
+      </div>
+      <div class="carousel-card">
+        <p class="carousel-project">Built a budgeting app for teens</p>
+        <span class="carousel-name">Taylor, 15</span>
+      </div>
+      <div class="carousel-card">
+        <p class="carousel-project">Organized a neighborhood food pantry</p>
+        <span class="carousel-name">Alex, 19</span>
+      </div>
+      <div class="carousel-card">
+        <p class="carousel-project">Launched a sneaker resale business</p>
+        <span class="carousel-name">Jordan, 16</span>
+      </div>
+      <div class="carousel-card">
+        <p class="carousel-project">Self-published a graphic novel</p>
+        <span class="carousel-name">Destiny, 17</span>
+      </div>
+      <div class="carousel-card">
+        <p class="carousel-project">Designed a clothing line and sold at a pop-up</p>
+        <span class="carousel-name">Aaliyah, 16</span>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+  </div>
+
   <!-- STATS -->
   <div class="section-header stats-header">What 4,000+ challengers say</div>
   <div class="landing-section stats-section">
@@ -876,7 +977,7 @@ h1 {
       <div class="perk-card">
         <span class="perk-emoji">🤝</span>
         <span class="perk-title">A Champion</span>
-        <span class="perk-desc">A mentor matched to what you care about</span>
+        <span class="perk-desc">A personal mentor to support you</span>
       </div>
       <div class="perk-card">
         <span class="perk-emoji">⏱</span>
@@ -893,8 +994,8 @@ h1 {
 
   <!-- QUOTE -->
   <div class="landing-quote-section">
-    <p class="landing-quote-text">"GripTape is a good way to test out a career. I feel like I have a path in front of me."</p>
-    <span class="landing-quote-attr">— Isaac, 17</span>
+    <p class="landing-quote-text">"Before GripTape, I didn't really believe in myself. Now I know what I'm capable of."</p>
+    <span class="landing-quote-attr">— Dar, 16</span>
   </div>
 
   <!-- FINAL CTA -->
@@ -1051,7 +1152,16 @@ function setEnabled(val) { /* no-op: persistent input removed */ }
 
 function scrollBottom() {
   const w = document.getElementById('chat-wrap');
-  setTimeout(() => { w.scrollTop = w.scrollHeight; }, 60);
+  const chat = document.getElementById('chat');
+  const lastChild = chat ? chat.lastElementChild : null;
+  setTimeout(() => {
+    if (lastChild) {
+      const offset = lastChild.offsetTop - 24;
+      w.scrollTo({ top: offset, behavior: 'smooth' });
+    } else {
+      w.scrollTo({ top: w.scrollHeight, behavior: 'smooth' });
+    }
+  }, 60);
 }
 
 async function addAiMsg(text, reaction) {
@@ -1768,6 +1878,35 @@ function launchConfetti() {
     }, i * 25);
   }
 }
+
+// ── PROJECT CAROUSEL ──
+(function() {
+  const cards = document.querySelectorAll('.carousel-card');
+  const dotsContainer = document.getElementById('carousel-dots');
+  if (!cards.length || !dotsContainer) return;
+  let current = 0;
+  let timer;
+  cards.forEach(function(_, i) {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.addEventListener('click', function() { goTo(i); resetTimer(); });
+    dotsContainer.appendChild(dot);
+  });
+  cards[0].classList.add('active');
+  function goTo(idx) {
+    cards[current].classList.remove('active');
+    dotsContainer.children[current].classList.remove('active');
+    current = idx;
+    cards[current].classList.add('active');
+    dotsContainer.children[current].classList.add('active');
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    timer = setInterval(function() { goTo((current + 1) % cards.length); }, 4000);
+  }
+  resetTimer();
+})();
 
 function saveExit() {
   try {
