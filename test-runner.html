@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<script src="test-config.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -155,6 +156,7 @@ body{background:var(--navy);color:var(--white);font-family:var(--sans);min-heigh
 </div>
 
 <script>
+
 let keys={};
 let keysOpen=false;
 let currentStage='screening';
@@ -203,8 +205,9 @@ function clearKeys(){
 }
 
 async function sb(path,opts={}){
+  const authKey=keys.anon||keys.service;
   const r=await fetch(`${keys.url}/rest/v1/${path}`,{
-    headers:{'apikey':keys.service,'Authorization':`Bearer ${keys.service}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+    headers:{'apikey':authKey,'Authorization':`Bearer ${authKey}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
     ...opts
   });
   const t=await r.text();
@@ -376,7 +379,7 @@ async function runCurrentStage(){
 
 async function runScreening(ok,fail,warn,info){
   grp('1 — Insert test application');
-  const app={program_id:'nyc-2026',first_name:'Test',last_name:`Youth_${Date.now()}`,birthdate:'2008-01-01',email:'thea@griptape.org',phone:'+12125550100',street_address:'123 Test St',city:'New York',state:'NY',zip:'10001',screening_status:'submitted',sms_consent:false,application_responses:{passion:'I want to build a mobile app that helps teenagers track their mental health and connect with peers who share similar experiences. This matters to me because I struggled with anxiety in high school and found no tools designed for teens like me.',why_join:'I want GripTape to back me because I have the idea but not the resources to build it.'}};
+  const app={program_id:null,first_name:'Test',last_name:`Youth_${Date.now()}`,birthdate:'2008-01-01',email:'thea@griptape.org',phone:'+12125550100',street_address:'123 Test St',city:'New York',state:'NY',zip:'10001',screening_status:'submitted',sms_consent:false,application_responses:{passion:'I want to build a mobile app that helps teenagers track their mental health and connect with peers who share similar experiences. This matters to me because I struggled with anxiety in high school and found no tools designed for teens like me.',why_join:'I want GripTape to back me because I have the idea but not the resources to build it.'}};
   const el=addRow('…','Inserting test application...');
   const ins=await sbPost('applications',app);
   if(!ins.ok||!ins.data[0]?.id){updRow(el,'✗','Insert failed',JSON.stringify(ins.data));fail('Application insert');return;}
@@ -583,6 +586,19 @@ async function runAll(){
   for(const s of stages){selectStage(s);await sleep(300);await runCurrentStage();await sleep(800);}
 }
 
+// Auto-load from test-config.js if available
+if(window.TEST_CONFIG && window.TEST_CONFIG.url && window.TEST_CONFIG.anon){
+Object.assign(keys, window.TEST_CONFIG);
+document.getElementById('k-url').value=window.TEST_CONFIG.url;
+document.getElementById('k-service').value=window.TEST_CONFIG.service||'';
+document.getElementById('k-anon').value=window.TEST_CONFIG.anon||'';
+document.getElementById('k-resend').value=window.TEST_CONFIG.resend||'';
+document.getElementById('k-boldsign').value=window.TEST_CONFIG.boldsign||'';
+document.getElementById('k-tremendous').value=window.TEST_CONFIG.tremendous||'';
+document.getElementById('k-vercel').value=window.TEST_CONFIG.vercel||'';
+document.getElementById('k-staff').value=window.TEST_CONFIG.staff||'';
+saveKeys();
+}
 selectStage('screening');
 </script>
 </body>
