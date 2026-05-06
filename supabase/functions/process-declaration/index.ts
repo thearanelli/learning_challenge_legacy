@@ -83,7 +83,7 @@ serve(async (req) => {
     await sendNotification('declaration_confirmed', application, {
       video_link: videoLink,
       profile_link: profileLink,
-    });
+    }, { application_id: application.id });
 
     console.log(`[PROCESS-DECLARATION] ${application.id}: video link sent`);
 
