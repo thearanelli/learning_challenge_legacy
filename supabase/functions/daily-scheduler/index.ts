@@ -17,7 +17,8 @@ import { generateToken } from '../_shared/tokens.ts';
 
 serve(async (req) => {
   const body = await req.json().catch(() => ({}));
-  const TEST_MODE = Deno.env.get('TEST_MODE') === 'true' || body.test_mode === true;
+  const TEST_MODE_ALLOWED = Deno.env.get('TEST_MODE_ALLOWED') === 'true';
+  const TEST_MODE = Deno.env.get('TEST_MODE') === 'true' || (TEST_MODE_ALLOWED && body.test_mode === true);
   const dayMs = TEST_MODE ? 60 * 1000 : 24 * 60 * 60 * 1000;
 
   const supabase = createClient(
