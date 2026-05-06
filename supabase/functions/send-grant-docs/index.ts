@@ -186,7 +186,7 @@ serve(async (req) => {
     await sendNotification('grant_pending', youth, {
       w9_link: w9SigningUrl,
       agreement_link: agreementSigningUrl,
-    });
+    }, { youth_id: youth.id });
 
     console.log(`[send-grant-docs] ${youth.id}: BoldSign requests created, signing links sent to ${youth.email}`);
 
