@@ -15,12 +15,14 @@ async function logComms(row: {
   message_body: string;
   youth_id?: string;
   champion_id?: string;
+  application_id?: string;
 }): Promise<void> {
   try {
     await supabase.from('comms_log').insert({
       program_id:      config.PROGRAM_ID,
-      youth_id:        row.youth_id ?? null,
-      champion_id:     row.champion_id ?? null,
+      youth_id:        row.youth_id        ?? null,
+      champion_id:     row.champion_id     ?? null,
+      application_id:  row.application_id  ?? null,
       direction:       'outbound',
       channel:         row.channel,
       stage_key:       row.stage_key,
@@ -37,7 +39,7 @@ export async function sendNotification(
   stageKey: string,
   recipient: { first_name: string; last_name?: string; email: string; phone: string },
   vars: Record<string, string> = {},
-  meta: { youth_id?: string; champion_id?: string } = {},
+  meta: { youth_id?: string; champion_id?: string; application_id?: string } = {},
   options: { skipSms?: boolean } = {}
 ): Promise<void> {
   const block = (content as Record<string, unknown>)[stageKey];
@@ -74,7 +76,7 @@ export async function sendNotification(
 export async function sendStaffNotification(
   stageKey: string,
   vars: Record<string, string> = {},
-  meta: { youth_id?: string; champion_id?: string } = {}
+  meta: { youth_id?: string; champion_id?: string; application_id?: string } = {}
 ): Promise<void> {
   const block = (content as Record<string, unknown>)[stageKey];
   if (!block) {
@@ -103,10 +105,9 @@ export async function sendStaffNotification(
     if (!staffPhone) {
       console.error('[dispatcher] STAFF_PHONE not set');
     } else {
-      await sendSMS({
-        to: staffPhone,
-        body: renderContent(b.staff_sms, vars),
-      });
+      const body = renderContent(b.staff_sms, vars);
+      await sendSMS({ to: staffPhone, body });
+      await logComms({ channel: 'sms', stage_key: stageKey, message_body: body, ...meta });
     }
   }
 

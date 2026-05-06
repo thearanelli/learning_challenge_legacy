@@ -68,63 +68,18 @@ serve(async (_req) => {
               'declaration_pending',
               recipient,
               { link: declareLink, profile_link: profileLink },
-              {},
+              { application_id: app.id },
               { skipSms: !app.sms_consent },
             );
-            // Write comms_log with application_id (dispatcher cannot do this)
-            const declPendingEntries: object[] = [
-              {
-                program_id:      config.PROGRAM_ID,
-                application_id:  app.id,
-                direction:       'outbound',
-                channel:         'email',
-                stage_key:       'declaration_pending',
-                message_body:    'Step 1 done. You\'re invited to Step 2.',
-                sent_at:         new Date().toISOString(),
-                delivery_status: 'sent',
-              },
-            ];
-            if (app.sms_consent) {
-              declPendingEntries.push({
-                program_id:      config.PROGRAM_ID,
-                application_id:  app.id,
-                direction:       'outbound',
-                channel:         'sms',
-                stage_key:       'declaration_pending',
-                message_body:    'declaration_pending sms',
-                sent_at:         new Date().toISOString(),
-                delivery_status: 'sent',
-              });
-            }
-            await supabase.from('comms_log').insert(declPendingEntries);
             console.log(`[daily-scheduler] S1 sent declaration_pending to app ${app.id}`);
           } else if (app.screening_status === 'rejected') {
-            await sendNotification('rejected', recipient, {}, {}, { skipSms: !app.sms_consent });
-            const rejectedEntries: object[] = [
-              {
-                program_id:      config.PROGRAM_ID,
-                application_id:  app.id,
-                direction:       'outbound',
-                channel:         'email',
-                stage_key:       'rejected',
-                message_body:    'Your GripTape Learning Challenge application',
-                sent_at:         new Date().toISOString(),
-                delivery_status: 'sent',
-              },
-            ];
-            if (app.sms_consent) {
-              rejectedEntries.push({
-                program_id:      config.PROGRAM_ID,
-                application_id:  app.id,
-                direction:       'outbound',
-                channel:         'sms',
-                stage_key:       'rejected',
-                message_body:    'rejected sms',
-                sent_at:         new Date().toISOString(),
-                delivery_status: 'sent',
-              });
-            }
-            await supabase.from('comms_log').insert(rejectedEntries);
+            await sendNotification(
+              'rejected',
+              recipient,
+              {},
+              { application_id: app.id },
+              { skipSms: !app.sms_consent },
+            );
             console.log(`[daily-scheduler] S1 sent rejected to app ${app.id}`);
           }
         } catch (err) {
@@ -193,33 +148,13 @@ serve(async (_req) => {
             phone: app.phone,
           };
 
-          await sendNotification(nudge.content_key, recipient, { link }, {}, { skipSms: !app.sms_consent });
-
-          const nudgeEntries: object[] = [
-            {
-              program_id:      config.PROGRAM_ID,
-              application_id:  app.id,
-              direction:       'outbound',
-              channel:         'email',
-              stage_key:       nudge.content_key,
-              message_body:    nudge.content_key,
-              sent_at:         new Date().toISOString(),
-              delivery_status: 'sent',
-            },
-          ];
-          if (app.sms_consent) {
-            nudgeEntries.push({
-              program_id:      config.PROGRAM_ID,
-              application_id:  app.id,
-              direction:       'outbound',
-              channel:         'sms',
-              stage_key:       nudge.content_key,
-              message_body:    nudge.content_key,
-              sent_at:         new Date().toISOString(),
-              delivery_status: 'sent',
-            });
-          }
-          await supabase.from('comms_log').insert(nudgeEntries);
+          await sendNotification(
+            nudge.content_key,
+            recipient,
+            { link },
+            { application_id: app.id },
+            { skipSms: !app.sms_consent },
+          );
 
           console.log(`[daily-scheduler] S2 sent ${nudge.content_key} to app ${app.id}`);
         } catch (err) {

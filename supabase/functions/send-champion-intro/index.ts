@@ -16,8 +16,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
-import { sendEmail } from '../_shared/email.ts';
-import { content, renderContent } from '../_shared/content.ts';
+import { sendNotification } from '../_shared/dispatcher.ts';
 
 serve(async (req) => {
   try {
@@ -84,13 +83,12 @@ serve(async (req) => {
       throw new Error(`Failed to load champion ${youth.champion_id}: ${champErr?.message}`);
     }
 
-    // Step 3 — Send group intro email to youth + champion
+    // Step 3 — Send intro comms: email + SMS to youth, email only to champion
     const deadlineDays = config.STAGES.mentor_pending.deadline_days!;
     const deadlineDate = new Date(Date.now() + deadlineDays * 86400000).toLocaleDateString(
       'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
     );
 
-    const mentorBlock = content.mentor_pending as Record<string, string>;
     const vars = {
       youth_first_name:    youth.first_name,
       champion_first_name: champion.first_name,
@@ -99,14 +97,25 @@ serve(async (req) => {
       program_name:        'GripTape Learning Challenge',
     };
 
-    await sendEmail({
-      to: [youth.email, champion.email],
-      subject: renderContent(mentorBlock.email_subject, vars),
-      html: renderContent(mentorBlock.email_body, vars),
-    });
+    // Youth: email + SMS
+    await sendNotification(
+      'mentor_pending',
+      { first_name: youth.first_name, last_name: youth.last_name, email: youth.email, phone: youth.phone },
+      vars,
+      { youth_id: youth.id },
+    );
+
+    // Champion: email only, no SMS
+    await sendNotification(
+      'mentor_pending',
+      { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: '' },
+      vars,
+      { youth_id: youth.id },
+      { skipSms: true },
+    );
 
     console.log(
-      `[send-champion-intro] intro email sent — youth ${youth.id}, champion ${champion.id}`,
+      `[send-champion-intro] intro comms sent — youth ${youth.id}, champion ${champion.id}`,
     );
 
     return new Response(

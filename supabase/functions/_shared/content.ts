@@ -225,6 +225,33 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms: 'Hey {{first_name}}, time to submit your Full Send! Submit your video here: {{link}}',
   },
 
+  // ── Match-champion staff alerts ───────────────────────────────────────────
+
+  match_no_champions: {
+    staff_email_subject: 'Action needed: no champions available for {{first_name}} {{last_name}}',
+    staff_email_body: `<p>No champions are currently available for matching. Manual assignment required.</p>
+<p>Youth: {{first_name}} {{last_name}} ({{email}})<br>
+Youth ID: {{youth_id}}</p>
+<p>Passion: {{passion}}</p>
+<p>Why join: {{why_join}}</p>
+<p>Once you have chosen a champion, run the following SQL in Supabase → SQL Editor:</p>
+<pre>UPDATE youth
+SET champion_id      = '&lt;champion_id&gt;',
+    status           = 'mentor_pending',
+    access_token     = gen_random_uuid(),
+    token_expires_at = now() + interval '16 days'
+WHERE id = '{{youth_id}}'
+  AND status = 'onboarding';</pre>
+<p>This will trigger the send-champion-intro webhook and send the intro email automatically.</p>`,
+  },
+
+  match_claude_failed: {
+    staff_email_subject: 'Action needed: champion matching failed for {{first_name}} {{last_name}}',
+    staff_email_body: `<p>Claude champion matching failed. Manual assignment required.</p>
+<p>Youth: {{first_name}} {{last_name}} ({{email}})</p>
+<p>Error: {{error}}</p>`,
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",

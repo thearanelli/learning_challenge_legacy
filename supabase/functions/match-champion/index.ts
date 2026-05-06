@@ -22,19 +22,11 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
-import { sendEmail } from '../_shared/email.ts';
+import { sendStaffNotification } from '../_shared/dispatcher.ts';
 import { systemPrompt, buildUserPrompt } from '../../../prompts/matchChampion.ts';
 
 // next stage: config.STAGES.onboarding.next = 'mentor_pending'
 const NEXT_STATUS = 'mentor_pending';
-
-async function sendStaffAlert(subject: string, body: string): Promise<void> {
-  if (!config.STAFF_EMAIL) {
-    console.error('[match-champion] STAFF_EMAIL not set — cannot send alert');
-    return;
-  }
-  await sendEmail({ to: config.STAFF_EMAIL, subject, html: `<p>${body}</p>` });
-}
 
 serve(async (req) => {
   try {
@@ -89,23 +81,14 @@ serve(async (req) => {
 
     if (champions.length === 0) {
       console.log(`[match-champion] No champions available for youth ${youth.id}`);
-      await sendStaffAlert(
-        `Action needed: no champions available for ${youth.first_name} ${youth.last_name}`,
-        `No champions are currently available for matching. Manual assignment required.\n\n` +
-        `Youth: ${youth.first_name} ${youth.last_name} (${youth.email})\n` +
-        `Youth ID: ${youth.id}\n\n` +
-        `Passion: ${responses.passion ?? '(not provided)'}\n\n` +
-        `Why join: ${responses.why_join ?? '(not provided)'}\n\n` +
-        `Once you have chosen a champion, run the following SQL in Supabase → SQL Editor:\n\n` +
-        `UPDATE youth\n` +
-        `SET champion_id      = '&lt;champion_id&gt;',\n` +
-        `    status           = 'mentor_pending',\n` +
-        `    access_token     = gen_random_uuid(),\n` +
-        `    token_expires_at = now() + interval '16 days'\n` +
-        `WHERE id = '${youth.id}'\n` +
-        `  AND status = 'onboarding';\n\n` +
-        `This will trigger the send-champion-intro webhook and send the intro email automatically.`,
-      );
+      await sendStaffNotification('match_no_champions', {
+        first_name: youth.first_name,
+        last_name:  youth.last_name,
+        email:      youth.email,
+        youth_id:   youth.id,
+        passion:    responses.passion  ?? '(not provided)',
+        why_join:   responses.why_join ?? '(not provided)',
+      }, { youth_id: youth.id });
       return new Response(JSON.stringify({ no_champions: true }), {
         headers: { 'Content-Type': 'application/json' },
         status: 200,
@@ -167,12 +150,12 @@ serve(async (req) => {
 
     } catch (claudeErr) {
       console.error('[match-champion] Claude matching failed:', claudeErr);
-      await sendStaffAlert(
-        `Action needed: champion matching failed for ${youth.first_name} ${youth.last_name}`,
-        `Claude champion matching failed. Manual assignment required.\n\n` +
-        `Youth: ${youth.first_name} ${youth.last_name} (${youth.email})\n\n` +
-        `Error: ${claudeErr instanceof Error ? claudeErr.message : String(claudeErr)}`,
-      );
+      await sendStaffNotification('match_claude_failed', {
+        first_name: youth.first_name,
+        last_name:  youth.last_name,
+        email:      youth.email,
+        error:      claudeErr instanceof Error ? claudeErr.message : String(claudeErr),
+      }, { youth_id: youth.id });
       return new Response(JSON.stringify({ claude_error: true }), {
         headers: { 'Content-Type': 'application/json' },
         status: 200,
