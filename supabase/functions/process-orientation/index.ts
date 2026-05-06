@@ -105,7 +105,7 @@ serve(async (req) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('DB_SERVICE_KEY')}`,
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
         },
         body: JSON.stringify({ youth_id: youth.id }),
       }
