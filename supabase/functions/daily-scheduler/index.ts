@@ -15,10 +15,11 @@ import { config } from '../_shared/config.ts';
 import { sendNotification } from '../_shared/dispatcher.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
-const TEST_MODE = Deno.env.get('TEST_MODE') === 'true';
-const dayMs = TEST_MODE ? 60 * 1000 : 24 * 60 * 60 * 1000;
+serve(async (req) => {
+  const body = await req.json().catch(() => ({}));
+  const TEST_MODE = Deno.env.get('TEST_MODE') === 'true' || body.test_mode === true;
+  const dayMs = TEST_MODE ? 60 * 1000 : 24 * 60 * 60 * 1000;
 
-serve(async (_req) => {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('DB_SERVICE_KEY')!,
