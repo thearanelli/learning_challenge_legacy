@@ -4,40 +4,358 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Submit Your Full Send — GripTape Learning Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; }
-    h1 { font-size: 1.4rem; margin-bottom: 8px; }
-    p { line-height: 1.6; color: #444; }
-    label { display: block; margin-top: 20px; font-weight: 600; }
-    input[type="url"] { width: 100%; margin-top: 6px; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { margin-top: 20px; padding: 12px 24px; font-size: 1rem; background: #1a1a1a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    #status { margin-top: 16px; font-size: 0.95rem; }
-    .error { color: #c00; }
-    .success { color: #060; }
-    #loading, #form-section, #invalid-section { display: none; }
+    :root {
+      --bg: #001722;
+      --bg2: #0a2230;
+      --border: rgba(255,255,255,0.07);
+      --orange: #EA5329;
+      --amber: #F79227;
+      --white: #F5F5F0;
+      --gray: rgba(255,255,255,0.5);
+      --muted: rgba(255,255,255,0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 1.5rem;
+    }
+
+    /* State screens */
+    .state-center {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 80px 1.5rem;
+      text-align: center;
+    }
+
+    .state-logo {
+      height: 22px;
+      display: block;
+      margin: 0 auto 28px;
+    }
+
+    .state-heading {
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0 0 10px;
+    }
+
+    .state-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .state-muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    /* Page logo */
+    .page-logo {
+      display: block;
+      margin: 0 auto 8px;
+      height: 48px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0 28px;
+    }
+
+    .divider-slim {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* Hero */
+    .main-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--orange);
+      line-height: 1.1;
+      margin: 0 0 16px;
+    }
+
+    .main-sub {
+      color: var(--white);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin: 0 0 28px;
+      border-left: 3px solid var(--orange);
+      padding-left: 1rem;
+    }
+
+    /* Section headings */
+    .section-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--orange);
+      margin: 0 0 16px;
+    }
+
+    /* Guidelines list */
+    .guidelines-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guideline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--bg2);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .guideline-emoji {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+
+    .guideline-text {
+      color: var(--white);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Submission instructions */
+    .instructions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .instruction-line {
+      color: var(--gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* URL input */
+    .url-input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 1rem;
+      color: var(--white);
+      font-size: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .url-input:focus {
+      border-color: var(--orange);
+    }
+
+    .url-input::placeholder {
+      color: var(--muted);
+    }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Status / error */
+    #status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #status.error {
+      color: var(--orange);
+    }
+
+    /* Success state */
+    .success-wrap {
+      text-align: center;
+      padding: 60px 0;
+    }
+
+    .success-logo {
+      height: 48px;
+      display: block;
+      margin: 0 auto 32px;
+    }
+
+    .success-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--white);
+      margin: 0 0 16px;
+      line-height: 1.15;
+    }
+
+    .success-sub {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--amber);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    @media (max-width: 480px) {
+      .main-heading { font-size: 1.4rem; }
+      .success-heading { font-size: 1.4rem; }
+    }
   </style>
 </head>
 <body>
 
-  <div id="loading"><p>Verifying your link…</p></div>
-
-  <div id="invalid-section">
-    <h1>Link invalid or expired</h1>
-    <p>This link is invalid or expired. If you believe this is a mistake, please contact us.</p>
+  <!-- Loading state -->
+  <div id="loading" class="state-center" style="display:none;">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
+    <p class="state-muted">Verifying your link…</p>
   </div>
 
-  <div id="form-section">
-    <h1>Submit Your Full Send</h1>
-    <p>Hi <span id="first-name"></span>! You made it to the end. Paste the YouTube link to your Full Send video below.</p>
+  <!-- Invalid state -->
+  <div id="invalid-section" class="state-center" style="display:none;">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
+    <p class="state-heading">This link is invalid or has already been used.</p>
+    <p class="state-sub">If you think this is an error, contact GripTape.</p>
+  </div>
 
+  <!-- Form section -->
+  <div id="form-section" class="page" style="display:none;">
+
+    <!-- FIX 1: Logo -->
+    <img class="page-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
+
+    <hr class="divider" />
+
+    <!-- FIX 2: Hero -->
+    <h1 class="main-heading">6 weeks of work. This is your Full Send.</h1>
+    <p class="main-sub">Submit your final video showing everything you built.</p>
+
+    <!-- Hidden element preserving JS reference to first-name -->
+    <span id="first-name" style="display:none;"></span>
+
+    <hr class="divider-slim" />
+
+    <!-- FIX 3: Guidelines -->
+    <h2 class="section-heading">Before you submit, make sure your video covers this.</h2>
+    <div class="guidelines-list">
+      <div class="guideline-item">
+        <span class="guideline-emoji">⏱️</span>
+        <span class="guideline-text">90 seconds max.</span>
+      </div>
+      <div class="guideline-item">
+        <span class="guideline-emoji">🎥</span>
+        <span class="guideline-text">Shoot vertical. Good lighting. Clear audio. Clean background. Show your face and your work.</span>
+      </div>
+      <div class="guideline-item">
+        <span class="guideline-emoji">🎯</span>
+        <span class="guideline-text">Who are you and what's your passion?</span>
+      </div>
+      <div class="guideline-item">
+        <span class="guideline-emoji">🎯</span>
+        <span class="guideline-text">What did you create or accomplish? Show what you made — screenshots, clips, photos, designs.</span>
+      </div>
+      <div class="guideline-item">
+        <span class="guideline-emoji">🎯</span>
+        <span class="guideline-text">Where did you start vs. where are you now? Any personal growth, confidence, skills? What did this unlock in you?</span>
+      </div>
+      <div class="guideline-item">
+        <span class="guideline-emoji">🎯</span>
+        <span class="guideline-text">What's next? A next step, a new project, a big dream.</span>
+      </div>
+    </div>
+
+    <hr class="divider-slim" />
+
+    <!-- FIX 4: Submission instructions -->
+    <h2 class="section-heading">How to submit</h2>
+    <div class="instructions-list">
+      <p class="instruction-line">Post your video on YouTube — public or unlisted.</p>
+      <p class="instruction-line">This video will be shared with the GripTape community. Need privacy? A burner YouTube account is totally fine.</p>
+      <p class="instruction-line">Paste your YouTube link below.</p>
+    </div>
+
+    <hr class="divider-slim" />
+
+    <!-- FIX 5 + 6: Form -->
     <form id="final-video-form">
-      <label for="full_send_url">YouTube Video URL</label>
-      <input type="url" id="full_send_url" name="full_send_url" placeholder="https://www.youtube.com/watch?v=..." required />
-      <button type="submit" id="submit-btn">Submit Full Send</button>
+      <input
+        type="url"
+        id="full_send_url"
+        name="full_send_url"
+        class="url-input"
+        placeholder="https://youtube.com/watch?v=..."
+        required
+      />
+      <button type="submit" id="submit-btn" class="submit-btn">Submit My Full Send</button>
     </form>
 
     <div id="status"></div>
+
+  </div>
+
+  <!-- FIX 7: Success state -->
+  <div id="success-section" class="page" style="display:none;">
+    <div class="success-wrap">
+      <img class="success-logo"
+        src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+        alt="GripTape" />
+      <h1 class="success-heading">Full Send submitted. You did the work.</h1>
+      <p class="success-sub">You're officially a GripTape Alum now.</p>
+    </div>
   </div>
 
   <script>
@@ -113,9 +431,8 @@
         const data = await res.json();
 
         if (data.success) {
-          document.getElementById('final-video-form').style.display = 'none';
-          status.textContent = "You're all set! GripTape will review your video and be in touch soon.";
-          status.className = 'success';
+          document.getElementById('form-section').style.display = 'none';
+          document.getElementById('success-section').style.display = 'block';
         } else {
           status.textContent = 'Something went wrong. Please try again.';
           status.className = 'error';
