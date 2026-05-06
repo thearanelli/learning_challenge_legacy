@@ -54,7 +54,11 @@ async function main() {
         email:            'thea@griptape.org',
         phone:            '555-000-0001',
         birthdate:        '2008-01-01',
-        address:          '123 Test St, New York, NY',
+        street_address:   '123 Test St',
+        city:             'New York',
+        state:            'NY',
+        zip:              '10001',
+        sms_consent:      false,
         screening_status: 'accepted',
       })
       .select('id')
@@ -78,7 +82,10 @@ async function main() {
         email:          'thea@griptape.org',
         phone:          '555-000-0001',
         birthdate:      '2008-01-01',
-        address:        '123 Test St, New York, NY',
+        street_address: '123 Test St',
+        city:           'New York',
+        state:          'NY',
+        zip:            '10001',
         status:         'grant_review',
       })
       .select('id')

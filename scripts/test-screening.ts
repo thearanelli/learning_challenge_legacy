@@ -107,8 +107,12 @@ async function main() {
         email:             'thea@griptape.org',
         phone:             '555-000-0001',
         birthdate:         '01/15/2010',     // age 16 in 2026
-        address:           '123 Atlantic Ave, Brooklyn, NY',
+        street_address:    '123 Atlantic Ave',
+        city:              'Brooklyn',
+        state:             'NY',
+        zip:               '11201',
         screening_status:  'submitted',
+        sms_consent:       false,
         application_responses: {
           passion:  'I have been making beats and writing lyrics since I was twelve years old. Music is how I process everything happening around me — school stress, family stuff, my neighborhood. I want to build a real home studio, learn music production, and eventually release my own project. I have the drive but I need resources and guidance to make it real.',
           why_join: 'I want support and funding to take my music seriously.',
@@ -135,8 +139,12 @@ async function main() {
         email:             'thea@griptape.org',
         phone:             '555-000-0002',
         birthdate:         '03/10/2009',     // age 17 in 2026, valid
-        address:           '456 Sunset Blvd, Los Angeles, CA',  // ineligible location
+        street_address:    '456 Sunset Blvd',
+        city:              'Los Angeles',
+        state:             'CA',
+        zip:               '90028',          // ineligible location
         screening_status:  'submitted',
+        sms_consent:       false,
         application_responses: {
           passion:  'I love making short films and telling stories through video. I have been creating YouTube content for two years and I want to invest in better equipment and editing software so I can grow my channel and tell more meaningful stories about my city and the people in it.',
           why_join: 'I want funding to upgrade my filming equipment.',
