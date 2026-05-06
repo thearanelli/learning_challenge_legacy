@@ -14,6 +14,15 @@ function isTokenValid(youth, token) {
 }
 
 export default async function handler(req, res) {
+  const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://learning-challenge-legacy.vercel.app'];
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
