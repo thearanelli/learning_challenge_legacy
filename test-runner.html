@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#001722;--navy2:#0a2230;--navy3:#0f2d40;
+  --orange:#EA5329;--amber:#F79227;--white:#F5F5F0;
+  --muted:rgba(245,245,240,0.45);--border:rgba(255,255,255,0.07);
+  --green:#1D9E75;--red:#E24B4A;--yellow:#EF9F27;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+}
+body{background:var(--navy);color:var(--white);font-family:var(--sans);min-height:100vh;font-size:13px}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.keys-panel{background:var(--navy2);border-bottom:1px solid var(--border);padding:12px 20px}
+.keys-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.keys-toggle:hover{color:var(--white)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--red);transition:background .2s}
+.dot.connected{background:var(--green)}
+.keys-grid{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.keys-grid.open{display:grid}
+.key-field label{display:block;font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.key-field input{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--white);font-family:var(--mono);font-size:11px;outline:none}
+.key-field input:focus{border-color:var(--orange)}
+.keys-actions{display:flex;gap:8px;margin-top:10px}
+.btn{font-family:var(--sans);font-size:12px;font-weight:600;padding:7px 16px;border-radius:6px;border:none;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-orange{background:var(--orange);color:white}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.main{display:flex;flex:1}
+.sidebar{width:220px;min-width:220px;background:var(--navy2);border-right:1px solid var(--border);padding:16px 0}
+.sidebar-label{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:0 16px;margin-bottom:10px}
+.stage-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 16px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:12px;text-align:left;transition:all .15s;border-left:2px solid transparent}
+.stage-btn:hover{color:var(--white);background:rgba(255,255,255,.03)}
+.stage-btn.active{color:var(--white);border-left-color:var(--orange);background:rgba(234,83,41,.08)}
+.stage-btn.running{color:var(--amber)}
+.stage-btn.pass{color:var(--green)}
+.stage-btn.fail{color:var(--red)}
+.stage-icon{font-size:14px;width:18px;text-align:center}
+.stage-status{margin-left:auto;font-size:10px;font-family:var(--mono)}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 16px}
+.run-all-btn{margin:12px 16px 0;width:calc(100% - 32px);background:var(--orange);color:white;font-family:var(--sans);font-size:12px;font-weight:700;padding:10px;border-radius:8px;border:none;cursor:pointer;transition:opacity .15s}
+.run-all-btn:hover{opacity:.85}
+.run-all-btn:disabled{opacity:.35;cursor:not-allowed}
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.content-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.content-title{font-size:16px;font-weight:700}
+.content-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.header-actions{display:flex;gap:8px;align-items:center}
+.results-area{flex:1;overflow-y:auto;padding:20px 24px;font-family:var(--mono);font-size:12px;line-height:1.8}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;gap:8px}
+.empty-icon{font-size:32px;opacity:.4}
+.empty-title{font-family:var(--sans);font-size:14px;color:var(--muted)}
+.empty-sub{font-size:11px}
+.result-group-title{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:16px}
+.result-group-title:first-child{margin-top:0}
+.assertion{display:flex;align-items:flex-start;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.assertion-icon{font-size:12px;margin-top:1px;flex-shrink:0}
+.assertion-icon.pass{color:var(--green)}
+.assertion-icon.fail{color:var(--red)}
+.assertion-icon.warn{color:var(--yellow)}
+.assertion-icon.info{color:var(--muted)}
+.assertion-text{color:var(--white)}
+.assertion-detail{color:var(--muted);font-size:11px}
+.spinner{display:inline-block;width:10px;height:10px;border:1.5px solid var(--amber);border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.summary-bar{padding:8px 24px;background:var(--navy3);border-top:1px solid var(--border);display:flex;align-items:center;gap:16px;font-size:11px}
+.summary-pill{padding:3px 10px;border-radius:100px;font-weight:600;font-size:10px}
+.summary-pill.pass{background:rgba(29,158,117,.15);color:var(--green)}
+.summary-pill.fail{background:rgba(226,75,74,.15);color:var(--red)}
+.summary-pill.warn{background:rgba(239,159,39,.15);color:var(--yellow)}
+.summary-time{color:var(--muted);margin-left:auto}
+.send-panel{border-top:1px solid var(--border);background:var(--navy2);padding:12px 24px;display:flex;align-items:center;gap:12px}
+.send-label{font-size:11px;color:var(--muted);flex:1}
+.send-btn{background:var(--orange);color:white;font-family:var(--sans);font-size:12px;font-weight:700;padding:8px 18px;border-radius:6px;border:none;cursor:pointer}
+.send-btn:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="keys-panel">
+    <div class="keys-toggle" onclick="toggleKeys()">
+      <div class="dot" id="conn-dot"></div>
+      <span id="conn-label">API Keys — click to configure</span>
+      <span style="margin-left:auto;font-size:10px" id="keys-chevron">▼</span>
+    </div>
+    <div class="keys-grid" id="keys-grid">
+      <div class="key-field"><label>Supabase URL</label><input type="text" id="k-url" placeholder="https://xxx.supabase.co"></div>
+      <div class="key-field"><label>Service Role Key</label><input type="password" id="k-service" placeholder="eyJ..."></div>
+      <div class="key-field"><label>Anon Key</label><input type="password" id="k-anon" placeholder="eyJ..."></div>
+      <div class="key-field"><label>Resend API Key</label><input type="password" id="k-resend" placeholder="re_..."></div>
+      <div class="key-field"><label>BoldSign API Key</label><input type="password" id="k-boldsign" placeholder="..."></div>
+      <div class="key-field"><label>Tremendous API Key</label><input type="password" id="k-tremendous" placeholder="..."></div>
+      <div class="key-field"><label>Vercel Base URL</label><input type="text" id="k-vercel" placeholder="https://learning-challenge-legacy.vercel.app"></div>
+      <div class="key-field"><label>Staff Email</label><input type="text" id="k-staff" placeholder="thea@griptape.org"></div>
+    </div>
+    <div class="keys-actions" id="keys-actions" style="display:none">
+      <button class="btn btn-orange" onclick="saveKeys()">Connect</button>
+      <button class="btn btn-ghost" onclick="clearKeys()">Clear</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <div class="sidebar-label">Test Stages</div>
+      <button class="stage-btn active" id="btn-screening" onclick="selectStage('screening')"><span class="stage-icon">📋</span>Screening<span class="stage-status" id="ss-screening"></span></button>
+      <button class="stage-btn" id="btn-declaration" onclick="selectStage('declaration')"><span class="stage-icon">✍️</span>Declaration<span class="stage-status" id="ss-declaration"></span></button>
+      <button class="stage-btn" id="btn-video" onclick="selectStage('video')"><span class="stage-icon">🎬</span>First Drop<span class="stage-status" id="ss-video"></span></button>
+      <button class="stage-btn" id="btn-champion" onclick="selectStage('champion')"><span class="stage-icon">🤝</span>Champion Match<span class="stage-status" id="ss-champion"></span></button>
+      <button class="stage-btn" id="btn-orientation" onclick="selectStage('orientation')"><span class="stage-icon">📞</span>Orientation<span class="stage-status" id="ss-orientation"></span></button>
+      <button class="stage-btn" id="btn-grant" onclick="selectStage('grant')"><span class="stage-icon">💰</span>Grant<span class="stage-status" id="ss-grant"></span></button>
+      <button class="stage-btn" id="btn-grant-expired" onclick="selectStage('grant-expired')"><span class="stage-icon">⏰</span>Grant Expired<span class="stage-status" id="ss-grant-expired"></span></button>
+      <button class="stage-btn" id="btn-fullsend" onclick="selectStage('fullsend')"><span class="stage-icon">🚀</span>Full Send<span class="stage-status" id="ss-fullsend"></span></button>
+      <div class="sidebar-divider"></div>
+      <button class="run-all-btn" onclick="runAll()">▶ Run All Tests</button>
+    </div>
+
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="content-title" id="stage-title">Screening</div>
+          <div class="content-sub" id="stage-sub">Tests AI screening → declaration_pending transition</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="cleanup-btn" onclick="cleanupCurrent()" style="display:none">🗑 Cleanup</button>
+          <button class="btn btn-orange" id="run-btn" onclick="runCurrentStage()">▶ Run Test</button>
+        </div>
+      </div>
+
+      <div class="results-area" id="results-area">
+        <div class="empty-state">
+          <div class="empty-icon">⚡</div>
+          <div class="empty-title">Ready to test</div>
+          <div class="empty-sub">Configure API keys then click Run Test</div>
+        </div>
+      </div>
+
+      <div class="summary-bar" id="summary-bar" style="display:none">
+        <span id="sum-pass" class="summary-pill pass"></span>
+        <span id="sum-fail" class="summary-pill fail" style="display:none"></span>
+        <span id="sum-warn" class="summary-pill warn" style="display:none"></span>
+        <span class="summary-time" id="sum-time"></span>
+      </div>
+
+      <div class="send-panel" id="send-panel" style="display:none">
+        <div class="send-label" id="send-label">Test complete — send results to Claude for analysis</div>
+        <button class="send-btn" id="send-btn" onclick="sendResultsToClaude()">Send to Claude →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let keys={};
+let keysOpen=false;
+let currentStage='screening';
+let isRunning=false;
+let testRecords={};
+let lastResults=null;
+
+const STAGE_META={
+  screening:{title:'Screening',sub:'Tests AI screening → declaration_pending transition'},
+  declaration:{title:'Declaration',sub:'Tests declaration form → video_pending'},
+  video:{title:'First Drop',sub:'Tests video submission → video_review'},
+  champion:{title:'Champion Match',sub:'Tests acceptance → youth row → champion match → intro email'},
+  orientation:{title:'Orientation',sub:'Tests orientation form → grant_pending'},
+  grant:{title:'Grant Approval',sub:'Tests grant_review → grant_approved → Tremendous'},
+  'grant-expired':{title:'Grant Expired',sub:'Tests grant_pending → grant_expired after 21 days (TEST_MODE)'},
+  fullsend:{title:'Full Send',sub:'Tests grant_approved/expired → final_video_pending (TEST_MODE)'},
+};
+
+function toggleKeys(){
+  keysOpen=!keysOpen;
+  document.getElementById('keys-grid').classList.toggle('open',keysOpen);
+  document.getElementById('keys-actions').style.display=keysOpen?'flex':'none';
+  document.getElementById('keys-chevron').textContent=keysOpen?'▲':'▼';
+}
+function saveKeys(){
+  keys={
+    url:document.getElementById('k-url').value.trim(),
+    service:document.getElementById('k-service').value.trim(),
+    anon:document.getElementById('k-anon').value.trim(),
+    resend:document.getElementById('k-resend').value.trim(),
+    boldsign:document.getElementById('k-boldsign').value.trim(),
+    tremendous:document.getElementById('k-tremendous').value.trim(),
+    vercel:document.getElementById('k-vercel').value.trim()||'https://learning-challenge-legacy.vercel.app',
+    staff:document.getElementById('k-staff').value.trim(),
+  };
+  const ok=keys.url&&keys.service;
+  document.getElementById('conn-dot').className='dot'+(ok?' connected':'');
+  document.getElementById('conn-label').textContent=ok?`Connected — ${keys.url.replace('https://','').split('.')[0]}`:'API Keys — click to configure';
+  if(ok)toggleKeys();
+}
+function clearKeys(){
+  keys={};
+  ['k-url','k-service','k-anon','k-resend','k-boldsign','k-tremendous','k-vercel','k-staff'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('conn-dot').className='dot';
+  document.getElementById('conn-label').textContent='API Keys — click to configure';
+}
+
+async function sb(path,opts={}){
+  const r=await fetch(`${keys.url}/rest/v1/${path}`,{
+    headers:{'apikey':keys.service,'Authorization':`Bearer ${keys.service}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+    ...opts
+  });
+  const t=await r.text();
+  try{return{ok:r.ok,status:r.status,data:JSON.parse(t)}}
+  catch{return{ok:r.ok,status:r.status,data:t}}
+}
+async function sbGet(table,qs=''){return sb(`${table}?${qs}`)}
+async function sbPost(table,row){return sb(table,{method:'POST',body:JSON.stringify(row)})}
+async function sbPatch(table,qs,data){return sb(`${table}?${qs}`,{method:'PATCH',body:JSON.stringify(data)})}
+async function sbDel(table,qs){return sb(`${table}?${qs}`,{method:'DELETE'})}
+async function edgeFn(name,body){
+  const r=await fetch(`${keys.url}/functions/v1/${name}`,{
+    method:'POST',
+    headers:{'Authorization':`Bearer ${keys.anon||keys.service}`,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  const t=await r.text();
+  try{return{ok:r.ok,status:r.status,data:JSON.parse(t)}}
+  catch{return{ok:r.ok,status:r.status,data:t}}
+}
+async function vercelPost(path,body){
+  const r=await fetch(`${keys.vercel}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const t=await r.text();
+  try{return{ok:r.ok,status:r.status,data:JSON.parse(t)}}
+  catch{return{ok:r.ok,status:r.status,data:t}}
+}
+async function poll(table,id,field,expected,maxMs=15000){
+  const start=Date.now();
+  while(Date.now()-start<maxMs){
+    await sleep(800);
+    const r=await sbGet(table,`id=eq.${id}&select=${field}`);
+    if(r.ok&&r.data[0]?.[field]===expected)return true;
+  }
+  return false;
+}
+async function checkResend(email){
+  if(!keys.resend)return{checked:false};
+  try{
+    const r=await fetch('https://api.resend.com/emails?limit=20',{headers:{'Authorization':`Bearer ${keys.resend}`}});
+    const d=await r.json();
+    const match=(d.data||[]).find(e=>e.to?.includes(email));
+    return{checked:true,found:!!match,email:match};
+  }catch(e){return{checked:false,reason:e.message}}
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function selectStage(s){
+  currentStage=s;
+  document.querySelectorAll('.stage-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`btn-${s}`).classList.add('active');
+  document.getElementById('stage-title').textContent=STAGE_META[s].title;
+  document.getElementById('stage-sub').textContent=STAGE_META[s].sub;
+  document.getElementById('results-area').innerHTML='<div class="empty-state"><div class="empty-icon">⚡</div><div class="empty-title">Ready to test</div><div class="empty-sub">Click Run Test to begin</div></div>';
+  document.getElementById('summary-bar').style.display='none';
+  document.getElementById('send-panel').style.display='none';
+  document.getElementById('cleanup-btn').style.display='none';
+}
+
+function grp(txt){
+  const area=document.getElementById('results-area');
+  const d=document.createElement('div');
+  d.className='result-group-title';d.textContent=txt;
+  area.appendChild(d);
+}
+function addRow(icon,text,detail=''){
+  const area=document.getElementById('results-area');
+  const d=document.createElement('div');d.className='assertion';
+  const map={'✓':'pass','✗':'fail','⚠':'warn','→':'info','…':'running'};
+  const inner=icon==='…'?'<span class="spinner"></span>':icon;
+  d.innerHTML=`<span class="assertion-icon ${map[icon]||'info'}">${inner}</span><div><div class="assertion-text">${text}</div>${detail?`<div class="assertion-detail">${detail}</div>`:''}</div>`;
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+  return d;
+}
+function updRow(el,icon,text,detail=''){
+  const map={'✓':'pass','✗':'fail','⚠':'warn','→':'info'};
+  el.querySelector('.assertion-icon').className=`assertion-icon ${map[icon]||'info'}`;
+  el.querySelector('.assertion-icon').textContent=icon;
+  el.querySelector('.assertion-text').textContent=text;
+  const det=el.querySelector('.assertion-detail');
+  if(det)det.textContent=detail;
+  else if(detail)el.querySelector('div').insertAdjacentHTML('beforeend',`<div class="assertion-detail">${detail}</div>`);
+}
+function finalize(passed,failed,warned,ms,assertions){
+  lastResults={stage:currentStage,title:STAGE_META[currentStage].title,passed,failed,warned,ms,assertions,records:testRecords};
+  const bar=document.getElementById('summary-bar');bar.style.display='flex';
+  document.getElementById('sum-pass').textContent=`✓ ${passed} passed`;
+  const fe=document.getElementById('sum-fail'),we=document.getElementById('sum-warn');
+  fe.style.display=failed>0?'inline':'none';fe.textContent=`✗ ${failed} failed`;
+  we.style.display=warned>0?'inline':'none';we.textContent=`⚠ ${warned} warnings`;
+  document.getElementById('sum-time').textContent=`${(ms/1000).toFixed(1)}s`;
+  const sp=document.getElementById('send-panel');sp.style.display='flex';
+  document.getElementById('send-label').textContent=failed>0?`${failed} failure${failed>1?'s':''} detected — send to Claude for diagnosis`:'All checks passed — send results to Claude';
+  document.getElementById('send-btn').textContent=failed>0?'Send failures to Claude →':'Send results to Claude →';
+}
+function sendResultsToClaude(){
+  if(!lastResults)return;
+  const r=lastResults;
+  const lines=[
+    `GRIPTAPE TEST RESULTS — ${r.title}`,
+    `Status: ${r.failed>0?'FAIL':r.warned>0?'WARN':'PASS'}`,
+    `Time: ${(r.ms/1000).toFixed(1)}s | Passed: ${r.passed} | Failed: ${r.failed} | Warnings: ${r.warned}`,
+    `Timestamp: ${new Date().toISOString()}`,
+    '',
+    'ASSERTIONS:',
+    ...r.assertions.map(a=>`${a.icon} ${a.text}${a.detail?' — '+a.detail:''}`),
+    '',
+    'TEST RECORDS:',
+    JSON.stringify(r.records,null,2),
+  ];
+  if(r.failed>0){
+    lines.push('','FAILURES:');
+    r.assertions.filter(a=>a.icon==='✗').forEach((a,i)=>{
+      lines.push(`${i+1}. ${a.text}`);
+      if(a.detail)lines.push(`   Detail: ${a.detail}`);
+    });
+  }
+  if(typeof sendPrompt==='function'){
+    sendPrompt(lines.join('\n'));
+  } else {
+    navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Results copied to clipboard — paste into Claude'));
+  }
+}
+async function cleanupCurrent(){
+  if(testRecords.youthId)await sbDel('youth',`id=eq.${testRecords.youthId}`);
+  if(testRecords.appId)await sbDel('applications',`id=eq.${testRecords.appId}`);
+  testRecords={};
+  document.getElementById('cleanup-btn').style.display='none';
+  selectStage(currentStage);
+}
+async function runCurrentStage(){
+  if(!keys.url||!keys.service){alert('Configure and connect API keys first.');toggleKeys();return;}
+  if(isRunning)return;
+  isRunning=true;testRecords={};
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('run-btn').textContent='⏳ Running...';
+  document.getElementById(`btn-${currentStage}`).classList.add('running');
+  document.getElementById('results-area').innerHTML='';
+  document.getElementById('summary-bar').style.display='none';
+  document.getElementById('send-panel').style.display='none';
+  const assertions=[];
+  let passed=0,failed=0,warned=0;
+  const start=Date.now();
+  function ok(text,detail=''){passed++;const r={icon:'✓',text,detail};assertions.push(r);addRow('✓',text,detail);}
+  function fail(text,detail=''){failed++;const r={icon:'✗',text,detail};assertions.push(r);addRow('✗',text,detail);}
+  function warn(text,detail=''){warned++;const r={icon:'⚠',text,detail};assertions.push(r);addRow('⚠',text,detail);}
+  function info(text,detail=''){const r={icon:'→',text,detail};assertions.push(r);addRow('→',text,detail);}
+  try{
+    switch(currentStage){
+      case 'screening':     await runScreening(ok,fail,warn,info);break;
+      case 'declaration':   await runDeclaration(ok,fail,warn,info);break;
+      case 'video':         await runVideo(ok,fail,warn,info);break;
+      case 'champion':      await runChampion(ok,fail,warn,info);break;
+      case 'orientation':   await runOrientation(ok,fail,warn,info);break;
+      case 'grant':         await runGrant(ok,fail,warn,info);break;
+      case 'grant-expired': await runGrantExpired(ok,fail,warn,info);break;
+      case 'fullsend':      await runFullSend(ok,fail,warn,info);break;
+    }
+  }catch(e){fail('Unexpected error',e.message);}
+  const elapsed=Date.now()-start;
+  finalize(passed,failed,warned,elapsed,assertions);
+  document.getElementById(`ss-${currentStage}`).textContent=failed>0?'✗':warned>0?'⚠':'✓';
+  document.getElementById(`btn-${currentStage}`).classList.remove('running');
+  document.getElementById(`btn-${currentStage}`).classList.add(failed>0?'fail':'pass');
+  if(testRecords.appId||testRecords.youthId)document.getElementById('cleanup-btn').style.display='inline-block';
+  isRunning=false;
+  document.getElementById('run-btn').disabled=false;
+  document.getElementById('run-btn').textContent='▶ Run Test';
+}
+
+async function runScreening(ok,fail,warn,info){
+  grp('1 — Insert test application');
+  const app={program_id:'nyc-2026',first_name:'Test',last_name:`Youth_${Date.now()}`,birthdate:'2008-01-01',email:'thea@griptape.org',phone:'+12125550100',street_address:'123 Test St',city:'New York',state:'NY',zip:'10001',screening_status:'submitted',sms_consent:false,application_responses:{passion:'I want to build a mobile app that helps teenagers track their mental health and connect with peers who share similar experiences. This matters to me because I struggled with anxiety in high school and found no tools designed for teens like me.',why_join:'I want GripTape to back me because I have the idea but not the resources to build it.'}};
+  const el=addRow('…','Inserting test application...');
+  const ins=await sbPost('applications',app);
+  if(!ins.ok||!ins.data[0]?.id){updRow(el,'✗','Insert failed',JSON.stringify(ins.data));fail('Application insert');return;}
+  const id=ins.data[0].id;testRecords.appId=id;
+  updRow(el,'✓',`Application inserted`,`id: ${id.slice(0,8)}...`);
+  grp('2 — Wait for AI screening (max 15s)');
+  const pollEl=addRow('…','Polling for declaration_pending...');
+  const advanced=await poll('applications',id,'screening_status','declaration_pending',15000);
+  if(!advanced){const chk=await sbGet('applications',`id=eq.${id}&select=screening_status,ai_decision`);const cur=chk.data[0];updRow(pollEl,'✗','Did not advance',`Current: ${cur?.screening_status}`);fail('Status advance to declaration_pending',cur?.screening_status);return;}
+  updRow(pollEl,'✓','Status → declaration_pending');
+  grp('3 — Verify fields');
+  const res=await sbGet('applications',`id=eq.${id}&select=*`);const a=res.data[0];
+  a?.access_token?ok('access_token set',a.access_token.slice(0,12)+'...'):fail('access_token set');
+  a?.stage_deadline_at?ok('stage_deadline_at set',a.stage_deadline_at):fail('stage_deadline_at');
+  a?.profile_token?ok('profile_token set'):warn('profile_token not set');
+  a?.ai_decision?ok('ai_decision recorded',a.ai_decision):warn('ai_decision not recorded');
+  a?.notify_after?ok('notify_after set (48h delay)',a.notify_after):warn('notify_after not set');
+  grp('4 — Comms log');
+  const comms=await sbGet('comms_log',`application_id=eq.${id}&select=*`);
+  comms.data?.length>0?ok(`comms_log entries`,`${comms.data.length} entries`):warn('No comms_log yet (48h delay — expected)');
+  grp('5 — Resend');
+  if(keys.resend){const r=await checkResend('thea@griptape.org');r.found?ok('Resend email found'):warn('Not in recent Resend logs (48h queue)');}
+  else warn('No Resend key');
+}
+
+async function runDeclaration(ok,fail,warn,info){
+  grp('1 — Find declaration_pending application');
+  const res=await sbGet('applications','screening_status=eq.declaration_pending&order=submitted_at.desc&limit=1&select=*');
+  const app=res.data?.[0];
+  if(!app){fail('Find declaration_pending app','none found — run Screening first');return;}
+  ok(`Found app ${app.id.slice(0,8)}...`);testRecords.appId=app.id;
+  const oldToken=app.access_token;
+  grp('2 — Submit declaration');
+  const el=addRow('…','Calling /api/declare-submit...');
+  const r=await vercelPost('/api/declare-submit',{token:app.access_token,first_drop_goal:'I will record and mix my first original track from scratch. I have been putting this off for months — this is the 10 days I actually finish something.'});
+  r.ok?updRow(el,'✓',`declare-submit → ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
+  if(!r.ok){fail('declare-submit',`${r.status}`);return;}
+  grp('3 — Verify status + fields');
+  await sleep(2000);
+  const upd=await sbGet('applications',`id=eq.${app.id}&select=*`);const a=upd.data?.[0];
+  a?.screening_status==='video_pending'?ok('Status → video_pending'):fail('Status advance',a?.screening_status);
+  (a?.access_token&&a.access_token!==oldToken)?ok('New access_token generated'):fail('New access_token','same or null');
+  a?.first_drop_goal?ok('first_drop_goal saved',a.first_drop_goal.slice(0,50)+'...'):fail('first_drop_goal','null');
+  a?.stage_deadline_at?ok('stage_deadline_at set'):fail('stage_deadline_at','null');
+  grp('4 — Comms log');
+  const comms=await sbGet('comms_log',`application_id=eq.${app.id}&stage_key=eq.declaration_confirmed&select=*`);
+  comms.data?.length>0?ok('comms_log: declaration_confirmed'):fail('comms_log declaration_confirmed','not found');
+  grp('5 — Resend');
+  if(keys.resend){const r=await checkResend(app.email);r.found?ok('Resend email delivered'):warn('Not in recent logs');}
+  else warn('No Resend key');
+}
+
+async function runVideo(ok,fail,warn,info){
+  grp('1 — Find video_pending application');
+  const res=await sbGet('applications','screening_status=eq.video_pending&order=submitted_at.desc&limit=1&select=*');
+  const app=res.data?.[0];
+  if(!app){fail('Find video_pending app','none — run Declaration first');return;}
+  ok(`Found app ${app.id.slice(0,8)}...`);testRecords.appId=app.id;
+  grp('2 — Submit video URL');
+  const el=addRow('…','Updating video_url...');
+  const upd=await sbPatch('applications',`id=eq.${app.id}`,{video_url:'https://youtube.com/watch?v=test123abc'});
+  upd.ok?updRow(el,'✓','video_url set'):updRow(el,'✗','Update failed',JSON.stringify(upd.data));
+  grp('3 — Poll for video_review (max 10s)');
+  const polled=await poll('applications',app.id,'screening_status','video_review',10000);
+  polled?ok('Status → video_review'):fail('Status advance','did not advance in 10s');
+  grp('4 — Verify fields');
+  const chk=await sbGet('applications',`id=eq.${app.id}&select=video_submitted_at,video_url`);const a=chk.data?.[0];
+  a?.video_submitted_at?ok('video_submitted_at set',a.video_submitted_at):fail('video_submitted_at','null');
+  a?.video_url?ok('video_url stored'):fail('video_url stored','null');
+}
+
+async function runChampion(ok,fail,warn,info){
+  grp('1 — Find video_review application');
+  const res=await sbGet('applications','screening_status=eq.video_review&order=submitted_at.desc&limit=1&select=*');
+  const app=res.data?.[0];
+  if(!app){fail('Find video_review app','none — run First Drop first');return;}
+  ok(`Found app ${app.id.slice(0,8)}...`);testRecords.appId=app.id;
+  grp('2 — Accept video');
+  const accEl=addRow('…','Setting → accepted...');
+  const acc=await sbPatch('applications',`id=eq.${app.id}`,{screening_status:'accepted'});
+  acc.ok?updRow(accEl,'✓','Application accepted'):updRow(accEl,'✗','Failed',JSON.stringify(acc.data));
+  grp('3 — Wait for youth row (max 10s)');
+  const youthEl=addRow('…','Waiting for on-acceptance...');
+  let youth=null;
+  for(let i=0;i<12;i++){await sleep(800);const yr=await sbGet('youth',`application_id=eq.${app.id}&select=*`);if(yr.data?.[0]){youth=yr.data[0];break;}}
+  if(!youth){updRow(youthEl,'✗','Youth row not created');fail('Youth row creation','not found');return;}
+  updRow(youthEl,'✓',`Youth row: ${youth.id.slice(0,8)}...`);testRecords.youthId=youth.id;
+  grp('4 — Wait for mentor_pending (max 15s)');
+  const matchEl=addRow('…','Polling for mentor_pending...');
+  const matched=await poll('youth',youth.id,'status','mentor_pending',15000);
+  if(!matched){const chk=await sbGet('youth',`id=eq.${youth.id}&select=status`);updRow(matchEl,'✗','Did not advance',chk.data?.[0]?.status);fail('Champion match',chk.data?.[0]?.status);return;}
+  updRow(matchEl,'✓','Status → mentor_pending');
+  grp('5 — Verify youth fields');
+  const yr=await sbGet('youth',`id=eq.${youth.id}&select=*`);const y=yr.data?.[0];
+  y?.champion_id?ok('champion_id set',y.champion_id.slice(0,8)+'...'):fail('champion_id','null');
+  y?.access_token?ok('access_token set'):fail('access_token','null');
+  grp('6 — Comms log');
+  await sleep(2000);
+  const comms=await sbGet('comms_log',`youth_id=eq.${youth.id}&select=*`);const entries=comms.data||[];
+  entries.find(c=>c.stage_key==='mentor_pending'&&c.channel==='email')?ok('comms_log: mentor_pending email'):fail('comms_log mentor_pending email','not found');
+  entries.find(c=>c.stage_key==='mentor_pending'&&c.channel==='sms')?ok('comms_log: mentor_pending SMS'):warn('comms_log: mentor_pending SMS not found');
+  grp('7 — Resend');
+  if(keys.resend){
+    const r=await checkResend(app.email);r.found?ok('Resend: youth email delivered'):warn('Youth email not in recent logs');
+    if(y?.champion_id){const cr=await sbGet('champions',`id=eq.${y.champion_id}&select=email`);if(cr.data?.[0]?.email){const cr2=await checkResend(cr.data[0].email);cr2.found?ok('Resend: champion email delivered'):warn('Champion email not in recent logs');}}
+  }else warn('No Resend key');
+}
+
+async function runOrientation(ok,fail,warn,info){
+  grp('1 — Find mentor_pending youth');
+  const res=await sbGet('youth','status=eq.mentor_pending&order=accepted_at.desc&limit=1&select=*');
+  const youth=res.data?.[0];
+  if(!youth){fail('Find mentor_pending youth','none — run Champion Match first');return;}
+  ok(`Found youth ${youth.id.slice(0,8)}...`);testRecords.youthId=youth.id;
+  grp('2 — Call process-orientation');
+  const el=addRow('…','Calling process-orientation...');
+  const r=await edgeFn('process-orientation',{youth_id:youth.id});
+  r.ok?updRow(el,'✓',`→ ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
+  if(!r.ok){fail('process-orientation',`${r.status}`);return;}
+  grp('3 — Verify status + fields');
+  await sleep(2000);
+  const yr=await sbGet('youth',`id=eq.${youth.id}&select=*`);const y=yr.data?.[0];
+  y?.status==='grant_pending'?ok('Status → grant_pending'):fail('Status advance',y?.status);
+  y?.orientation_call_completed_at?ok('orientation_call_completed_at set',y.orientation_call_completed_at):fail('orientation_call_completed_at','null');
+  grp('4 — Comms log');
+  const comms=await sbGet('comms_log',`youth_id=eq.${youth.id}&stage_key=eq.grant_pending&select=*`);
+  comms.data?.length>0?ok('comms_log: grant_pending'):fail('comms_log grant_pending','not found');
+  grp('5 — Resend');
+  if(keys.resend){const ar=await sbGet('applications',`id=eq.${youth.application_id}&select=email`);if(ar.data?.[0]?.email){const r=await checkResend(ar.data[0].email);r.found?ok('Resend email delivered'):warn('Not in recent logs');}}
+  else warn('No Resend key');
+}
+
+async function runGrant(ok,fail,warn,info){
+  grp('1 — Find grant_review youth');
+  const res=await sbGet('youth','status=eq.grant_review&order=accepted_at.desc&limit=1&select=*');
+  const youth=res.data?.[0];
+  if(!youth){info('No grant_review — checking grant_pending');const gp=await sbGet('youth','status=eq.grant_pending&order=accepted_at.desc&limit=1&select=*');if(gp.data?.[0])info('Found grant_pending — BoldSign signing not yet complete');else fail('Find grant_review youth','none found');return;}
+  ok(`Found youth ${youth.id.slice(0,8)}...`);testRecords.youthId=youth.id;
+  grp('2 — Find grant_request');
+  const gr=await sbGet('grant_requests',`youth_id=eq.${youth.id}&select=*`);const g=gr.data?.[0];
+  if(!g){fail('Find grant_request','not found');return;}
+  ok(`Found grant_request ${g.id.slice(0,8)}...`);testRecords.grantRequestId=g.id;
+  grp('3 — Call on-grant-approved');
+  const el=addRow('…','Calling on-grant-approved...');
+  const r=await edgeFn('on-grant-approved',{youth_id:youth.id,grant_request_id:g.id});
+  r.ok?updRow(el,'✓',`→ ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
+  if(!r.ok){fail('on-grant-approved',`${r.status}`);return;}
+  grp('4 — Verify status + Tremendous');
+  await sleep(2000);
+  const yr=await sbGet('youth',`id=eq.${youth.id}&select=status`);
+  yr.data?.[0]?.status==='grant_approved'?ok('Status → grant_approved'):fail('Status advance',yr.data?.[0]?.status);
+  const grU=await sbGet('grant_requests',`id=eq.${g.id}&select=tremendous_reward_id`);
+  grU.data?.[0]?.tremendous_reward_id?ok('tremendous_reward_id set',grU.data[0].tremendous_reward_id):fail('Tremendous order','null');
+  grp('5 — Comms log + Resend');
+  const comms=await sbGet('comms_log',`youth_id=eq.${youth.id}&stage_key=eq.grant_approved&select=*`);
+  comms.data?.length>0?ok('comms_log: grant_approved'):fail('comms_log grant_approved','not found');
+  if(keys.resend){const ar=await sbGet('applications',`id=eq.${youth.application_id}&select=email`);if(ar.data?.[0]?.email){const r=await checkResend(ar.data[0].email);r.found?ok('Resend: redemption link delivered'):warn('Not in recent logs');}}
+  else warn('No Resend key');
+}
+
+async function runGrantExpired(ok,fail,warn,info){
+  grp('1 — Find grant_pending youth');
+  const res=await sbGet('youth','status=eq.grant_pending&order=accepted_at.asc&limit=1&select=*');
+  const youth=res.data?.[0];
+  if(!youth){fail('Find grant_pending youth','none found');return;}
+  ok(`Found youth ${youth.id.slice(0,8)}...`);testRecords.youthId=youth.id;
+  info('Triggering scheduler with test_mode:true (1 min = 1 day)');
+  grp('2 — Trigger scheduler TEST_MODE');
+  const el=addRow('…','POSTing to daily-scheduler...');
+  const r=await edgeFn('daily-scheduler',{test_mode:true});
+  r.ok?updRow(el,'✓',`Scheduler → ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
+  grp('3 — Verify grant_expired');
+  await sleep(3000);
+  const yr=await sbGet('youth',`id=eq.${youth.id}&select=status`);const s=yr.data?.[0]?.status;
+  s==='grant_expired'?ok('Status → grant_expired'):warn(`Status is ${s} — needs 21+ test-mode minutes elapsed`);
+  grp('4 — Confirm no removal email');
+  const comms=await sbGet('comms_log',`youth_id=eq.${youth.id}&stage_key=like.*removed*&select=*`);
+  comms.data?.length===0?ok('No removal email sent — correct'):fail('No removal email',`${comms.data?.length} found`);
+}
+
+async function runFullSend(ok,fail,warn,info){
+  grp('1 — Find grant_approved or grant_expired youth');
+  const res=await sbGet('youth','status=in.(grant_approved,grant_expired)&order=accepted_at.asc&limit=1&select=*');
+  const youth=res.data?.[0];
+  if(!youth){fail('Find youth','none found');return;}
+  ok(`Found youth ${youth.id.slice(0,8)}... (${youth.status})`);testRecords.youthId=youth.id;
+  grp('2 — Trigger scheduler S4 TEST_MODE');
+  const r=await edgeFn('daily-scheduler',{test_mode:true});
+  r.ok?ok(`Scheduler triggered (${r.status})`):fail('Scheduler',`${r.status}`);
+  grp('3 — Poll for final_video_pending');
+  await sleep(3000);
+  const yr=await sbGet('youth',`id=eq.${youth.id}&select=*`);const y=yr.data?.[0];
+  y?.status==='final_video_pending'?ok('Status → final_video_pending'):warn(`Status is ${y?.status} — needs 28 test-mode minutes elapsed`);
+  y?.access_token?ok('access_token set for Full Send'):warn('access_token not set');
+  grp('4 — Comms log + Resend');
+  const comms=await sbGet('comms_log',`youth_id=eq.${youth.id}&stage_key=eq.full_send_link&select=*`);
+  comms.data?.length>0?ok('comms_log: full_send_link'):warn('full_send_link not in comms_log yet');
+  if(keys.resend){const ar=await sbGet('applications',`id=eq.${youth.application_id}&select=email`);if(ar.data?.[0]?.email){const r=await checkResend(ar.data[0].email);r.found?ok('Resend: Full Send link delivered'):warn('Not in recent logs');}}
+  else warn('No Resend key');
+}
+
+async function runAll(){
+  const stages=['screening','declaration','video','champion','orientation','grant','grant-expired','fullsend'];
+  for(const s of stages){selectStage(s);await sleep(300);await runCurrentStage();await sleep(800);}
+}
+
+selectStage('screening');
+</script>
+</body>
+</html>
