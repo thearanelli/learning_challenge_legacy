@@ -194,10 +194,15 @@ serve(async (req) => {
       throw new Error(`advance_status error: ${advanceError.message}`);
     }
 
-    // Step 5 — Increment champion's active_youth_count
+    // Step 5 — Increment champion's active_youth_count; mark unavailable if now at capacity
+    const newCount = selectedChampion.active_youth_count + 1;
+    const atCapacity = newCount >= selectedChampion.max_youth;
     await supabase
       .from('champions')
-      .update({ active_youth_count: selectedChampion.active_youth_count + 1 })
+      .update({
+        active_youth_count: newCount,
+        ...(atCapacity ? { available: false } : {}),
+      })
       .eq('id', selectedChampion.id);
 
     // Intro email is handled by send-champion-intro, triggered by the
