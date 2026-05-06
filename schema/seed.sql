@@ -83,6 +83,13 @@ create table if not exists youth (
 --   'onboarding'            Accepted, matching in progress
 --   'mentor_pending'        Matched, awaiting orientation call
 --   'orientation_complete'  Orientation call confirmed
+--   'grant_pending'         Awaiting W-9 + participation agreement signing
+--   'grant_review'          Documents signed, staff reviewing
+--   'grant_approved'        Grant approved, awaiting Full Send trigger
+--   'grant_expired'         Grant window closed (21-day missed), still in program
+--   'final_video_pending'   Full Send link sent, awaiting video submission
+--   'full_send_review'      Full Send submitted, under review
+--   'completed'             Program complete. TERMINAL.
 --   'removed'               Missed deadline or dropped out. TERMINAL.
 
 -- TABLE: comms_log

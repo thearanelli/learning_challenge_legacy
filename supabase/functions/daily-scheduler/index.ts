@@ -7,7 +7,7 @@
 // Section 1 — 48-hour delayed sends (declaration_pending / rejected)
 // Section 2 — Nudges (application stages, youth stages)
 // Section 3 — Deadline removals (application stages, youth stages)
-// Section 4 — Full Send link dispatch (grant_approved → final_video_pending)
+// Section 4 — Full Send link dispatch (grant_approved / grant_expired → final_video_pending)
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -321,33 +321,7 @@ serve(async (_req) => {
             phone: app.phone,
           };
 
-          await sendNotification(removal.content_key, recipient, {}, {}, { skipSms: !app.sms_consent });
-
-          const removalEntries: object[] = [
-            {
-              program_id:      config.PROGRAM_ID,
-              application_id:  app.id,
-              direction:       'outbound',
-              channel:         'email',
-              stage_key:       removal.content_key,
-              message_body:    removal.content_key,
-              sent_at:         new Date().toISOString(),
-              delivery_status: 'sent',
-            },
-          ];
-          if (app.sms_consent) {
-            removalEntries.push({
-              program_id:      config.PROGRAM_ID,
-              application_id:  app.id,
-              direction:       'outbound',
-              channel:         'sms',
-              stage_key:       removal.content_key,
-              message_body:    removal.content_key,
-              sent_at:         new Date().toISOString(),
-              delivery_status: 'sent',
-            });
-          }
-          await supabase.from('comms_log').insert(removalEntries);
+          await sendNotification(removal.content_key, recipient, {}, { application_id: app.id }, { skipSms: !app.sms_consent });
 
           console.log(`[daily-scheduler] S3 removed app ${app.id} from ${removal.stage}`);
         } catch (err) {
@@ -359,15 +333,17 @@ serve(async (_req) => {
     console.error('[daily-scheduler] S3 app removals fatal:', err);
   }
 
-  // Youth removals: mentor_pending, final_video_pending
+  // Youth removals: mentor_pending, grant_pending, final_video_pending
   const YOUTH_REMOVAL_STAGES: Array<{
     stage: string;
     deadline_days: number;
-    content_key: string;
+    content_key: string | null;
     decrement_champion: boolean;
+    next_status: string;
   }> = [
-    { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true  },
-    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days!, content_key: 'removed_full_send',   decrement_champion: false },
+    { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed'       },
+    { stage: 'grant_pending',       deadline_days: 21,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
+    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days!, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed'       },
   ];
 
   try {
@@ -391,10 +367,10 @@ serve(async (_req) => {
             record_id:               youth.id,
             table_name:              'youth',
             expected_current_status: removal.stage,
-            next_status:             'removed',
+            next_status:             removal.next_status,
             additional_fields: {
-              dropped_off_at_stage: removal.stage,
-              stage_entered_at:     new Date().toISOString(),
+              ...(removal.next_status === 'removed' ? { dropped_off_at_stage: removal.stage } : {}),
+              stage_entered_at: new Date().toISOString(),
             },
           });
 
@@ -422,16 +398,17 @@ serve(async (_req) => {
             }
           }
 
-          const recipient = {
-            first_name: youth.first_name,
-            last_name: youth.last_name,
-            email: youth.email,
-            phone: youth.phone,
-          };
+          if (removal.content_key) {
+            const recipient = {
+              first_name: youth.first_name,
+              last_name: youth.last_name,
+              email: youth.email,
+              phone: youth.phone,
+            };
+            await sendNotification(removal.content_key, recipient, {}, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+          }
 
-          await sendNotification(removal.content_key, recipient, {}, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
-
-          console.log(`[daily-scheduler] S3 removed youth ${youth.id} from ${removal.stage}`);
+          console.log(`[daily-scheduler] S3 youth ${youth.id} → ${removal.next_status} (from ${removal.stage})`);
         } catch (err) {
           console.error(`[daily-scheduler] S3 youth removal error (${removal.stage}, ${youth.id}):`, err);
         }
@@ -448,7 +425,7 @@ serve(async (_req) => {
     const { data: youths, error: youthsErr } = await supabase
       .from('youth')
       .select('*')
-      .eq('status', 'grant_approved')
+      .in('status', ['grant_approved', 'grant_expired'])
       .lte('accepted_at', cutoff);
 
     if (youthsErr) {
@@ -474,7 +451,7 @@ serve(async (_req) => {
           const { error: advanceError } = await supabase.rpc('advance_status', {
             record_id:               youth.id,
             table_name:              'youth',
-            expected_current_status: 'grant_approved',
+            expected_current_status: youth.status,
             next_status:             'final_video_pending',
             additional_fields: {
               access_token:     tokenData.access_token,

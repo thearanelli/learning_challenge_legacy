@@ -46,21 +46,18 @@ export const content = {
     staff_sms: '[CONTENT FLAG] {{first_name}} {{last_name}} needs review. {{reasoning}}',
   },
 
-  video_accepted: {
-    email_subject: 'Your video is in — welcome to GripTape!',
-    email_body: `<p>Hi {{first_name}},</p>
-      <p>We received your intro video and you are officially in the GripTape Learning Challenge.</p>
-      <p>Next steps coming soon.</p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
-      <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
-    sms: 'Hi {{first_name}}, your video is confirmed! You are officially in GripTape. Stay tuned for next steps.',
-  },
-
   mentor_pending: {
-    email_subject: "You've been matched with your Champion",
-    email_body: `Placeholder — replace before launch. Variables available: {{youth_first_name}}, {{champion_first_name}}, {{champion_name}}, {{deadline_date}}, {{program_name}}
+    email_subject: "You're in. Meet your Champion.",
+    email_body: `<p>Hey {{first_name}},</p>
+<p>You made it. Your application stood out and you're officially a GripTape Challenger.</p>
+<p>This is real — you've earned up to $250 to invest in your passion project, and someone in your corner the whole way.</p>
+<p>That someone is {{champion_name}} — your Champion.</p>
+<p>{{champion_bio}}</p>
+<p>{{champion_first_name}} will be reaching out soon to schedule your first call. When they do, show up ready to talk about your project and what you want to build.</p>
+<p>You're not just accepted. You're in.</p>
+<p>— The GripTape Team</p>
 <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
-    sms: "Hey {{first_name}}, you've been matched with your GripTape Champion! Check your email for next steps.",
+    sms: "You're officially a GripTape Challenger! Meet your Champion: {{champion_name}}. They'll be in touch soon. Let's build something real.",
     nudge_email_subject: 'Placeholder — replace before launch',
     nudge_email_body: `Placeholder — replace before launch
 <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
@@ -71,16 +68,16 @@ export const content = {
 
   grant_pending: {
     email_subject: 'Complete your grant paperwork to unlock your $250',
-    email_body: `<p>PLACEHOLDER — Hi {{first_name}},</p>
+    email_body: `<p>Hi {{first_name}},</p>
 <p>Your orientation call is complete. You are one step away from unlocking your $250 GripTape Learning Challenge stipend.</p>
 <p>You need to sign two documents:</p>
 <p>Sign your W-9 form:<br>
 <a href="{{w9_link}}">{{w9_link}}</a></p>
 <p>Sign your participation agreement:<br>
 <a href="{{agreement_link}}">{{agreement_link}}</a></p>
-<p>Both documents must be signed within 14 days.</p>
+<p>You have 21 days to complete your grant documents. After that, the funding window closes — but your spot in the program is safe.</p>
 <p>Questions? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`,
-    sms: `PLACEHOLDER — GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
+    sms: `GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
   },
 
   grant_review: {
@@ -175,7 +172,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 
   nudge_grant: {
     email_subject: 'Complete your grant paperwork',
-    email_body: `<p>Hey {{first_name}}, your grant paperwork is still waiting. Complete it to unlock your $250 stipend: {{link}}</p>`,
+    email_body: `<p>Hey {{first_name}}, your grant documents are still waiting. Complete them before your 21-day window closes to claim your $250. After the deadline your spot in the program is safe — but the funding won't be: {{link}}</p>`,
     sms: "Hey {{first_name}}, don't forget your grant paperwork — unlock your $250 here: {{link}}",
   },
 
