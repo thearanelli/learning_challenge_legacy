@@ -75,7 +75,7 @@ serve(async (req) => {
             await sendNotification(
               'declaration_pending',
               recipient,
-              { link: declareLink, profile_link: profileLink, deadline_date: formatDeadline(app.stage_deadline_at), passion: app.application_responses?.passion ?? '' },
+              { link: declareLink, profile_link: profileLink, deadline_date: formatDeadline(app.stage_deadline_at), passion: app.passion ?? '' },
               { application_id: app.id },
               { skipSms: !app.sms_consent },
             );
