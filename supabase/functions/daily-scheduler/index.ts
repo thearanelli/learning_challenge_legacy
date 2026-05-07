@@ -21,6 +21,12 @@ serve(async (req) => {
   const TEST_MODE = Deno.env.get('TEST_MODE') === 'true' || (TEST_MODE_ALLOWED && body.test_mode === true);
   const dayMs = TEST_MODE ? 60 * 1000 : 24 * 60 * 60 * 1000;
 
+  function formatDeadline(isoDate: string | null | undefined): string {
+    if (!isoDate) return 'soon';
+    const d = new Date(isoDate);
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  }
+
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('DB_SERVICE_KEY')!,
@@ -69,7 +75,7 @@ serve(async (req) => {
             await sendNotification(
               'declaration_pending',
               recipient,
-              { link: declareLink, profile_link: profileLink },
+              { link: declareLink, profile_link: profileLink, deadline_date: formatDeadline(app.stage_deadline_at), passion: app.application_responses?.passion ?? '' },
               { application_id: app.id },
               { skipSms: !app.sms_consent },
             );
@@ -153,7 +159,7 @@ serve(async (req) => {
           await sendNotification(
             nudge.content_key,
             recipient,
-            { link },
+            { link, deadline_date: formatDeadline(app.stage_deadline_at) },
             { application_id: app.id },
             { skipSms: !app.sms_consent },
           );
@@ -242,7 +248,7 @@ serve(async (req) => {
               await sendNotification(
                 nudge.content_key,
                 { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
-                { champion_name: championName, youth_name: `${youth.first_name} ${youth.last_name}` },
+                { champion_name: championName, youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at) },
                 { champion_id: champion.id, youth_id: youth.id },
               );
             }
@@ -258,7 +264,7 @@ serve(async (req) => {
             vars.link = `${config.BASE_URL}/full-send?token=${youth.access_token}`;
           }
 
-          await sendNotification(nudge.content_key, recipient, vars, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+          await sendNotification(nudge.content_key, recipient, { ...vars, deadline_date: formatDeadline(youth.token_expires_at) }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
 
           console.log(`[daily-scheduler] S2 sent ${nudge.content_key} to youth ${youth.id}`);
@@ -323,7 +329,7 @@ serve(async (req) => {
             phone: app.phone,
           };
 
-          await sendNotification(removal.content_key, recipient, {}, { application_id: app.id }, { skipSms: !app.sms_consent });
+          await sendNotification(removal.content_key, recipient, { deadline_date: formatDeadline(app.stage_deadline_at) }, { application_id: app.id }, { skipSms: !app.sms_consent });
 
           console.log(`[daily-scheduler] S3 removed app ${app.id} from ${removal.stage}`);
         } catch (err) {
@@ -407,7 +413,7 @@ serve(async (req) => {
               email: youth.email,
               phone: youth.phone,
             };
-            await sendNotification(removal.content_key, recipient, {}, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+            await sendNotification(removal.content_key, recipient, { deadline_date: formatDeadline(new Date(Date.now() - removal.deadline_days * dayMs).toISOString()) }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           }
 
           console.log(`[daily-scheduler] S3 youth ${youth.id} → ${removal.next_status} (from ${removal.stage})`);
@@ -478,7 +484,7 @@ serve(async (req) => {
             phone: youth.phone,
           };
 
-          await sendNotification('full_send_link', recipient, { link: fullSendLink }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+          await sendNotification('full_send_link', recipient, { link: fullSendLink, deadline_date: formatDeadline(tokenData.stage_deadline_at) }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
 
           console.log(`[daily-scheduler] S4 sent full_send_link to youth ${youth.id}, advanced to final_video_pending`);
