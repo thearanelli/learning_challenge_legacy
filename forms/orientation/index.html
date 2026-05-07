@@ -132,7 +132,7 @@
 
     .field-hint {
       font-size: 0.82rem;
-      color: var(--muted);
+      color: #F79227;
       margin: 0 0 6px;
       font-weight: 400;
     }
@@ -270,6 +270,18 @@
       margin: 0;
     }
 
+    /* ── End-of-call note ── */
+    .end-note {
+      background: var(--bg2);
+      border-left: 3px solid var(--amber);
+      border-radius: 10px;
+      padding: 1.25rem;
+      color: var(--white);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-top: 2rem;
+    }
+
     @media (max-width: 480px) {
       .main-heading { font-size: 1.4rem; }
       .success-heading { font-size: 1.6rem; }
@@ -331,6 +343,10 @@
       <button type="submit" id="submit-btn" class="submit-btn">Submit Orientation</button>
       <div id="status"></div>
 
+      <div class="end-note">
+        Before you hang up: Let your Challenger know they are officially starting their GripTape Learning Challenge. They will receive an email with documents to complete to receive their grant — remind them to fill these out as soon as possible. Exchange contact info before you go — your Challenger should have your number and you should have theirs. You are their first point of contact for questions, support, and encouragement throughout the Challenge.
+      </div>
+
     </form>
   </div>
 
@@ -349,16 +365,16 @@
     // Edit these arrays to add, remove, or reorder questions — no other changes needed.
 
     const REFLECTION_QUESTIONS = [
-      { key: 'vision',           label: 'What is your Challenger\u2019s overall vision for their Learning Challenge?',  required: true },
-      { key: 'goals',            label: 'What are 3\u20134 goals they want to accomplish?',                              required: true },
-      { key: 'achievement_plan', label: 'How do they plan to achieve them?',                                             required: true },
-      { key: 'success_vision',   label: 'What does success look like for them at the end of 6 weeks?',                  required: true },
-      { key: 'grant_use',        label: 'What will they spend the grant on?',                                            required: true },
-      { key: 'checkin_schedule', label: 'Best day and time for bi-weekly check-in calls',                 type: 'text',   required: true },
-      { key: 'challenge_topic',  label: 'Challenge topic',                                                type: 'text',   required: true },
-      { key: 'grant_amount',     label: 'Grant amount requested (up to $250)',                            type: 'number', max: 250, hint: 'Enter the amount your Challenger is requesting', required: true },
+      { key: 'vision',           label: 'What is your Challenger\u2019s overall vision for their Learning Challenge?',  required: true, placeholder: 'e.g. I want to record and release my first original EP. Music has always been my outlet and I want to prove to myself I can finish something real.' },
+      { key: 'goals',            label: 'What are 3\u20134 goals they want to accomplish?',                              required: true, placeholder: 'e.g. Write 4 original songs. Book studio time. Record and mix at least 2 tracks. Share the final EP with 10 people.' },
+      { key: 'achievement_plan', label: 'How do they plan to achieve them?',                                             required: true, placeholder: 'e.g. I\u2019ll write lyrics every morning before school. I\u2019ll use the grant to book 3 studio sessions. I\u2019ll work with my cousin who produces beats.' },
+      { key: 'grant_use',        label: 'What will they spend the grant on?',                                            required: true, placeholder: 'e.g. Studio time ($150), equipment rental ($50), mixing software subscription ($50).' },
+      { key: 'success_vision',   label: 'What does success look like for them at the end of 6 weeks?',                  required: true, placeholder: 'e.g. I\u2019ve released at least 2 finished tracks, I\u2019ve shared my work publicly, and I feel confident calling myself a musician.' },
+      { key: 'checkin_schedule', label: 'Best day and time for bi-weekly check-in calls',                 type: 'text',   required: true, placeholder: 'e.g. Every other Tuesday at 5pm' },
+      { key: 'challenge_topic',  label: 'Challenge topic',                                                type: 'text',   required: true, placeholder: 'e.g. Music production and songwriting' },
+      { key: 'grant_amount',     label: 'Grant amount requested',                                         type: 'select', options: ['$100', '$150', '$200', '$250'], required: true },
       { key: 'grant_format',     label: 'How would your Challenger like to receive their stipend?',       type: 'select', options: ['ACH (direct deposit)', 'Physical Visa debit card', 'Virtual Visa debit card', 'Venmo'], required: true },
-      { key: 'legal_name',       label: 'Challenger\u2019s full legal name',                              type: 'text',   required: true },
+      { key: 'legal_name',       label: 'Challenger\u2019s full legal name',                              type: 'text',   required: true, placeholder: 'e.g. Jordan Maria Rivera', hint: 'Important \u2014 spell their first and last name exactly as it appears on their ID. This is used for their grant documents.' },
     ];
 
     const SATISFACTION_QUESTIONS = [];
@@ -403,7 +419,7 @@
           select.appendChild(placeholder);
           q.options.forEach(function(opt) {
             var o = document.createElement('option');
-            o.value = opt;
+            o.value = (q.key === 'grant_amount') ? opt.replace('$', '') : opt;
             o.textContent = opt;
             select.appendChild(o);
           });
@@ -416,6 +432,7 @@
           input.className = 'field-input';
           if (q.required) input.required = true;
           if (q.max !== undefined) input.max = String(q.max);
+          if (q.placeholder) input.placeholder = q.placeholder;
           group.appendChild(input);
         } else {
           var textarea = document.createElement('textarea');
@@ -423,6 +440,7 @@
           textarea.name = q.key;
           textarea.className = 'field-textarea';
           if (q.required) textarea.required = true;
+          if (q.placeholder) textarea.placeholder = q.placeholder;
           group.appendChild(textarea);
         }
 
