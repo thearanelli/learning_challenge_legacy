@@ -211,6 +211,7 @@ serve(async (req) => {
       redemption_link: redemptionLink,
       grant_amount:    String(grantRequest.grant_amount),
       receipt_link:    receiptLink,
+      base_url:        config.BASE_URL,
     });
 
     // Send disbursement notification to Ryan

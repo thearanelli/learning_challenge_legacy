@@ -71,7 +71,7 @@ serve(async (req) => {
       last_name: youth.last_name,
       email: youth.email,
       phone: youth.phone,
-    });
+    }, { base_url: config.BASE_URL });
 
     console.log(`[process-full-send] ${youth.id}: advanced to full_send_review, confirmation email sent`);
 
