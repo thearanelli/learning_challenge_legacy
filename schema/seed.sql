@@ -413,3 +413,195 @@ SELECT
 FROM youth y
 JOIN applications a ON a.id = y.application_id
 WHERE y.status = 'full_send_review';
+
+-- ============================================================
+-- YOUTH_COMMS_CHECKLIST VIEW
+-- Staff monitoring view: one row per application (left-joined
+-- to youth). Shows comms gaps, next scheduled comm, and
+-- at-risk flags. Run manually in the Supabase SQL editor.
+-- ============================================================
+
+-- CREATE OR REPLACE VIEW youth_comms_checklist AS
+-- WITH
+--
+-- -- Resolve all comms_log entries to their application_id.
+-- -- Entries linked only via youth_id are resolved through youth.application_id.
+-- app_comms AS (
+--   SELECT
+--     COALESCE(cl.application_id, y.application_id) AS app_id,
+--     cl.id        AS comm_id,
+--     cl.stage_key,
+--     cl.sent_at
+--   FROM comms_log cl
+--   LEFT JOIN youth y ON y.id = cl.youth_id
+--   WHERE COALESCE(cl.application_id, y.application_id) IS NOT NULL
+-- ),
+--
+-- -- Aggregate per application: received stage_keys, last comm info
+-- comms_agg AS (
+--   SELECT
+--     app_id                                              AS application_id,
+--     array_agg(DISTINCT stage_key)                       AS received_keys,
+--     MAX(sent_at)                                        AS last_comm_at,
+--     (array_agg(stage_key ORDER BY sent_at DESC))[1]     AS last_comm_sent
+--   FROM app_comms
+--   GROUP BY app_id
+-- ),
+--
+-- -- Base: applications LEFT JOIN youth, attach comms aggregates.
+-- -- LEFT JOIN ensures applications with no youth row are included.
+-- base AS (
+--   SELECT
+--     a.id                                              AS application_id,
+--     y.id                                              AS youth_id,
+--     COALESCE(y.first_name, a.first_name)              AS first_name,
+--     COALESCE(y.last_name,  a.last_name)               AS last_name,
+--     COALESCE(y.email,      a.email)                   AS email,
+--     COALESCE(y.status, a.screening_status)            AS current_stage,
+--     FLOOR(
+--       EXTRACT(EPOCH FROM
+--         (now() - COALESCE(y.stage_entered_at, a.stage_entered_at))
+--       ) / 86400
+--     )::integer                                        AS days_in_stage,
+--     COALESCE(ca.received_keys, ARRAY[]::text[])       AS received_keys,
+--     ca.last_comm_sent,
+--     ca.last_comm_at,
+--     CASE
+--       WHEN ca.last_comm_at IS NOT NULL
+--         THEN FLOOR(EXTRACT(EPOCH FROM (now() - ca.last_comm_at)) / 86400)::integer
+--       ELSE NULL
+--     END                                               AS days_since_last_comm
+--   FROM applications a
+--   LEFT JOIN youth     y  ON y.application_id = a.id
+--   LEFT JOIN comms_agg ca ON ca.application_id = a.id
+-- ),
+--
+-- -- Attach expected comms list per stage.
+-- -- SYNC WITH config.ts STAGES expected comms if this mapping changes.
+-- expected AS (
+--   SELECT
+--     b.*,
+--     CASE b.current_stage
+--       WHEN 'declaration_pending' THEN ARRAY['declaration_pending']::text[]
+--       WHEN 'video_pending'       THEN ARRAY['declaration_pending','declaration_confirmed']::text[]
+--       WHEN 'video_review'        THEN ARRAY['declaration_pending','declaration_confirmed']::text[]
+--       WHEN 'mentor_pending'      THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending']::text[]
+--       WHEN 'grant_pending'       THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending']::text[]
+--       WHEN 'grant_approved'      THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','grant_approved']::text[]
+--       WHEN 'grant_expired'       THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending']::text[]
+--       WHEN 'final_video_pending' THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','full_send_link']::text[]
+--       WHEN 'full_send_review'    THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','full_send_link','full_send_submitted']::text[]
+--       WHEN 'completed'           THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','full_send_link','full_send_submitted']::text[]
+--       WHEN 'rejected'            THEN ARRAY['rejected']::text[]
+--       ELSE                            ARRAY[]::text[]
+--     END AS expected_keys
+--   FROM base b
+-- ),
+--
+-- -- Compute derived columns so at_risk can reference them by alias.
+-- computed AS (
+--   SELECT
+--     e.application_id,
+--     e.youth_id,
+--     e.first_name,
+--     e.last_name,
+--     e.email,
+--     e.current_stage,
+--     e.days_in_stage,
+--
+--     -- missing_comms: expected keys not yet present in comms_log
+--     ARRAY(
+--       SELECT k FROM unnest(e.expected_keys) AS k
+--       WHERE NOT (k = ANY(e.received_keys))
+--     ) AS missing_comms,
+--
+--     e.last_comm_sent,
+--     e.last_comm_at,
+--     e.days_since_last_comm,
+--
+--     -- next_comm: label of next scheduled comm for the current stage
+--     CASE e.current_stage
+--       WHEN 'declaration_pending' THEN
+--         CASE WHEN NOT ('nudge_declaration'  = ANY(e.received_keys)) THEN 'nudge_declaration'
+--              ELSE 'deadline_removal' END
+--       WHEN 'video_pending' THEN
+--         CASE WHEN NOT ('nudge_first_drop_1' = ANY(e.received_keys)) THEN 'nudge_first_drop_1'
+--              WHEN NOT ('nudge_first_drop_2' = ANY(e.received_keys)) THEN 'nudge_first_drop_2'
+--              ELSE 'deadline_removal' END
+--       WHEN 'mentor_pending' THEN
+--         CASE WHEN NOT ('nudge_orientation_1' = ANY(e.received_keys)) THEN 'nudge_orientation_1'
+--              WHEN NOT ('nudge_orientation_2' = ANY(e.received_keys)) THEN 'nudge_orientation_2'
+--              ELSE 'deadline_removal' END
+--       WHEN 'grant_pending' THEN
+--         CASE WHEN NOT ('nudge_grant' = ANY(e.received_keys)) THEN 'nudge_grant'
+--              ELSE 'grant_expired' END
+--       WHEN 'final_video_pending' THEN
+--         CASE WHEN NOT ('nudge_full_send_1' = ANY(e.received_keys)) THEN 'nudge_full_send_1'
+--              WHEN NOT ('nudge_full_send_2' = ANY(e.received_keys)) THEN 'nudge_full_send_2'
+--              ELSE 'deadline_removal' END
+--       ELSE NULL
+--     END AS next_comm,
+--
+--     -- next_comm_in_days: days until next_comm fires (0 = today, negative = overdue)
+--     -- SYNC WITH config.ts STAGES nudge_days if nudge schedules change
+--     CASE e.current_stage
+--       WHEN 'declaration_pending' THEN
+--         CASE WHEN NOT ('nudge_declaration'  = ANY(e.received_keys)) THEN GREATEST(0,  6 - e.days_in_stage)
+--              ELSE                                                         GREATEST(0, 10 - e.days_in_stage) END
+--       WHEN 'video_pending' THEN
+--         CASE WHEN NOT ('nudge_first_drop_1' = ANY(e.received_keys)) THEN GREATEST(0,  5 - e.days_in_stage)
+--              WHEN NOT ('nudge_first_drop_2' = ANY(e.received_keys)) THEN GREATEST(0,  9 - e.days_in_stage)
+--              ELSE                                                         GREATEST(0, 10 - e.days_in_stage) END
+--       WHEN 'mentor_pending' THEN
+--         CASE WHEN NOT ('nudge_orientation_1' = ANY(e.received_keys)) THEN GREATEST(0, 3 - e.days_in_stage)
+--              WHEN NOT ('nudge_orientation_2' = ANY(e.received_keys)) THEN GREATEST(0, 6 - e.days_in_stage)
+--              ELSE                                                          GREATEST(0, 7 - e.days_in_stage) END
+--       WHEN 'grant_pending' THEN
+--         CASE WHEN NOT ('nudge_grant' = ANY(e.received_keys)) THEN GREATEST(0,  5 - e.days_in_stage)
+--              ELSE                                                  GREATEST(0, 21 - e.days_in_stage) END
+--       WHEN 'final_video_pending' THEN
+--         CASE WHEN NOT ('nudge_full_send_1' = ANY(e.received_keys)) THEN GREATEST(0,  7 - e.days_in_stage)
+--              WHEN NOT ('nudge_full_send_2' = ANY(e.received_keys)) THEN GREATEST(0, 12 - e.days_in_stage)
+--              ELSE                                                        GREATEST(0, 14 - e.days_in_stage) END
+--       ELSE NULL
+--     END AS next_comm_in_days,
+--
+--     -- deadline_in_days: days until stage deadline (negative = past deadline, null = no deadline)
+--     -- SYNC WITH config.ts STAGES deadline_days if deadlines change
+--     CASE e.current_stage
+--       WHEN 'declaration_pending' THEN (10 - e.days_in_stage)
+--       WHEN 'video_pending'       THEN (10 - e.days_in_stage)
+--       WHEN 'mentor_pending'      THEN ( 7 - e.days_in_stage)
+--       WHEN 'grant_pending'       THEN (21 - e.days_in_stage)
+--       WHEN 'final_video_pending' THEN (14 - e.days_in_stage)
+--       ELSE NULL
+--     END AS deadline_in_days
+--
+--   FROM expected e
+-- )
+--
+-- SELECT
+--   c.application_id,
+--   c.youth_id,
+--   c.first_name,
+--   c.last_name,
+--   c.email,
+--   c.current_stage,
+--   c.days_in_stage,
+--   c.missing_comms,
+--   c.last_comm_sent,
+--   c.last_comm_at,
+--   c.days_since_last_comm,
+--   c.next_comm,
+--   c.next_comm_in_days,
+--   c.deadline_in_days,
+--   -- at_risk: true if missing comms exist OR deadline is within 2 days (or already past)
+--   (
+--     CARDINALITY(c.missing_comms) > 0
+--     OR (c.deadline_in_days IS NOT NULL AND c.deadline_in_days <= 2)
+--   ) AS at_risk
+-- FROM computed c;
+--
+-- -- Restrict access: service_role only
+-- REVOKE ALL    ON youth_comms_checklist FROM PUBLIC;
+-- GRANT  SELECT ON youth_comms_checklist TO   service_role;
