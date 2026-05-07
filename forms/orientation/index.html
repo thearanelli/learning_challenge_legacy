@@ -4,68 +4,361 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Orientation Call — GripTape Learning Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; }
-    h1 { font-size: 1.4rem; margin-bottom: 8px; }
-    p { line-height: 1.6; color: #444; }
-    label { display: block; margin-top: 20px; font-weight: 600; }
-    select, textarea, input[type="text"], input[type="number"] { width: 100%; margin-top: 6px; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    textarea { min-height: 100px; resize: vertical; }
-    button { margin-top: 24px; padding: 12px 24px; font-size: 1rem; background: #1a1a1a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    #status { margin-top: 16px; font-size: 0.95rem; }
-    .error { color: #c00; }
-    .warning { color: #856404; background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; line-height: 1.5; }
-    #state-loading, #state-invalid, #state-form, #state-success { display: none; }
+    :root {
+      --bg:     #001722;
+      --bg2:    #0a2230;
+      --border: rgba(255,255,255,0.07);
+      --orange: #EA5329;
+      --amber:  #F79227;
+      --white:  #F5F5F0;
+      --gray:   rgba(255,255,255,0.5);
+      --muted:  rgba(255,255,255,0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 1.5rem 64px;
+    }
+
+    /* ── State wrappers ── */
+    #state-loading,
+    #state-invalid,
+    #state-form,
+    #state-success { display: none; }
+
+    /* ── State center (loading / invalid / success) ── */
+    .state-center {
+      text-align: center;
+      padding: 80px 1.5rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .state-logo {
+      height: 22px;
+      display: block;
+      margin: 0 auto 28px;
+    }
+
+    .state-muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Logo header ── */
+    .page-logo {
+      display: block;
+      margin: 0 auto 8px;
+      height: 48px;
+    }
+
+    .page-logo-label {
+      display: block;
+      text-align: center;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0 28px;
+    }
+
+    /* ── Headings ── */
+    .main-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--orange);
+      line-height: 1.1;
+      margin: 0 0 8px;
+    }
+
+    .main-sub {
+      color: var(--gray);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+
+    /* ── Guiding script callout ── */
+    .script-callout {
+      background: var(--bg2);
+      border-left: 3px solid var(--orange);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 32px;
+      color: var(--white);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* ── Section heading ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0 24px;
+    }
+
+    /* ── Form fields ── */
+    .field-group {
+      margin-bottom: 24px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .field-hint {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 0 0 6px;
+      font-weight: 400;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 1rem;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+      border-color: var(--orange);
+    }
+
+    .field-textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .field-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+      color: var(--muted);
+    }
+
+    /* ── Submit button ── */
+    .submit-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Status messages ── */
+    .status-msg {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .status-msg.error {
+      color: var(--orange);
+      background: rgba(234,83,41,0.08);
+      border: 1px solid rgba(234,83,41,0.25);
+    }
+
+    .status-msg.warning {
+      color: #F79227;
+      background: rgba(247,146,39,0.08);
+      border: 1px solid rgba(247,146,39,0.3);
+    }
+
+    /* ── Success state ── */
+    .success-wrap {
+      text-align: center;
+      padding-top: 48px;
+    }
+
+    .success-logo {
+      height: 28px;
+      display: block;
+      margin: 0 auto 32px;
+    }
+
+    .success-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      margin: 0 0 12px;
+      line-height: 1.15;
+    }
+
+    .success-sub {
+      color: var(--gray);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    /* ── Invalid state ── */
+    .invalid-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--white);
+      margin: 0 0 10px;
+    }
+
+    .invalid-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    @media (max-width: 480px) {
+      .main-heading { font-size: 1.4rem; }
+      .success-heading { font-size: 1.6rem; }
+    }
   </style>
 </head>
 <body>
 
-  <div id="state-loading"><p>Verifying your link…</p></div>
-
-  <div id="state-invalid">
-    <h1>Link invalid</h1>
-    <p>This link is not valid. If you believe this is a mistake, please contact the GripTape team.</p>
+  <!-- Loading -->
+  <div id="state-loading" class="state-center">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
+    <p class="state-muted">Verifying your link…</p>
   </div>
 
-  <div id="state-form">
-    <h1>Orientation Call</h1>
-    <p>Hi <span id="champion-name"></span>! Please complete this form after your orientation call with your challenger.</p>
+  <!-- Invalid -->
+  <div id="state-invalid" class="state-center">
+    <img class="state-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
+    <p class="invalid-heading">This link is invalid.</p>
+    <p class="invalid-sub">If you believe this is a mistake, please contact the GripTape team.</p>
+  </div>
+
+  <!-- Form -->
+  <div id="state-form" class="page">
+
+    <img class="page-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
+    <span class="page-logo-label">Learning Challenge · NYC 2026</span>
+
+    <hr class="divider" />
+
+    <h1 class="main-heading">Orientation Call</h1>
+    <p class="main-sub">Hi <span id="champion-name"></span>! Complete this form together with your Challenger during the call.</p>
+
+    <div class="script-callout">
+      Before you begin: These answers should come directly from your Challenger — your job is to ask the questions and capture what they say honestly. Work through each question together on the call. Push your Challenger to be specific. Vague answers won't serve them. This record becomes the foundation of their Learning Challenge. Take your time.
+    </div>
 
     <form id="orientation-form">
-      <label for="youth-select">Select your challenger</label>
-      <select id="youth-select" name="youth_id" required>
-        <option value="">— select —</option>
-      </select>
 
+      <!-- Youth selector -->
+      <div class="field-group">
+        <label class="field-label" for="youth-select">Who are you on the call with?</label>
+        <select id="youth-select" name="youth_id" class="field-select" required>
+          <option value="">— select —</option>
+        </select>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- Questions injected here -->
       <div id="reflection-questions"></div>
       <div id="satisfaction-questions"></div>
 
-      <button type="submit" id="submit-btn">Submit</button>
-    </form>
+      <button type="submit" id="submit-btn" class="submit-btn">Submit Orientation</button>
+      <div id="status"></div>
 
-    <div id="status"></div>
+    </form>
   </div>
 
-  <div id="state-success">
-    <h1>Done</h1>
-    <p>Orientation call recorded. Thank you!</p>
+  <!-- Success -->
+  <div id="state-success" class="page">
+    <div class="success-wrap">
+      <img class="success-logo"
+        src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+        alt="GripTape" />
+      <h1 class="success-heading">Orientation recorded.</h1>
+      <p class="success-sub">Thank you for completing the call.</p>
+    </div>
   </div>
 
   <script>
     // Edit these arrays to add, remove, or reorder questions — no other changes needed.
 
     const REFLECTION_QUESTIONS = [
-      { key: 'legal_name',       label: 'What is your challenger\'s full legal name?',                                                  type: 'text',                             required: true },
-      { key: 'vision',           label: 'What is your overall vision for your Learning Challenge? In a sentence or two, what do you want to achieve?',                              required: true },
-      { key: 'goals',            label: 'What are three or four goals you have for your Learning Challenge?',                                                                       required: true },
-      { key: 'achievement_plan', label: 'How do you plan to achieve your goals?',                                                                                                  required: true },
-      { key: 'grant_use',        label: 'What do you plan to use this grant for? What do you think you\'ll spend the money on?',                                                   required: true },
-      { key: 'success_vision',   label: 'If you jumped 6 weeks into the future and were reflecting on your Challenge, what would success look like?',                              required: true },
-      { key: 'checkin_schedule', label: 'What\'s a good day and time for our check-in calls?',                                                                                     required: true },
-      { key: 'challenge_topic',  label: 'What is your challenger\'s Challenge topic?',                                                  type: 'text',                             required: true },
-      { key: 'grant_amount',     label: 'Grant request amount (up to $250)',                                                            type: 'number', max: 250, hint: 'Enter the amount your challenger is requesting', required: true },
-      { key: 'grant_format',     label: 'How would your challenger like to receive their stipend?',                                     type: 'select', options: ['ACH (direct deposit)', 'Physical Visa debit card', 'Virtual Visa debit card'], required: true },
+      { key: 'vision',           label: 'What is your Challenger\u2019s overall vision for their Learning Challenge?',  required: true },
+      { key: 'goals',            label: 'What are 3\u20134 goals they want to accomplish?',                              required: true },
+      { key: 'achievement_plan', label: 'How do they plan to achieve them?',                                             required: true },
+      { key: 'success_vision',   label: 'What does success look like for them at the end of 6 weeks?',                  required: true },
+      { key: 'grant_use',        label: 'What will they spend the grant on?',                                            required: true },
+      { key: 'checkin_schedule', label: 'Best day and time for bi-weekly check-in calls',                 type: 'text',   required: true },
+      { key: 'challenge_topic',  label: 'Challenge topic',                                                type: 'text',   required: true },
+      { key: 'grant_amount',     label: 'Grant amount requested (up to $250)',                            type: 'number', max: 250, hint: 'Enter the amount your Challenger is requesting', required: true },
+      { key: 'grant_format',     label: 'How would your Challenger like to receive their stipend?',       type: 'select', options: ['ACH (direct deposit)', 'Physical Visa debit card', 'Virtual Visa debit card', 'Venmo'], required: true },
+      { key: 'legal_name',       label: 'Challenger\u2019s full legal name',                              type: 'text',   required: true },
     ];
 
     const SATISFACTION_QUESTIONS = [];
@@ -82,22 +375,27 @@
     function buildQuestions() {
       var reflectionEl = document.getElementById('reflection-questions');
       REFLECTION_QUESTIONS.forEach(function(q) {
+        var group = document.createElement('div');
+        group.className = 'field-group';
+
         var label = document.createElement('label');
         label.htmlFor = q.key;
+        label.className = 'field-label';
         label.textContent = q.label;
-        reflectionEl.appendChild(label);
+        group.appendChild(label);
 
         if (q.hint) {
           var hint = document.createElement('p');
-          hint.style.cssText = 'font-size:0.85rem;color:#666;margin:4px 0 0;font-weight:normal;';
+          hint.className = 'field-hint';
           hint.textContent = q.hint;
-          reflectionEl.appendChild(hint);
+          group.appendChild(hint);
         }
 
         if (q.type === 'select' && q.options) {
           var select = document.createElement('select');
           select.id = q.key;
           select.name = q.key;
+          select.className = 'field-select';
           if (q.required) select.required = true;
           var placeholder = document.createElement('option');
           placeholder.value = '';
@@ -109,35 +407,44 @@
             o.textContent = opt;
             select.appendChild(o);
           });
-          reflectionEl.appendChild(select);
+          group.appendChild(select);
         } else if (q.type === 'text' || q.type === 'number') {
           var input = document.createElement('input');
           input.type = q.type;
           input.id = q.key;
           input.name = q.key;
+          input.className = 'field-input';
           if (q.required) input.required = true;
           if (q.max !== undefined) input.max = String(q.max);
-          reflectionEl.appendChild(input);
+          group.appendChild(input);
         } else {
           var textarea = document.createElement('textarea');
           textarea.id = q.key;
           textarea.name = q.key;
+          textarea.className = 'field-textarea';
           if (q.required) textarea.required = true;
-          reflectionEl.appendChild(textarea);
+          group.appendChild(textarea);
         }
+
+        reflectionEl.appendChild(group);
       });
 
       var satisfactionEl = document.getElementById('satisfaction-questions');
       SATISFACTION_QUESTIONS.forEach(function(q) {
+        var group = document.createElement('div');
+        group.className = 'field-group';
+
         var label = document.createElement('label');
         label.htmlFor = q.key;
+        label.className = 'field-label';
         label.textContent = q.label;
-        satisfactionEl.appendChild(label);
+        group.appendChild(label);
 
         if (q.type === 'rating') {
           var select = document.createElement('select');
           select.id = q.key;
           select.name = q.key;
+          select.className = 'field-select';
           if (q.required) select.required = true;
           var placeholder = document.createElement('option');
           placeholder.value = '';
@@ -149,14 +456,17 @@
             opt.textContent = String(n);
             select.appendChild(opt);
           });
-          satisfactionEl.appendChild(select);
+          group.appendChild(select);
         } else {
           var textarea = document.createElement('textarea');
           textarea.id = q.key;
           textarea.name = q.key;
+          textarea.className = 'field-textarea';
           if (q.required) textarea.required = true;
-          satisfactionEl.appendChild(textarea);
+          group.appendChild(textarea);
         }
+
+        satisfactionEl.appendChild(group);
       });
     }
 
@@ -170,8 +480,8 @@
 
       try {
         var enc = encodeURIComponent(token);
-        var tokenRes  = await fetch('/api/check-champion-token?token=' + enc);
-        var youthRes  = await fetch('/api/champion-youth-list?token=' + enc);
+        var tokenRes = await fetch('/api/check-champion-token?token=' + enc);
+        var youthRes = await fetch('/api/champion-youth-list?token=' + enc);
 
         var tokenData = await tokenRes.json();
         if (!tokenData.valid) {
@@ -231,16 +541,16 @@
           showState('state-success');
         } else if (data.error === 'already_submitted') {
           status.textContent = data.message;
-          status.className   = 'warning';
+          status.className   = 'status-msg warning';
           btn.disabled = false;
         } else {
           status.textContent = 'Something went wrong. Please try again.';
-          status.className   = 'error';
+          status.className   = 'status-msg error';
           btn.disabled = false;
         }
       } catch (err) {
         status.textContent = 'Something went wrong. Please try again.';
-        status.className   = 'error';
+        status.className   = 'status-msg error';
         btn.disabled = false;
       }
     });
