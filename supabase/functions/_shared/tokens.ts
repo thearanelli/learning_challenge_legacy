@@ -7,9 +7,12 @@ export function generateToken(durationDays: number | null): {
   stage_deadline_at: string | null;
 } {
   const token = crypto.randomUUID();
-  const deadline = durationDays
-    ? new Date(Date.now() + durationDays * 86400000).toISOString()
-    : null;
+  let deadline: string | null = null;
+  if (durationDays) {
+    const d = new Date(Date.now() + durationDays * 86400000);
+    d.setUTCHours(23, 59, 59, 0);
+    deadline = d.toISOString();
+  }
   return { access_token: token, stage_deadline_at: deadline };
 }
 
