@@ -1,5 +1,3 @@
-import { config } from './config.ts';
-
 export const content = {
   declaration_pending: {
     email_subject: "Step 1 done. You're invited to Step 2.",
@@ -8,8 +6,7 @@ export const content = {
 <p>You've completed Step 1. Now it's time to earn your spot.</p>
 <p>You're invited to Step 2: see what GripTape is really about, straight from the 4,000+ teens who've been exactly where you are. Builders who got real funding, a mentor, and the support to actually finish what they started.</p>
 <p>See what they made. Then tell us if you're ready to do the same.</p>
-<p><a href="{{link}}">Your spot isn't secured yet — Step 2 is how you get there →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Your spot isn't secured yet — Step 2 is how you get there →</a></p>`,
     sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next and declare: {{link}}',
   },
   declaration_confirmed: {
@@ -18,8 +15,7 @@ export const content = {
 <p>You've committed. Your 10 days have started.</p>
 <p>Starting is sometimes the hardest part. Don't overthink it — pick something small, make it happen, and build from there.</p>
 <p>Head down. No excuses. We'll send you your First Drop submission link in 7 days. Until then, just go build something.</p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: 'Hi {{first_name}}, you\'re in. Submit your video: {{video_link}} Your profile: {{profile_link}}',
   },
   video_pending: {
@@ -29,16 +25,14 @@ export const content = {
       <p>Submit your intro video within 10 days to secure your spot.</p>
       <p><a href="{{link}}">Click here to submit your video</a></p>
       <p><a href="{{profile_link}}">See your builder profile</a></p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
-      <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
     sms: 'Hi {{first_name}}! You\'re accepted to GripTape. Submit your video: {{link}} (placeholder)',
   },
   rejected: {
     email_subject: 'Your GripTape Learning Challenge application',
     email_body: `<p>Hi {{first_name}},</p>
       <p>Thank you for applying. Unfortunately we\'re unable to move forward at this time.</p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>
-      <p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
     sms: 'Hi {{first_name}}, thanks for applying to GripTape. We\'re unable to move forward at this time.',
   },
   flagged: {
@@ -55,15 +49,12 @@ export const content = {
 <p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps — including accessing your funding and joining the GripTape community.</p>
 <p>Reach out to {{champion_first_name}} to schedule that call as soon as possible: {{champion_phone}}</p>
 <p>You have 7 days to complete your orientation — after that we have to give your spot to someone else.</p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: "You're officially a GripTape Challenger! Meet your Champion: {{champion_name}}. They'll be in touch soon. Let's build something real.",
     nudge_email_subject: 'Placeholder — replace before launch',
-    nudge_email_body: `Placeholder — replace before launch
-<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+    nudge_email_body: `Placeholder — replace before launch`,
     removal_email_subject: 'Placeholder — replace before launch',
-    removal_email_body: `Placeholder — replace before launch
-<p>Need help? Visit <a href="${config.BASE_URL}/help">${config.BASE_URL}/help</a></p>`, // help footer
+    removal_email_body: `Placeholder — replace before launch`,
   },
 
   grant_pending: {
@@ -77,8 +68,7 @@ export const content = {
 <p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a GripTape Challenger.<br>
 <a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
 <p>You have 21 days to sign both documents. After that, the funding window closes — but your spot in the program is safe.</p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: `GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
   },
 
@@ -109,8 +99,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p><a href="{{redemption_link}}">Claim your \${{grant_amount}} →</a></p>
 <p><strong>Important: keep your receipts and upload them as you spend!</strong><br>
 <a href="{{receipt_link}}">Upload your receipts here →</a></p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: `GripTape: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
   },
 
@@ -142,8 +131,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Know someone who has a passion and the drive to do something with it? Send them to GripTape. One registration could change everything for them the way this Challenge changed things for you.</p>
 <p>Share this link with them: <a href="{{base_url}}">{{base_url}}</a></p>
 <p>Welcome to the community. We're proud of you.</p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
   },
 
   // ── Nudges ────────────────────────────────────────────────────────────────
@@ -153,8 +141,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>You started something. Don't let it slip.</p>
 <p>You have until {{deadline_date}} to commit to your GripTape Challenge. It takes 5 minutes — declare what you want to pursue and earn your spot.</p>
-<p><a href="{{link}}">Complete your commitment →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Complete your commitment →</a></p>`,
     sms: "Hey {{first_name}}, don't forget to complete your GripTape declaration: {{link}}",
   },
 
@@ -164,8 +151,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>You've had 7 days to work on your project. Now it's time to show us what you built.</p>
 <p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
 <p>Film a 90-second video showing what you accomplished. Real work only. Then submit the YouTube link below.</p>
-<p><a href="{{link}}">Submit your First Drop →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Submit your First Drop →</a></p>`,
     sms: 'Hey {{first_name}}, your First Drop video is due soon: {{link}}',
   },
 
@@ -174,8 +160,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
 <p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste.</p>
-<p><a href="{{link}}">Submit your First Drop →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Submit your First Drop →</a></p>`,
     sms: 'Hey {{first_name}}, last chance to submit your First Drop: {{link}}',
   },
 
@@ -184,8 +169,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your Champion {{champion_name}} is ready to connect — have you reached out yet?</p>
 <p>Your orientation call needs to happen by {{deadline_date}}. That's where you'll map out your goals, plan your project, and unlock your funding.</p>
-<p>Don't wait — reach out to {{champion_name}} today and get it on the calendar.</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>Don't wait — reach out to {{champion_name}} today and get it on the calendar.</p>`,
     sms: 'Hey {{first_name}}, reach out to your Champion {{champion_name}} to schedule your orientation call.',
   },
 
@@ -193,8 +177,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: 'Your orientation deadline is almost here',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your orientation call must be completed by {{deadline_date}} — that's tomorrow.</p>
-<p>If you haven't connected with {{champion_name}} yet, reach out right now. After the deadline we have to give your spot to someone else.</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>If you haven't connected with {{champion_name}} yet, reach out right now. After the deadline we have to give your spot to someone else.</p>`,
     sms: 'Hey {{first_name}}, your orientation call is due soon — connect with {{champion_name}} today.',
   },
 
@@ -203,8 +186,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your GripTape funding is sitting there waiting for you. But it won't wait forever.</p>
 <p>You have until {{deadline_date}} to sign your grant documents. After that the funding window closes — your spot in the program stays safe but the money doesn't.</p>
-<p><a href="{{link}}">Sign your documents →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Sign your documents →</a></p>`,
     sms: "Hey {{first_name}}, don't forget your grant paperwork — unlock your $250 here: {{link}}",
   },
 
@@ -213,8 +195,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>One week left to submit your Full Send.</p>
 <p>This is your final video — show us everything you built, learned, and accomplished over the last 6 weeks. Submit by {{deadline_date}} to officially complete your GripTape Challenge and become an Alum.</p>
-<p><a href="{{link}}">Submit your Full Send →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Submit your Full Send →</a></p>`,
     sms: 'Hey {{first_name}}, one week left to submit your Full Send: {{link}}',
   },
 
@@ -223,8 +204,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your Full Send deadline is {{deadline_date}} — 2 days from now.</p>
 <p>Don't let 6 weeks of work go unrecognized. Submit your video, complete your Challenge, and earn your place in the GripTape Alumni community.</p>
-<p><a href="{{link}}">Submit your Full Send →</a></p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p><a href="{{link}}">Submit your Full Send →</a></p>`,
     sms: 'Hey {{first_name}}, last chance — your Full Send is due soon: {{link}}',
   },
 
@@ -236,8 +216,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your deadline to complete Step 2 passed on {{deadline_date}} and your spot has been released.</p>
 <p>Don't let that be the end of your story. If you're still serious about your passion, you can start fresh — register again at the link below and earn your spot from the beginning.</p>
 <p><a href="{{base_url}}">Register again →</a></p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, your GripTape declaration deadline passed. Your spot has been released.',
   },
 
@@ -247,8 +226,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your deadline to submit your First Drop passed on {{deadline_date}} and your spot has been released.</p>
 <p>Life gets in the way — we get it. But if you're still serious about your passion, you can start fresh. Register again at the link below.</p>
 <p><a href="{{base_url}}">Register again →</a></p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, your First Drop deadline passed. Your spot has been released.',
   },
 
@@ -258,8 +236,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your deadline to complete your orientation call passed on {{deadline_date}} and your spot has been released.</p>
 <p>If you're still serious about your passion, you can start fresh — register again at the link below and earn your spot from the beginning.</p>
 <p><a href="{{base_url}}">Register again →</a></p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, your orientation deadline passed. Your spot has been released.',
   },
 
@@ -269,8 +246,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>We never received your Full Send video by {{deadline_date}} so you won't be joining the official GripTape Alumni community — but that doesn't take away from what you did.</p>
 <p>You showed up. You committed. You spent weeks working on something you care about. That's real — and most people never do it.</p>
 <p>We hope you keep going. Whatever you built, keep building it.</p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, your Full Send deadline passed. Your GripTape program has ended.',
   },
 
@@ -296,8 +272,7 @@ Any personal growth? Confidence? New skills? What did this Challenge unlock in y
 What are you chasing after this? A next step, a new project, a big dream.</p>
 <p><strong>Keep it under 90 seconds. Make it count.</strong></p>
 <p><a href="{{link}}">Submit your Full Send →</a></p>
-<p>— The GripTape Team</p>
-<p>For questions or help visit <a href="{{base_url}}/help">{{base_url}}/help</a> (do not reply to this email)</p>`,
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, time to submit your Full Send! Submit your video here: {{link}}',
   },
 
