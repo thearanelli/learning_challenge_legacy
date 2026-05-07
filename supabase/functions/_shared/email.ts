@@ -14,45 +14,67 @@ export function styledEmailBody(html: string): string {
     .replace(/<div class="notice">/g, '<div class="notice" style="background:#fff8e1;border-left:3px solid #F79227;padding:12px 16px;margin:14px 0;font-size:14px;color:#333;font-family:Arial,Helvetica,sans-serif">');
 }
 
-export function wrapEmailHtml(body: string): string {
-  const helpUrl = `${config.BASE_URL}/help`;
+export function wrapEmailHtml(body: string, helpUrl: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>GripTape</title>
+<style type="text/css">
+  body { margin: 0 !important; padding: 0 !important; background-color: #f4f4f4 !important; }
+  table { border-spacing: 0; }
+  td { padding: 0; }
+  img { border: 0; }
+  @media screen and (max-width: 600px) {
+    .email-wrapper { width: 100% !important; }
+    .email-body { padding: 24px 20px !important; }
+    .email-header { padding: 20px !important; }
+    .email-footer { padding: 16px 20px !important; }
+    .cta-button { display: block !important; width: 100% !important; box-sizing: border-box !important; }
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;padding:24px 0">
-  <tr><td align="center">
-    <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;border-radius:8px;overflow:hidden">
+<body style="margin:0;padding:0;background-color:#f4f4f4">
+<!--[if mso]>
+<table width="600" align="center" cellpadding="0" cellspacing="0"><tr><td>
+<![endif]-->
+<table class="email-wrapper" align="center" cellpadding="0" cellspacing="0" border="0"
+  style="max-width:600px;width:100%;margin:0 auto;background:#ffffff">
 
-      <!-- HEADER -->
-      <tr>
-        <td style="background:#001722;padding:28px 40px 22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
-          <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="GripTape" height="32" style="display:block;margin:0 auto">
-        </td>
-      </tr>
+  <tr>
+    <td class="email-header" style="background:#001722;padding:28px 40px 22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+        alt="GripTape" width="160" height="32"
+        style="display:block;margin:0 auto;height:32px;width:auto">
+    </td>
+  </tr>
 
-      <!-- BODY -->
-      <tr>
-        <td style="background:#ffffff;padding:36px 40px;font-size:15px;line-height:1.65;color:#222222">
-          ${body}
-        </td>
-      </tr>
+  <tr>
+    <td class="email-body" style="background:#ffffff;padding:36px 40px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.65;color:#222222">
+      ${body}
+    </td>
+  </tr>
 
-      <!-- FOOTER -->
-      <tr>
-        <td style="background:#001722;padding:20px 40px;text-align:center;border-top:1px solid rgba(255,255,255,0.1)">
-          <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.9);font-weight:bold;font-family:Arial,Helvetica,sans-serif">Questions or need help?</p>
-          <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px"><a href="${helpUrl}" style="color:#EA5329;text-decoration:none;font-weight:bold">${helpUrl}</a></p>
-          <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.35);font-family:Arial,Helvetica,sans-serif">Do not reply to this email — it won't reach anyone.</p>
-        </td>
-      </tr>
+  <tr>
+    <td class="email-footer" style="background:#001722;padding:20px 40px;text-align:center;border-top:1px solid rgba(255,255,255,0.1)">
+      <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.9);font-weight:bold;font-family:Arial,Helvetica,sans-serif">
+        Questions or need help?
+      </p>
+      <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px">
+        <a href="${helpUrl}" style="color:#EA5329;text-decoration:none;font-weight:bold">${helpUrl}</a>
+      </p>
+      <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.35);font-family:Arial,Helvetica,sans-serif">
+        Do not reply to this email — it won't reach anyone.
+      </p>
+    </td>
+  </tr>
 
-    </table>
-  </td></tr>
 </table>
+<!--[if mso]>
+</td></tr></table>
+<![endif]-->
 </body>
 </html>`;
 }
@@ -79,7 +101,7 @@ export async function sendEmail({
       from: config.EMAIL_FROM,
       to,
       subject,
-      html: wrapEmailHtml(styledEmailBody(html)),
+      html: wrapEmailHtml(styledEmailBody(html), `${config.BASE_URL}/help`),
     }),
   });
 
