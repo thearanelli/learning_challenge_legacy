@@ -75,7 +75,7 @@ serve(async (req) => {
 
     const { data: champion, error: champErr } = await supabase
       .from('champions')
-      .select('id, first_name, last_name, email')
+      .select('id, first_name, last_name, email, phone, bio')
       .eq('id', youth.champion_id)
       .single();
 
@@ -93,8 +93,11 @@ serve(async (req) => {
       youth_first_name:    youth.first_name,
       champion_first_name: champion.first_name,
       champion_name:       `${champion.first_name} ${champion.last_name}`,
+      champion_bio:        champion.bio ?? '',
+      champion_phone:      champion.phone ?? '',
       deadline_date:       deadlineDate,
       program_name:        'GripTape Learning Challenge',
+      base_url:            config.BASE_URL,
     };
 
     // Youth: email + SMS

@@ -33,7 +33,7 @@ serve(async (req) => {
     // Load youth record
     const { data: youth, error: fetchError } = await supabase
       .from('youth')
-      .select('id, first_name, last_name, email, phone, program_id, status')
+      .select('id, first_name, last_name, email, phone, program_id, status, champion_id')
       .eq('id', youth_id)
       .single();
 
@@ -181,11 +181,24 @@ serve(async (req) => {
       throw new Error(`Failed to update grant_requests: ${updateError.message}`);
     }
 
+    // Fetch champion for name variable in grant_pending email
+    let championFirstName = '';
+    if (youth.champion_id) {
+      const { data: champion } = await supabase
+        .from('champions')
+        .select('first_name')
+        .eq('id', youth.champion_id)
+        .single();
+      championFirstName = champion?.first_name ?? '';
+    }
+
     // Send signing links to youth via dispatcher
     // vars map to {{w9_link}} and {{agreement_link}} in content.ts grant_pending block
     await sendNotification('grant_pending', youth, {
       w9_link: w9SigningUrl,
       agreement_link: agreementSigningUrl,
+      champion_first_name: championFirstName,
+      base_url: config.BASE_URL,
     }, { youth_id: youth.id });
 
     console.log(`[send-grant-docs] ${youth.id}: BoldSign requests created, signing links sent to ${youth.email}`);
