@@ -50,7 +50,7 @@ export const content = {
     email_body: `<p>Hey {{first_name}},</p>
 <p>You made it. Your First Drop video was impressive. You're officially a GripTape Challenger.</p>
 <p>This is real — you've earned up to $250 to invest in your passion project, and someone in your corner the whole way.</p>
-<p>That someone is {{champion_first_name}} {{champion_last_name}} — your Champion.</p>
+<p>That someone is {{champion_first_name}} — your Champion.</p>
 <p>{{champion_bio}}</p>
 <p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps — including accessing your funding and joining the GripTape community.</p>
 <p>Reach out to {{champion_first_name}} to schedule that call as soon as possible: {{champion_phone}}</p>
@@ -71,7 +71,7 @@ export const content = {
     email_body: `<p>Hey {{first_name}},</p>
 <p>Big congrats {{first_name}} — you just completed your orientation call with {{champion_first_name}}. GripTape alumni consistently say their Champion was the most valuable part of the whole experience. We think you'll see why.</p>
 <p>You can now officially unlock your funding.</p>
-<p>To release your $250 GripTape Learning Challenge stipend, you need to sign two documents:</p>
+<p>To release your GripTape Learning Challenge funding, you need to sign two documents:</p>
 <p><strong>Your W-9 form</strong> — this is a standard IRS tax form that nonprofits are required to collect before sending any payment. GripTape is a registered 501(c)(3) nonprofit, which means we're legally required to have this on file before we can send you money. It takes 2 minutes to complete.<br>
 <a href="{{w9_link}}">Sign your W-9 →</a></p>
 <p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a GripTape Challenger.<br>
