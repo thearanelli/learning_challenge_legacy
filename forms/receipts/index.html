@@ -4,76 +4,157 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upload Receipts — GripTape Learning Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; background: #fff; }
-    h1 { font-size: 1.4rem; margin-bottom: 8px; color: #001722; }
-    p { line-height: 1.6; color: #444; }
+    :root {
+      --bg: #001722;
+      --orange: #EA5329;
+      --amber: #F79227;
+      --white: #F5F5F0;
+      --muted: rgba(245,245,240,0.5);
+      --border: rgba(255,255,255,0.07);
+      --input-bg: #0a2230;
+      --input-border: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 1.5rem 64px;
+    }
+
+    .page-logo {
+      display: block;
+      margin: 0 auto 24px;
+      height: 48px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 0 28px;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--orange);
+      margin: 0 0 8px;
+      line-height: 1.15;
+    }
+
+    .subtext {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 8px;
+    }
+
     #loading, #form-section, #invalid-section { display: none; }
 
     .drop-zone {
       margin-top: 24px;
-      border: 2px dashed #EA5329;
-      border-radius: 8px;
+      border: 2px dashed rgba(234,83,41,0.5);
+      border-radius: 10px;
       padding: 40px 20px;
       text-align: center;
       cursor: pointer;
-      color: #555;
-      transition: background 0.15s;
+      transition: background 0.15s, border-color 0.15s;
+      background: var(--input-bg);
     }
-    .drop-zone.dragover { background: #fff3ef; }
-    .drop-zone p { margin: 0; color: #555; }
-    .drop-zone span { color: #EA5329; font-weight: 600; }
+    .drop-zone.dragover {
+      background: rgba(234,83,41,0.08);
+      border-color: var(--orange);
+    }
+    .drop-zone p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .drop-zone span { color: var(--orange); font-weight: 600; }
 
     input[type="file"] { display: none; }
 
     #file-name {
       margin-top: 12px;
       font-size: 0.9rem;
-      color: #001722;
+      color: var(--white);
       font-weight: 600;
       min-height: 20px;
     }
 
     button {
       margin-top: 20px;
-      padding: 12px 28px;
+      padding: 1rem;
+      font-family: 'Syne', sans-serif;
       font-size: 1rem;
-      background: #EA5329;
+      font-weight: 700;
+      background: var(--orange);
       color: #fff;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       width: 100%;
+      transition: opacity 0.2s;
     }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:hover:not(:disabled) { opacity: 0.88; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    #status { margin-top: 16px; font-size: 0.95rem; line-height: 1.5; }
-    .error { color: #c00; }
-    .success { color: #006630; }
+    #status {
+      margin-top: 16px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .error { color: #FF5C5C; }
+    .success { color: #4ade80; }
   </style>
 </head>
 <body>
 
-  <div id="loading"><p>Verifying your link…</p></div>
+  <div class="page">
 
-  <div id="invalid-section">
-    <h1>Link invalid or expired</h1>
-    <p>This link is invalid or expired. If you believe this is a mistake, please contact us.</p>
-  </div>
+    <img class="page-logo"
+      src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
+      alt="GripTape" />
 
-  <div id="form-section">
-    <h1>Upload Your Receipts</h1>
-    <p>Hi <span id="first-name"></span>! As you spend your stipend, upload your receipts here — one at a time is fine. Images and PDFs both work.</p>
+    <hr class="divider" />
 
-    <div class="drop-zone" id="drop-zone">
-      <p>Drag and drop a file here, or <span>click to select</span></p>
+    <div id="loading"><p class="subtext">Verifying your link…</p></div>
+
+    <div id="invalid-section">
+      <h1>Link invalid or expired</h1>
+      <p class="subtext">This link is invalid or expired. If you believe this is a mistake, please contact us.</p>
     </div>
-    <input type="file" id="file-input" accept="image/*,.pdf" />
-    <div id="file-name"></div>
 
-    <button id="upload-btn" disabled>Upload Receipt</button>
-    <div id="status"></div>
+    <div id="form-section">
+      <h1>Upload your receipts</h1>
+      <p class="subtext">Keep track of how you spend your GripTape funding. Upload receipts as you go.</p>
+      <p class="subtext">Hi <span id="first-name"></span>! Images and PDFs both work — one at a time is fine.</p>
+
+      <div class="drop-zone" id="drop-zone">
+        <p>Drag and drop a file here, or <span>click to select</span></p>
+      </div>
+      <input type="file" id="file-input" accept="image/*,.pdf" />
+      <div id="file-name"></div>
+
+      <button id="upload-btn" disabled>Upload Receipt</button>
+      <div id="status"></div>
+    </div>
+
   </div>
 
   <script>
