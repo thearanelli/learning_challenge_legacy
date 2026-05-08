@@ -13,6 +13,7 @@
     { "src": "/terms", "dest": "/forms/terms/index.html" },
     { "src": "/receipts", "dest": "/forms/receipts/index.html" },
     { "src": "/final-video/?", "dest": "/forms/final-video/index.html" },
+    { "src": "/images/(.*)", "dest": "/images/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
