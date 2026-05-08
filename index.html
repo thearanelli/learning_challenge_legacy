@@ -489,7 +489,7 @@ h1 {
 .chat-wrap::-webkit-scrollbar { width: 3px; }
 .chat-wrap::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 100px; }
 
-.chat-inner { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column-reverse; gap: 1.25rem; }
+.chat-inner { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 120px; }
 
 /* AI MESSAGE */
 .ai-msg { display: flex; gap: 0.85rem; align-items: flex-start; animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1) both; }
@@ -1077,10 +1077,9 @@ function setEnabled(val) { /* no-op: persistent input removed */ }
 function scrollBottom() {
   const w = document.getElementById('chat-wrap');
   if (!w) return;
-  // With column-reverse, scrollTop=0 is the visual top = latest message
   clearTimeout(scrollBottom._t);
   scrollBottom._t = setTimeout(function() {
-    w.scrollTo({ top: 0, behavior: 'smooth' });
+    w.scrollTo({ top: w.scrollHeight, behavior: 'smooth' });
   }, 60);
 }
 
