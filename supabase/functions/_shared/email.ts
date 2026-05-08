@@ -23,31 +23,28 @@ export function wrapEmailHtml(body: string, helpUrl: string): string {
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>GripTape</title>
 <style type="text/css">
-  body { margin: 0 !important; padding: 0 !important; background-color: #f4f4f4 !important; }
-  table { border-spacing: 0; }
+  body { margin: 0 !important; padding: 0 !important; background-color: #ffffff !important; }
+  table { border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
   td { padding: 0; }
-  img { border: 0; }
+  img { border: 0; display: block; }
   @media screen and (max-width: 600px) {
-    .email-wrapper { width: 100% !important; }
+    .email-wrapper { width: 100% !important; min-width: 100% !important; }
     .email-body { padding: 24px 20px !important; }
-    .email-header { padding: 20px !important; }
+    .email-header { padding: 20px 20px 16px !important; }
     .email-footer { padding: 16px 20px !important; }
-    .cta-button { display: block !important; width: 100% !important; box-sizing: border-box !important; }
   }
 </style>
 </head>
-<body style="margin:0;padding:0;background-color:#f4f4f4">
+<body style="margin:0;padding:0;background-color:#ffffff">
 <!--[if mso]>
-<table width="600" align="center" cellpadding="0" cellspacing="0"><tr><td>
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td>
 <![endif]-->
-<table class="email-wrapper" align="center" cellpadding="0" cellspacing="0" border="0"
-  style="max-width:600px;width:100%;margin:0 auto;background:#ffffff">
+<table class="email-wrapper" align="center" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;margin:0 auto;background:#ffffff;border-collapse:collapse">
 
   <tr>
     <td class="email-header" style="background:#001722;padding:28px 40px 22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
-      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
-        alt="GripTape" width="160" height="32"
-        style="display:block;margin:0 auto;height:32px;width:auto">
+      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="GripTape" width="160" style="height:32px;width:auto;display:block;margin:0 auto">
     </td>
   </tr>
 
@@ -59,20 +56,15 @@ export function wrapEmailHtml(body: string, helpUrl: string): string {
 
   <tr>
     <td class="email-footer" style="background:#001722;padding:20px 40px;text-align:center;border-top:1px solid rgba(255,255,255,0.1)">
-      <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.9);font-weight:bold;font-family:Arial,Helvetica,sans-serif">
-        Questions or need help?
-      </p>
-      <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px">
-        <a href="${helpUrl}" style="color:#EA5329;text-decoration:none;font-weight:bold">${helpUrl}</a>
-      </p>
-      <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.35);font-family:Arial,Helvetica,sans-serif">
-        Do not reply to this email — it won't reach anyone.
-      </p>
+      <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.9);font-weight:bold;font-family:Arial,Helvetica,sans-serif">Questions or need help?</p>
+      <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px"><a href="${helpUrl}" style="color:#EA5329;text-decoration:none;font-weight:bold">${helpUrl}</a></p>
+      <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.35);font-family:Arial,Helvetica,sans-serif">Do not reply to this email — it won't reach anyone.</p>
     </td>
   </tr>
 
 </table>
 <!--[if mso]>
+</td></tr></table>
 </td></tr></table>
 <![endif]-->
 </body>
@@ -83,10 +75,12 @@ export async function sendEmail({
   to,
   subject,
   html,
+  skipWrapper = false,
 }: {
   to: string | string[];
   subject: string;
   html: string;
+  skipWrapper?: boolean;
 }) {
   const apiKey = Deno.env.get('RESEND_API_KEY');
   if (!apiKey) throw new Error('RESEND_API_KEY not set');
@@ -101,7 +95,7 @@ export async function sendEmail({
       from: config.EMAIL_FROM,
       to,
       subject,
-      html: wrapEmailHtml(styledEmailBody(html), `${config.BASE_URL}/help`),
+      html: skipWrapper ? html : wrapEmailHtml(styledEmailBody(html), `${config.BASE_URL}/help`),
     }),
   });
 
