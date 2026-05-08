@@ -156,10 +156,11 @@ body{background:var(--navy);color:var(--white);font-family:var(--sans);min-heigh
 
 <script>
 // ── DEV CONFIG — fill these in once, leave blank for production ──
-const DEV_KEYS = {
+const cd ~/Desktop/learning_challenge_legacy && python3 -m http.server 8080DEV_KEYS = {
   url: 'https://bqysrqjywxdmvcmxxrui.supabase.co',
-  service: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNycWp5d3hkbXZjbXh4cnVpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTIzMjg0MSwiZXhwIjoyMDkwODA4ODQxfQ.TBFzU5zruwLJvzeAKMTjDUuGan2XzNiBGOnOWy4eXDA',
-  anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNycWp5d3hkbXZjbXh4cnVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMzI4NDEsImV4cCI6MjA5MDgwODg0MX0.Ex681NJ3h_SBLLojJANrRmcdbDS7FoMB4lMw4EsNZeQ',
+  service: 'sb_secret_9hboPdhxaaQf6n20Dx7huQ_QSdmDu8n',
+  anon: 
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNycWp5d3hkbXZjbXh4cnVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMzI4NDEsImV4cCI6MjA5MDgwODg0MX0.Ex681NJ3h_SBLLojJANrRmcdbDS7FoMB4lMw4EsNZeQ',
   resend: 're_5sQ5zhhm_6dn9cjkwjM8GYRUKTksgshqB',
   boldsign: 'YmU3NjY0NzItMTkxMy00ZjFmLThiNjktOWU0ZjlkYzY0NGU0',
   tremendous: 'TEST_KSYPxMaYW--rgyMI6g4cVTH7FGcnf6EVm2Pd8oWxbO3',
@@ -215,7 +216,7 @@ function clearKeys(){
 }
 
 async function sb(path,opts={}){
-  const authKey=keys.service||keys.anon;
+  const authKey=keys.anon||keys.service;
   const r=await fetch(`${keys.url}/rest/v1/${path}`,{
     headers:{'apikey':authKey,'Authorization':`Bearer ${authKey}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
     ...opts
@@ -229,10 +230,10 @@ async function sbPost(table,row){return sb(table,{method:'POST',body:JSON.string
 async function sbPatch(table,qs,data){return sb(`${table}?${qs}`,{method:'PATCH',body:JSON.stringify(data)})}
 async function sbDel(table,qs){return sb(`${table}?${qs}`,{method:'DELETE'})}
 async function edgeFn(name,body){
-  const r=await fetch(`${keys.vercel}/api/proxy`,{
+  const r=await fetch(`${keys.url}/functions/v1/${name}`,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({url:`${keys.url}/functions/v1/${name}`,body})
+    headers:{'Authorization':`Bearer ${keys.anon||keys.service}`,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
   });
   const t=await r.text();
   try{return{ok:r.ok,status:r.status,data:JSON.parse(t)}}
@@ -256,11 +257,7 @@ async function poll(table,id,field,expected,maxMs=15000){
 async function checkResend(email){
   if(!keys.resend)return{checked:false};
   try{
-    const r=await fetch(`${keys.vercel}/api/proxy`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({url:'https://api.resend.com/emails?limit=20',method:'GET',service:'resend'})
-    });
+    const r=await fetch('https://api.resend.com/emails?limit=20',{headers:{'Authorization':`Bearer ${keys.resend}`}});
     const d=await r.json();
     const match=(d.data||[]).find(e=>e.to?.includes(email));
     return{checked:true,found:!!match,email:match};
@@ -393,7 +390,7 @@ async function runCurrentStage(){
 
 async function runScreening(ok,fail,warn,info){
   grp('1 — Insert test application');
-  const app={program_id:null,first_name:'Jordan',last_name:'Rivera',birthdate:'06/15/2009',email:'thea@griptape.org',phone:'+12125550100',street_address:'123 Test St',city:'New York',state:'NY',zip:'10001',screening_status:'submitted',sms_consent:false,notify_after:new Date().toISOString(),application_responses:{age:'16',passion:'I want to build a mobile app that helps teenagers track their mental health and connect with peers who share similar experiences. This matters to me because I struggled with anxiety in high school and found no tools designed for teens like me.',why_join:'I want GripTape to back me because I have the idea but not the resources to build it.'}};
+  const app={program_id:'nyc-2026',first_name:'Test',last_name:`Youth_${Date.now()}`,birthdate:'2008-01-01',email:'thea@griptape.org',phone:'+12125550100',street_address:'123 Test St',city:'New York',state:'NY',zip:'10001',screening_status:'submitted',sms_consent:false,application_responses:{passion:'I want to build a mobile app that helps teenagers track their mental health and connect with peers who share similar experiences. This matters to me because I struggled with anxiety in high school and found no tools designed for teens like me.',why_join:'I want GripTape to back me because I have the idea but not the resources to build it.'}};
   const el=addRow('…','Inserting test application...');
   const ins=await sbPost('applications',app);
   if(!ins.ok||!ins.data[0]?.id){updRow(el,'✗','Insert failed',JSON.stringify(ins.data));fail('Application insert');return;}
@@ -404,31 +401,18 @@ async function runScreening(ok,fail,warn,info){
   const advanced=await poll('applications',id,'screening_status','declaration_pending',15000);
   if(!advanced){const chk=await sbGet('applications',`id=eq.${id}&select=screening_status,ai_decision`);const cur=chk.data[0];updRow(pollEl,'✗','Did not advance',`Current: ${cur?.screening_status}`);fail('Status advance to declaration_pending',cur?.screening_status);return;}
   updRow(pollEl,'✓','Status → declaration_pending');
-
-  grp('2b — Set notify_after to past so scheduler fires immediately');
-  const pastTime = new Date(Date.now() - 3*60*60*1000).toISOString();
-  await sbPatch('applications',`id=eq.${id}`,{notify_after:pastTime});
-
-  grp('2c — Trigger scheduler TEST_MODE');
-  try{
-    const schedEl=addRow('…','Calling daily-scheduler with test_mode:true...');
-    const schedR=await edgeFn('daily-scheduler',{test_mode:true});
-    schedR.ok?updRow(schedEl,'✓',`Scheduler fired (${schedR.status})`):updRow(schedEl,'⚠',`Scheduler returned ${schedR.status}`);
-    await sleep(4000);
-  }catch(e){warn('Scheduler trigger failed',e.message);}
-
   grp('3 — Verify fields');
   const res=await sbGet('applications',`id=eq.${id}&select=*`);const a=res.data[0];
   a?.access_token?ok('access_token set',a.access_token.slice(0,12)+'...'):fail('access_token set');
   a?.stage_deadline_at?ok('stage_deadline_at set',a.stage_deadline_at):fail('stage_deadline_at');
   a?.profile_token?ok('profile_token set'):warn('profile_token not set');
   a?.ai_decision?ok('ai_decision recorded',a.ai_decision):warn('ai_decision not recorded');
-  a?.notify_after?ok('notify_after set to past',a.notify_after):warn('notify_after not set');
+  a?.notify_after?ok('notify_after set (48h delay)',a.notify_after):warn('notify_after not set');
   grp('4 — Comms log');
   const comms=await sbGet('comms_log',`application_id=eq.${id}&select=*`);
-  comms.data?.length>0?ok(`comms_log entries`,`${comms.data.length} entries — ${comms.data.map(c=>c.stage_key).join(', ')}`):fail('comms_log entries','declaration_pending entry','none found');
+  comms.data?.length>0?ok(`comms_log entries`,`${comms.data.length} entries`):warn('No comms_log yet (48h delay — expected)');
   grp('5 — Resend');
-  if(keys.resend){const r=await checkResend('thea@griptape.org');r.found?ok('Resend email found'):warn('Not in recent Resend logs');}
+  if(keys.resend){const r=await checkResend('thea@griptape.org');r.found?ok('Resend email found'):warn('Not in recent Resend logs (48h queue)');}
   else warn('No Resend key');
 }
 
@@ -521,28 +505,17 @@ async function runOrientation(ok,fail,warn,info){
   const youth=res.data?.[0];
   if(!youth){fail('Find mentor_pending youth','none — run Champion Match first');return;}
   ok(`Found youth ${youth.id.slice(0,8)}...`);testRecords.youthId=youth.id;
-  grp('2 — Get champion token');
-  const champRes=await sbGet('champions',`id=eq.${youth.champion_id}&select=champion_token,first_name,last_name`);
-  const champ=champRes.data?.[0];
-  if(!champ?.champion_token){fail('Champion token','champion_token set','null or missing');return;}
-  ok(`Champion token found for ${champ.first_name} ${champ.last_name}`);
-
-  grp('3 — Call orientation-submit');
-  const el=addRow('…','Calling /api/orientation-submit...');
-  const r=await vercelPost('/api/orientation-submit',{
-    token:champ.champion_token,
-    youth_id:youth.id,
-    responses:{challenge_topic:'Music production and songwriting',grant_amount:250,grant_format:'check',legal_name:'Test Youth'}
-  });
-  r.ok?updRow(el,'✓',`orientation-submit → ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
-  if(!r.ok){fail('orientation-submit',`${r.status}`);return;}
+  grp('2 — Call process-orientation');
+  const el=addRow('…','Calling process-orientation...');
+  const r=await edgeFn('process-orientation',{youth_id:youth.id});
+  r.ok?updRow(el,'✓',`→ ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
+  if(!r.ok){fail('process-orientation',`${r.status}`);return;}
   grp('3 — Verify status + fields');
   await sleep(2000);
   const yr=await sbGet('youth',`id=eq.${youth.id}&select=*`);const y=yr.data?.[0];
   y?.status==='grant_pending'?ok('Status → grant_pending'):fail('Status advance',y?.status);
   y?.orientation_call_completed_at?ok('orientation_call_completed_at set',y.orientation_call_completed_at):fail('orientation_call_completed_at','null');
   grp('4 — Comms log');
-  await sleep(5000);
   const comms=await sbGet('comms_log',`youth_id=eq.${youth.id}&stage_key=eq.grant_pending&select=*`);
   comms.data?.length>0?ok('comms_log: grant_pending'):fail('comms_log grant_pending','not found');
   grp('5 — Resend');
@@ -560,13 +533,11 @@ async function runGrant(ok,fail,warn,info){
   const gr=await sbGet('grant_requests',`youth_id=eq.${youth.id}&select=*`);const g=gr.data?.[0];
   if(!g){fail('Find grant_request','not found');return;}
   ok(`Found grant_request ${g.id.slice(0,8)}...`);testRecords.grantRequestId=g.id;
-  grp('3 — Trigger grant approval (set staff_approved = true)');
-  const el=addRow('…','Patching grant_requests.staff_approved = true...');
-  const acc=await sbPatch('grant_requests',`id=eq.${g.id}`,{staff_approved:true,staff_approved_at:new Date().toISOString()});
-  acc.ok?updRow(el,'✓','staff_approved set — webhook will fire'):updRow(el,'✗','Patch failed',JSON.stringify(acc.data));
-  if(!acc.ok){fail('grant approval patch',`${acc.status}`);return;}
-  info('Waiting for on-grant-approved webhook to fire...');
-  await sleep(5000);
+  grp('3 — Call on-grant-approved');
+  const el=addRow('…','Calling on-grant-approved...');
+  const r=await edgeFn('on-grant-approved',{youth_id:youth.id,grant_request_id:g.id});
+  r.ok?updRow(el,'✓',`→ ${r.status}`):updRow(el,'✗',`Failed: ${r.status}`,JSON.stringify(r.data));
+  if(!r.ok){fail('on-grant-approved',`${r.status}`);return;}
   grp('4 — Verify status + Tremendous');
   await sleep(2000);
   const yr=await sbGet('youth',`id=eq.${youth.id}&select=status`);

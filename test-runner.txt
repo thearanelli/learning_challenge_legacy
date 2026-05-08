@@ -1,0 +1,36 @@
+
+API KEYS — CLICK TO CONFIGURE
+▼
+TEST STAGES
+📋
+Screening
+
+✍️
+Declaration
+
+🎬
+First Drop
+
+🤝
+Champion Match
+
+📞
+Orientation
+
+💰
+Grant
+
+⏰
+Grant Expired
+
+🚀
+Full Send
+
+
+▶ Run All Tests
+Screening
+Tests AI screening → declaration_pending transition
+▶ Run Test
+⚡
+Ready to test
+Configure API keys then click Run Test
