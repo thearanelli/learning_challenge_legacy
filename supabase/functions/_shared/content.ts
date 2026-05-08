@@ -1,12 +1,11 @@
 export const content = {
   declaration_pending: {
-    email_subject: "Step 1 done. You're invited to Step 2.",
+    email_subject: 'Step 1 done. You\'re invited to Step 2.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your passion for {{passion}} stood out. We want to see where you take it.</p>
-<p>You've completed Step 1. Now it's time to earn your spot.</p>
-<p>You're invited to Step 2: see what GripTape is really about, straight from the 4,000+ teens who've been exactly where you are. Builders who got real funding, a mentor, and the support to actually finish what they started.</p>
-<p>See what they made. Then tell us if you're ready to do the same.</p>
-<p><a href="{{link}}">Your spot isn't secured yet — Step 2 is how you get there →</a></p>`,
+<p>Your passion for {{passion}} stood out. We think you should commit to it — make it a real project.</p>
+<p>Here's what happens next: set a 10-day goal, work on it, then film a short video showing what you built. That's your First Drop — and it's how you earn your spot at GripTape.</p>
+<p><a href="{{link}}" style="display:block;background:#EA5329;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;text-align:center;margin:20px 0;font-family:Arial,Helvetica,sans-serif">Start Step 2 →</a></p>
+<p>— The GripTape Team</p>`,
     sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next and declare: {{link}}',
   },
   declaration_confirmed: {
