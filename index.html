@@ -1067,7 +1067,6 @@ h1 {
         <div class="progress-fill" id="progress-fill"></div>
       </div>
     </div>
-    <button class="exit-btn" onclick="saveExit()">Save & exit</button>
   </div>
 
   <div id="today-counter" style="text-align:center;padding:8px 0;font-size:11px;color:rgba(255,255,255,0.4);"></div>
@@ -1105,6 +1104,14 @@ h1 {
 // ── CONFIG ──
 // No API tokens live here. All secrets are in Vercel environment variables.
 // The form posts to /api/submit which handles Supabase writes.
+
+window.addEventListener('popstate', function(e) {
+  if (!e.state || e.state.view !== 'chat') {
+    document.getElementById('app-screen').classList.remove('active');
+    document.getElementById('success-screen').classList.remove('active');
+    document.getElementById('landing').style.display = '';
+  }
+});
 
 function typeMessage(element, text, speed = 28) {
   return new Promise(resolve => {
@@ -1281,6 +1288,7 @@ function hideTyping() {
 function startApp() {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app-screen').classList.add('active');
+  history.pushState({ view: 'chat' }, '', '#chat');
   setProgress(0, TOTAL_STEPS);
   // Enhancement 4 — today counter
   const counts = [14, 19, 23, 27, 31, 17, 22, 28];
@@ -1945,15 +1953,6 @@ function launchConfetti() {
   show();
   setInterval(show, 3000);
 })();
-
-function saveExit() {
-  try {
-    localStorage.setItem('tlc_draft', JSON.stringify({ answers, step, userName }));
-    alert('Saved! Come back any time to finish your application. 💾');
-  } catch(e) {
-    alert('Could not save — please finish your application in one go.');
-  }
-}
 
 // Restore draft on load
 window.addEventListener('load', () => {
