@@ -430,8 +430,11 @@
 
     <!-- FIX 2: Hero copy -->
     <p class="greeting" id="greeting"></p>
-    <h1 class="main-heading">This is where it gets real.</h1>
-    <p class="main-sub">Set a goal you can actually hit in 10 days — not a plan, a real deliverable. Record a song. Write three chapters. Build a prototype. Design a collection. Something you can show.<br><br>Then do it. Head down, no excuses.<br><br>At the end, film a 90-second video showing what you accomplished and submit it. We call that your First Drop. If it's real and honest, you're in — officially a GripTape Challenger. Backed with a mentor, a community, and funding.</p>
+    <h1 class="main-heading">This is where your Learning Challenge begins.</h1>
+    <p class="main-sub">You told us about your passion for <span id="passion-display">your project</span>. Now it's time to take the first real step.</p>
+    <p class="main-sub">Set a specific goal you can accomplish in the next 10 days — something concrete you can build, make, or finish. Write three chapters. Record a song. Build a prototype. Design a collection. Something you can show.</p>
+    <p class="main-sub">This isn't your whole Learning Challenge. It's your starting point. Prove you can get moving and the rest unlocks.</p>
+    <p class="main-sub">At the end of 10 days, film a 90-second video showing what you accomplished. We call that your First Drop. If it's real and honest, you're in — officially a GripTape Challenger. Backed with a mentor, a community, and funding.</p>
 
     <hr class="divider-slim" />
 
@@ -498,6 +501,9 @@
 
       if (data.first_name) {
         document.getElementById('greeting').textContent = 'Hey ' + data.first_name + '.';
+      }
+      if (data.passion) {
+        document.getElementById('passion-display').textContent = data.passion;
       }
       showState('state-declaration');
     } catch (e) {

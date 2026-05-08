@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/applications?access_token=eq.${encodeURIComponent(token)}&select=id,first_name,screening_status,access_token,stage_deadline_at`,
+      `${supabaseUrl}/rest/v1/applications?access_token=eq.${encodeURIComponent(token)}&select=id,first_name,passion,screening_status,access_token,stage_deadline_at`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ valid: false, expired: true });
     }
 
-    return res.status(200).json({ valid: true, first_name: application.first_name });
+    return res.status(200).json({ valid: true, first_name: application.first_name, passion: application.passion });
 
   } catch (err) {
     console.error('[check-token] error:', err);
