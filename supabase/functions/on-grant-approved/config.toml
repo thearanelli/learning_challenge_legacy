@@ -1,2 +1,0 @@
-[functions.on-grant-approved]
-verify_jwt = false

@@ -1,2 +1,0 @@
-[functions.on-acceptance]
-verify_jwt = false
