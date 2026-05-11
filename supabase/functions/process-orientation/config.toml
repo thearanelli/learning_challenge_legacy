@@ -1,0 +1,2 @@
+[functions.process-orientation]
+verify_jwt = false

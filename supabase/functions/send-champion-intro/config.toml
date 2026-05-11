@@ -1,0 +1,2 @@
+[functions.send-champion-intro]
+verify_jwt = false
