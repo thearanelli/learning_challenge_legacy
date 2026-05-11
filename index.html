@@ -750,21 +750,31 @@ h1 {
 
 /* HERO TICKER */
 .hero-ticker {
+  position: relative;
+  height: 2.5em;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+.hero-ticker-item {
+  position: absolute;
+  top: 0; left: 0; width: 100%;
   font-size: 0.82rem;
   color: rgba(255,255,255,0.35);
   line-height: 1.5;
-  margin-bottom: 1.25rem;
-  min-height: 1.3em;
+  opacity: 0;
   transition: opacity 0.4s ease;
 }
-.hero-ticker .ticker-name { color: var(--lime); font-weight: 600; }
+.hero-ticker-item.active { opacity: 1; }
+.hero-ticker-item .ticker-name { color: var(--lime); font-weight: 600; }
 
 /* ── RESPONSIVE ── */
 
-/* Mobile: hide nav pills, large h1 */
+/* Mobile: hide nav pills, large h1, reorder examples section */
 @media (max-width: 767px) {
   .nav-pills { display: none; }
   h1 { font-size: clamp(48px, 12vw, 72px); }
+  .landing-container { display: flex; flex-direction: column; }
+  .examples-section { order: -1; }
 }
 
 /* App screen + general mobile */
@@ -1079,22 +1089,25 @@ h1 {
 <!-- ── SUCCESS ── -->
 <div id="success-screen">
   <div class="success-ring">🚀</div>
-  <div class="success-label">Application received</div>
-  <div class="success-title" id="success-title">You're in<br><em>The Running.</em></div>
+  <div class="success-title" id="success-title">You did it. Your registration is submitted —<br><em>keep an eye on your email.</em></div>
   <p class="success-body">We got you. Decision within 48 hours.<br><br><em style="color:var(--white);opacity:0.8">"It's life-changing. I feel like I have a path in front of me."</em> — Isaac, 19</p>
   <p class="success-sub">Now go tell a friend.</p>
   <div class="success-stats">
     <div class="success-stat">
       <div class="success-stat-num">$250</div>
-      <div class="success-stat-label">You could win</div>
+      <div class="success-stat-label">You could earn</div>
     </div>
     <div class="success-stat">
-      <div class="success-stat-num">6</div>
+      <div class="success-stat-num">8</div>
       <div class="success-stat-label">Weeks of support</div>
     </div>
     <div class="success-stat">
       <div class="success-stat-num">1:1</div>
       <div class="success-stat-label">Your Champion</div>
+    </div>
+    <div class="success-stat">
+      <div class="success-stat-num">NYC</div>
+      <div class="success-stat-label">In-person events</div>
     </div>
   </div>
   <button class="btn-main" onclick="location.reload()">Back to home</button>
@@ -1153,7 +1166,7 @@ const QUESTIONS = [
   { key: 'last_name',  q: "Last name, {name}?",                     hint: null },
   {
     key: 'passion',
-    q: "Okay {name} — what are you into?\n\nWhat takes up your brain? What do you care about enough to spend 6 weeks going deep on?\n\nDon't perform. Don't write what sounds good.\nTell us what's actually real for you.",
+    q: "What's your passion? This is you picking your Learning Challenge topic — what would you actually spend 6 weeks going deep on? Don't perform. Pick something real.",
     deepDive: true,
     hint: 'Aim for 40+ words — more detail = better chance',
   },
@@ -1541,7 +1554,7 @@ async function showEmailBlock() {
   showTyping();
   await new Promise(r => setTimeout(r, 900));
   hideTyping();
-  await addAiMsg("What\u2019s your email? We\u2019ll send your decision here.", null);
+  await addAiMsg(`Great ${userName || 'you'}! We\u2019re going to send this over to the GripTape team for review. You\u2019re almost done \u2014 we just need some basic contact information. What\u2019s your email? We\u2019ll send updates about your registration there.`, null);
   injectInlineBlock(
     'email-block',
     `<input id="email-input" type="email" placeholder="your@email.com" style="${INLINE_INPUT_STYLE}">`,
@@ -1582,7 +1595,14 @@ function submitPhoneBlock() {
   document.getElementById('phone-block').remove();
   step++;
   setProgress(step, TOTAL_STEPS);
-  setTimeout(() => showBirthdateBlock(), 450);
+  setTimeout(() => {
+    showTyping();
+    setTimeout(async () => {
+      hideTyping();
+      await addAiMsg("Last thing \u2014 want texts about your Challenge status?", null);
+      showConsentStep();
+    }, 700);
+  }, 450);
 }
 
 async function showBirthdateBlock() {
@@ -1713,24 +1733,17 @@ function submitAddress() {
   setTimeout(() => {
     showChoiceStep(
       'How do you identify? (optional)',
-      ['Male', 'Female', 'Non-binary', 'Prefer not to say'],
+      ['Male', 'Female', 'Non-binary'],
       'gender',
       11, TOTAL_STEPS,
-      true,
+      false,
       () => showChoiceStep(
         'Pronouns? (optional)',
-        ['He/Him', 'She/Her', 'They/Them', 'Prefer not to say'],
+        ['He/Him', 'She/Her', 'They/Them'],
         'pronouns',
         12, TOTAL_STEPS,
-        true,
-        () => {
-          showTyping();
-          setTimeout(async () => {
-            hideTyping();
-            await addAiMsg("Last thing \u2014 want texts about your Challenge status?", null);
-            showConsentStep();
-          }, 700);
-        }
+        false,
+        () => submitApp()
       )
     );
   }, 450);
@@ -1791,31 +1804,17 @@ function skipOptional(fieldKey, btn) {
   const el = document.getElementById('choice-step-' + fieldKey);
   if (el) el.remove();
   addUserMsg('Skipped');
-  // Trigger the same onSelect that would have fired — re-invoke flow
-  // We do this by re-running the post-address chain from the right point
   if (fieldKey === 'gender') {
     showChoiceStep(
       'Pronouns? (optional)',
-      ['He/Him', 'She/Her', 'They/Them', 'Prefer not to say'],
+      ['He/Him', 'She/Her', 'They/Them'],
       'pronouns',
       12, TOTAL_STEPS,
-      true,
-      () => {
-        showTyping();
-        setTimeout(() => {
-          hideTyping();
-          addAiMsg("Last thing — want texts about your Challenge status?", null);
-          showConsentStep();
-        }, 700);
-      }
+      false,
+      () => submitApp()
     );
   } else if (fieldKey === 'pronouns') {
-    showTyping();
-    setTimeout(() => {
-      hideTyping();
-      addAiMsg("Last thing — want texts about your Challenge status?", null);
-      showConsentStep();
-    }, 700);
+    submitApp();
   }
 }
 
@@ -1829,20 +1828,18 @@ function showConsentStep() {
       <input type="checkbox" id="sms-opt-in" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#EA5329;cursor:pointer;">
       <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;">I agree to receive SMS notifications from GripTape about my application status, program updates, and deadline reminders. Message frequency varies \u2014 up to 8 messages per program cycle. Message and data rates may apply. Reply STOP to unsubscribe.</span>
     </label>
-    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#EA5329;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Let\u2019s go \u2192</button>
+    <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#EA5329;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next \u2192</button>
   `;
   chat.appendChild(el);
-  setProgress(TOTAL_STEPS, TOTAL_STEPS);
   scrollBottom();
 }
 
 function handleConsentSubmit() {
   haptic([15]);
   smsConsent = document.getElementById('sms-opt-in').checked;
-  const btn = document.getElementById('consent-submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting\u2026';
-  submitApp();
+  const el = document.getElementById('consent-step');
+  if (el) el.remove();
+  showBirthdateBlock();
 }
 
 async function submitApp() {
@@ -1894,11 +1891,6 @@ async function submitApp() {
 
 function showSuccess() {
   haptic([15]);
-  // Interpolate first name into success title
-  const title = document.getElementById('success-title');
-  if (userName) {
-    title.innerHTML = `You're in,<br><em>${escHtml(userName)}.</em>`;
-  }
   document.getElementById('app-screen').classList.remove('active');
   document.getElementById('success-screen').classList.add('active');
   launchConfetti();
@@ -1940,18 +1932,19 @@ function launchConfetti() {
   ];
   const el = document.getElementById('hero-ticker');
   if (!el) return;
+  examples.forEach(function(e, i) {
+    const item = document.createElement('div');
+    item.className = 'hero-ticker-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = e.project + ' \u2014 <span class="ticker-name">' + e.name + '</span>';
+    el.appendChild(item);
+  });
   let idx = 0;
-  function show() {
-    el.style.opacity = '0';
-    setTimeout(function() {
-      var e = examples[idx];
-      el.innerHTML = e.project + ' \u2014 <span class="ticker-name">' + e.name + '</span>';
-      el.style.opacity = '1';
-      idx = (idx + 1) % examples.length;
-    }, 400);
-  }
-  show();
-  setInterval(show, 3000);
+  setInterval(function() {
+    const items = el.querySelectorAll('.hero-ticker-item');
+    items[idx].classList.remove('active');
+    idx = (idx + 1) % examples.length;
+    items[idx].classList.add('active');
+  }, 3000);
 })();
 
 // Restore draft on load
