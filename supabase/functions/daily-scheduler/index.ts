@@ -185,8 +185,8 @@ serve(async (req) => {
     has_deadline: boolean;
   }> = [
     { stage: 'mentor_pending',      nudge_day: 4,  content_key: 'nudge_orientation_champion', notify_champion: false, champion_only: true,  has_deadline: true  },
-    { stage: 'mentor_pending',      nudge_day: 3,  content_key: 'nudge_orientation_1', notify_champion: true,  has_deadline: true  },
-    { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: true,  has_deadline: true  },
+    { stage: 'mentor_pending',      nudge_day: 3,  content_key: 'nudge_orientation_1', notify_champion: false, has_deadline: true  },
+    { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: false, has_deadline: true  },
     { stage: 'grant_pending',       nudge_day: 5,  content_key: 'nudge_grant',          notify_champion: false, has_deadline: false },
     { stage: 'final_video_pending', nudge_day: 7,  content_key: 'nudge_full_send_1',   notify_champion: false, has_deadline: true  },
     { stage: 'final_video_pending', nudge_day: 12, content_key: 'nudge_full_send_2',   notify_champion: false, has_deadline: true  },
@@ -239,7 +239,7 @@ serve(async (req) => {
                 await sendNotification(
                   nudge.content_key,
                   { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
-                  { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL },
+                  { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL, orientation_link: `${config.BASE_URL}/orientation?token=${youth.access_token}`, youth_phone: youth.phone ?? '' },
                   { champion_id: champion.id, youth_id: youth.id },
                 );
               }

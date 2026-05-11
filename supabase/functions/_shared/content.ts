@@ -193,12 +193,14 @@ Note: approve/reject routes not built yet — coming next session.`,
   nudge_orientation_champion: {
     email_subject: '{{youth_name}} is waiting to hear from you',
     email_body: `<p>Hey {{first_name}},</p>
-<p>{{youth_name}} has been matched with you as their GripTape Champion and is waiting to schedule their orientation call.</p>
+<p>{{youth_name}} has been matched with you as their GripTape Champion and is still waiting to schedule their orientation call.</p>
 <p>They have until {{deadline_date}} to complete the call. Reach out to them directly and get it on the calendar.</p>
-<p>Once the call is done submit the orientation form you received when they were matched with you.</p>
+<p><strong>{{youth_name}}'s cell:</strong> {{youth_phone}}</p>
+<p>Once the call is done submit the orientation form below.</p>
+<p><a href="{{orientation_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit orientation form</a></p>
 <p>Questions? Reply to this email.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your GripTape youth {{youth_name}} is waiting to schedule their orientation call. Reach out today.',
+    sms: 'Hey {{first_name}}, your GripTape Challenger {{youth_name}} is still waiting to schedule their orientation call. Their number: {{youth_phone}}',
   },
 
   nudge_grant: {
