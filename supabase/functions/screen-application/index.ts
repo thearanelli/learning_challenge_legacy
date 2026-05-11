@@ -107,8 +107,8 @@ serve(async (req) => {
     console.log(`[SCREEN] ${application.id}: ${decision}`);
 
     // next stage per config.STAGES.screening.next
-    const newStatus = decision === 'accepted' ? config.STATUS.DECLARATION_PENDING
-      : decision === 'rejected' ? config.STATUS.REJECTED
+    const newStatus = decision === 'accepted'
+      ? config.STATUS.DECLARATION_PENDING
       : config.STATUS.FLAGGED;
 
     const tokenData = decision === 'accepted'
@@ -131,7 +131,7 @@ serve(async (req) => {
       profileToken = crypto.randomUUID();
       additionalFields.profile_token = profileToken;
     }
-    if (decision === 'accepted' || decision === 'rejected') {
+    if (decision === 'accepted') {
       additionalFields.notify_after = new Date(
         Date.now() + 48 * 60 * 60 * 1000
       ).toISOString();
