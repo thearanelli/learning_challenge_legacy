@@ -190,6 +190,17 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms: 'Hey {{first_name}}, your orientation call is due soon — connect with {{champion_name}} today.',
   },
 
+  nudge_orientation_champion: {
+    email_subject: '{{youth_name}} is waiting to hear from you',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>{{youth_name}} has been matched with you as their GripTape Champion and is waiting to schedule their orientation call.</p>
+<p>They have until {{deadline_date}} to complete the call. Reach out to them directly and get it on the calendar.</p>
+<p>Once the call is done submit the orientation form you received when they were matched with you.</p>
+<p>Questions? Reply to this email.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, your GripTape youth {{youth_name}} is waiting to schedule their orientation call. Reach out today.',
+  },
+
   nudge_grant: {
     email_subject: "Your funding is waiting — don't let it expire",
     email_body: `<p>Hey {{first_name}},</p>

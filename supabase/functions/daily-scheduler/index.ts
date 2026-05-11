@@ -181,8 +181,10 @@ serve(async (req) => {
     nudge_day: number;
     content_key: string;
     notify_champion: boolean;
+    champion_only?: boolean;
     has_deadline: boolean;
   }> = [
+    { stage: 'mentor_pending',      nudge_day: 4,  content_key: 'nudge_orientation_champion', notify_champion: false, champion_only: true,  has_deadline: true  },
     { stage: 'mentor_pending',      nudge_day: 3,  content_key: 'nudge_orientation_1', notify_champion: true,  has_deadline: true  },
     { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: true,  has_deadline: true  },
     { stage: 'grant_pending',       nudge_day: 5,  content_key: 'nudge_grant',          notify_champion: false, has_deadline: false },
@@ -223,6 +225,26 @@ serve(async (req) => {
 
           if (existing && existing.length > 0) {
             continue; // already sent
+          }
+
+          if (nudge.champion_only) {
+            if (youth.champion_id) {
+              const { data: champion } = await supabase
+                .from('champions')
+                .select('id, first_name, last_name, email, phone')
+                .eq('id', youth.champion_id)
+                .single();
+
+              if (champion) {
+                await sendNotification(
+                  nudge.content_key,
+                  { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
+                  { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL },
+                  { champion_id: champion.id, youth_id: youth.id },
+                );
+              }
+            }
+            continue;
           }
 
           const recipient = {
