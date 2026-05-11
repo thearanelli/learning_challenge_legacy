@@ -297,8 +297,13 @@ begin
   set_clause := format('%I = $1, updated_at = now()', status_col);
 
   -- Append additional_fields to SET clause
+  -- timestamptz columns must be cast explicitly; jsonb_each_text yields plain text
   for pair in select key, value from jsonb_each_text(additional_fields) loop
-    set_clause := set_clause || format(', %I = %L', pair.key, pair.value);
+    if pair.key in ('stage_deadline_at', 'stage_entered_at', 'notify_after') then
+      set_clause := set_clause || format(', %I = %L::timestamptz', pair.key, pair.value);
+    else
+      set_clause := set_clause || format(', %I = %L', pair.key, pair.value);
+    end if;
   end loop;
 
   -- Execute update and return the updated row as jsonb
