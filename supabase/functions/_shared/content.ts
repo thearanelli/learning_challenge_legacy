@@ -56,6 +56,22 @@ export const content = {
     removal_email_body: `Placeholder — replace before launch`,
   },
 
+  champion_intro: {
+    email_subject: 'You have a new Challenger — {{youth_name}}',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>You have been matched with a new GripTape Challenger. Here is everything you need to get started.</p>
+<p><strong>Your Challenger:</strong> {{youth_name}}<br>
+<strong>Their passion:</strong> {{passion}}</p>
+<p><strong>Watch their First Drop video first:</strong><br>
+<a href="{{first_drop_url}}">{{first_drop_url}}</a></p>
+<p>Watch it before you reach out. Then contact {{youth_name}} directly and let them know you watched their video and are excited to start the journey together. That first message sets the tone for everything.</p>
+<p>Once you have connected and completed your orientation call submit the orientation form below. That is what unlocks their funding.</p>
+<p><a href="{{orientation_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit orientation form</a></p>
+<p>Questions? Reply to this email.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, you have a new GripTape Challenger — {{youth_name}}. Check your email for their First Drop video and next steps.',
+  },
+
   grant_pending: {
     email_subject: "You've unlocked your GripTape funding — action required",
     email_body: `<p>Hey {{first_name}},</p>

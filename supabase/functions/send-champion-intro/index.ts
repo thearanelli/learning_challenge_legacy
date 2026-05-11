@@ -75,7 +75,7 @@ serve(async (req) => {
 
     const { data: champion, error: champErr } = await supabase
       .from('champions')
-      .select('id, first_name, last_name, email, phone, bio')
+      .select('id, first_name, last_name, email, phone, bio, champion_token')
       .eq('id', youth.champion_id)
       .single();
 
@@ -116,6 +116,34 @@ serve(async (req) => {
       { youth_id: youth.id },
       { skipSms: true },
     );
+
+    const orientationLink = `${config.BASE_URL}/orientation?token=${champion.champion_token}`;
+    const youthAppRes = await supabase
+      .from('applications')
+      .select('application_responses')
+      .eq('id', youth.application_id)
+      .single();
+    const passion = youthAppRes.data?.application_responses?.passion ?? '';
+
+    await sendNotification(
+      'champion_intro',
+      {
+        first_name: champion.first_name,
+        last_name: champion.last_name,
+        email: champion.email,
+        phone: champion.phone,
+      },
+      {
+        youth_name: `${youth.first_name} ${youth.last_name}`,
+        passion,
+        first_drop_url: youth.first_drop_url ?? '',
+        orientation_link: orientationLink,
+        base_url: config.BASE_URL,
+      },
+      { champion_id: champion.id, youth_id: youth.id },
+    );
+
+    console.log(`[send-champion-intro] champion_intro email sent to champion ${champion.id} for youth ${youth.id}`);
 
     console.log(
       `[send-champion-intro] intro comms sent — youth ${youth.id}, champion ${champion.id}`,
