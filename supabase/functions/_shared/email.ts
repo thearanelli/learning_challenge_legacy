@@ -35,12 +35,14 @@ export function wrapEmailHtml(body: string, helpUrl: string): string {
   }
 </style>
 </head>
-<body style="margin:0;padding:0;background-color:#ffffff">
+<body style="margin:0;padding:0;background-color:#f4f4f4">
 <!--[if mso]>
-<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f4f4"><tr><td align="center" style="padding:40px 0">
 <table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td>
 <![endif]-->
-<table class="email-wrapper" align="center" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;margin:0 auto;background:#ffffff;border-collapse:collapse">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background-color:#f4f4f4">
+<tr><td align="center" style="padding:40px 16px">
+<table class="email-wrapper" align="center" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-collapse:collapse">
 
   <tr>
     <td class="email-header" style="background:#001722;padding:28px 40px 22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
@@ -62,6 +64,8 @@ export function wrapEmailHtml(body: string, helpUrl: string): string {
     </td>
   </tr>
 
+</table>
+</td></tr>
 </table>
 <!--[if mso]>
 </td></tr></table>

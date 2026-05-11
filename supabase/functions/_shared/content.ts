@@ -2,7 +2,7 @@ export const content = {
   declaration_pending: {
     email_subject: 'Step 1 done. You\'re invited to Step 2.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your passion for {{passion}} stood out. We think you should commit to it — make it a real project.</p>
+<p>Your passion for {{passion}} stood out. We think you should commit to it and make it a real project.</p>
 <p>Here's what happens next: set a 10-day goal, work on it, then film a short video showing what you built. That's your First Drop — and it's how you earn your spot at GripTape.</p>
 <p><a href="{{link}}" style="display:block;background:#EA5329;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;text-align:center;margin:20px 0;font-family:Arial,Helvetica,sans-serif">Start Step 2 →</a></p>
 <p>— The GripTape Team</p>`,
@@ -12,7 +12,7 @@ export const content = {
     email_subject: 'Your 10 days start now.',
     email_body: `<p>Hey {{first_name}},</p>
 <p>You've committed. Your 10 days have started.</p>
-<p>Starting is sometimes the hardest part. Don't overthink it — pick something small, make it happen, and build from there.</p>
+<p>Starting is sometimes the hardest part. Don't overthink it. Pick something small, make it happen, and build from there.</p>
 <p>Head down. No excuses. We'll send you your First Drop submission link in 7 days. Until then, just go build something.</p>
 <p>— The GripTape Team</p>`,
     sms: 'Hi {{first_name}}, you\'re in. Submit your video: {{video_link}} Your profile: {{profile_link}}',
@@ -45,7 +45,7 @@ export const content = {
 <p>This is real — you've earned up to $250 to invest in your passion project, and someone in your corner the whole way.</p>
 <p>That someone is {{champion_first_name}} — your Champion.</p>
 <p>{{champion_bio}}</p>
-<p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps — including accessing your funding and joining the GripTape community.</p>
+<p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps. That includes accessing your funding and joining the GripTape community.</p>
 <p>Reach out to {{champion_first_name}} to schedule that call as soon as possible: {{champion_phone}}</p>
 <p>You have 7 days to complete your orientation — after that we have to give your spot to someone else.</p>
 <p>— The GripTape Team</p>`,
@@ -59,14 +59,14 @@ export const content = {
   grant_pending: {
     email_subject: "You've unlocked your GripTape funding — action required",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Big congrats {{first_name}} — you just completed your orientation call with {{champion_first_name}}. GripTape alumni consistently say their Champion was the most valuable part of the whole experience. We think you'll see why.</p>
+<p>Big congrats {{first_name}}. You just completed your orientation call with {{champion_first_name}}. GripTape alumni consistently say their Champion was the most valuable part of the whole experience. We think you'll see why.</p>
 <p>You can now officially unlock your funding.</p>
 <p>To release your GripTape Learning Challenge funding, you need to sign two documents:</p>
 <p><strong>Your W-9 form</strong> — this is a standard IRS tax form that nonprofits are required to collect before sending any payment. GripTape is a registered 501(c)(3) nonprofit, which means we're legally required to have this on file before we can send you money. It takes 2 minutes to complete.<br>
 <a href="{{w9_link}}">Sign your W-9 →</a></p>
 <p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a GripTape Challenger.<br>
 <a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
-<p>You have 21 days to sign both documents. After that, the funding window closes — but your spot in the program is safe.</p>
+<p>You have 21 days to sign both documents. After that the funding window closes. Your spot in the program is safe either way.</p>
 <p>— The GripTape Team</p>`,
     sms: `GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
   },
@@ -125,7 +125,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: "You did it. Welcome to the GripTape Alumni family.",
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your Full Send is in. You're officially a GripTape Alum.</p>
-<p>Six weeks ago you made a commitment. You showed up, did the work, and finished something real. That's not nothing — most people never do.</p>
+<p>Six weeks ago you made a commitment. You showed up, did the work, and finished something real. That's not nothing. Most people never do.</p>
 <p>Now pay it forward.</p>
 <p>Know someone who has a passion and the drive to do something with it? Send them to GripTape. One registration could change everything for them the way this Challenge changed things for you.</p>
 <p>Share this link with them: <a href="{{base_url}}">{{base_url}}</a></p>
@@ -138,14 +138,24 @@ Note: approve/reject routes not built yet — coming next session.`,
   nudge_declaration: {
     email_subject: "Your spot expires in 4 days — complete your commitment",
     email_body: `<p>Hey {{first_name}},</p>
-<p>You started something. Don't let it slip.</p>
-<p>You have until {{deadline_date}} to commit to your GripTape Challenge. It takes 5 minutes — declare what you want to pursue and earn your spot.</p>
-<p><a href="{{link}}">Complete your commitment →</a></p>`,
+<p>You have until {{deadline_date}} to commit to your GripTape Challenge. It takes 5 minutes.</p>
+<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Commit</a></p>`,
     sms: "Hey {{first_name}}, don't forget to complete your GripTape declaration: {{link}}",
   },
 
   nudge_first_drop_1: {
-    email_subject: "7 days in — here's your First Drop submission link",
+    email_subject: "You're doing it, {{first_name}}.",
+    email_body: `<p>Hey {{first_name}},</p>
+<p>5 days in. You made a commitment and you're showing up for it. That already puts you ahead of most people.</p>
+<p>In 2 days you'll get your First Drop submission link. Start thinking about what you want to show.</p>
+<p>Your video needs to cover three things. Who you are and what your passion is. What you've actually done in the past 10 days. Where you're taking this next.</p>
+<p>Keep it under 90 seconds, shoot vertical, show your work. Real talk only.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, your First Drop video is due soon: {{link}}',
+  },
+
+  nudge_first_drop_mid: {
+    email_subject: "Your First Drop link is ready, {{first_name}}.",
     email_body: `<p>Hey {{first_name}},</p>
 <p>You've had 7 days to work on your project. Now it's time to show us what you built.</p>
 <p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
@@ -184,26 +194,29 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: "Your funding is waiting — don't let it expire",
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your GripTape funding is sitting there waiting for you. But it won't wait forever.</p>
-<p>You have until {{deadline_date}} to sign your grant documents. After that the funding window closes — your spot in the program stays safe but the money doesn't.</p>
+<p>You have until {{deadline_date}} to sign your grant documents. After that the funding window closes. Your spot in the program stays safe but the money doesn't.</p>
 <p><a href="{{link}}">Sign your documents →</a></p>`,
     sms: "Hey {{first_name}}, don't forget your grant paperwork — unlock your $250 here: {{link}}",
   },
 
   nudge_full_send_1: {
-    email_subject: 'One week left — your Full Send is due {{deadline_date}}',
+    email_subject: "You're doing it, {{first_name}}.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>One week left to submit your Full Send.</p>
-<p>This is your final video — show us everything you built, learned, and accomplished over the last 6 weeks. Submit by {{deadline_date}} to officially complete your GripTape Challenge and become an Alum.</p>
-<p><a href="{{link}}">Submit your Full Send →</a></p>`,
+<p>7 days into your final stretch. You've put in 6 weeks of real work and you're almost at the finish line.</p>
+<p>In 5 days you'll need to submit your Full Send. Start thinking about what you want to show the world.</p>
+<p>Your video needs to cover three things. Who you are and what your passion is. What you built or learned over the past 6 weeks. What's next for you after this.</p>
+<p>Keep it real. Show the work. We can't wait to see it.</p>
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, one week left to submit your Full Send: {{link}}',
   },
 
   nudge_full_send_2: {
-    email_subject: '2 days left — submit your Full Send now',
+    email_subject: "Almost there, {{first_name}}. Don't stop now.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your Full Send deadline is {{deadline_date}} — 2 days from now.</p>
-<p>Don't let 6 weeks of work go unrecognized. Submit your video, complete your Challenge, and earn your place in the GripTape Alumni community.</p>
-<p><a href="{{link}}">Submit your Full Send →</a></p>`,
+<p>You have 2 days left to submit your Full Send. Six weeks of work comes down to this.</p>
+<p>Show us what you built. Show us who you became. Keep it under 90 seconds, shoot vertical, make it real.</p>
+<p>Your submission link is waiting. Let's see it.</p>
+<p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, last chance — your Full Send is due soon: {{link}}',
   },
 

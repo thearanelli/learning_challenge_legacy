@@ -109,8 +109,9 @@ serve(async (req) => {
     link_field: string | null;
   }> = [
     { stage: 'declaration_pending', nudge_day: 6,  content_key: 'nudge_declaration',  link_field: 'access_token' },
-    { stage: 'video_pending',       nudge_day: 5,  content_key: 'nudge_first_drop_1', link_field: 'access_token' },
-    { stage: 'video_pending',       nudge_day: 9,  content_key: 'nudge_first_drop_2', link_field: 'access_token' },
+    { stage: 'video_pending',       nudge_day: 5,  content_key: 'nudge_first_drop_1',   link_field: 'access_token' },
+    { stage: 'video_pending',       nudge_day: 7,  content_key: 'nudge_first_drop_mid', link_field: 'access_token' },
+    { stage: 'video_pending',       nudge_day: 9,  content_key: 'nudge_first_drop_2',   link_field: 'access_token' },
   ];
 
   try {
