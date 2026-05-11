@@ -231,18 +231,21 @@ serve(async (req) => {
             if (youth.champion_id) {
               const { data: champion } = await supabase
                 .from('champions')
-                .select('id, first_name, last_name, email, phone')
+                .select('id, first_name, last_name, email, phone, registration_token')
                 .eq('id', youth.champion_id)
                 .single();
 
-              if (champion) {
-                await sendNotification(
-                  nudge.content_key,
-                  { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
-                  { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL, orientation_link: `${config.BASE_URL}/orientation?token=${youth.access_token}`, youth_phone: youth.phone ?? '' },
-                  { champion_id: champion.id, youth_id: youth.id },
-                );
+              if (!champion) {
+                console.error(`[daily-scheduler] champion_only — champion not found for youth ${youth.id}`);
+                continue;
               }
+
+              await sendNotification(
+                nudge.content_key,
+                { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
+                { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL, orientation_link: `${config.BASE_URL}/orientation?token=${champion.registration_token}`, youth_phone: youth.phone ?? '' },
+                { champion_id: champion.id, youth_id: youth.id },
+              );
             }
             continue;
           }
