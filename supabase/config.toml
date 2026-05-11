@@ -1,0 +1,26 @@
+[functions.screen-application]
+verify_jwt = false
+
+[functions.process-declaration]
+verify_jwt = false
+
+[functions.validate-video]
+verify_jwt = false
+
+[functions.on-acceptance]
+verify_jwt = false
+
+[functions.match-champion]
+verify_jwt = false
+
+[functions.send-champion-intro]
+verify_jwt = false
+
+[functions.process-orientation]
+verify_jwt = false
+
+[functions.on-grant-approved]
+verify_jwt = false
+
+[functions.daily-scheduler]
+verify_jwt = false
