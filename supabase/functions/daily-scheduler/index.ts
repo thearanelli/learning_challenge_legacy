@@ -231,7 +231,7 @@ serve(async (req) => {
             if (youth.champion_id) {
               const { data: champion } = await supabase
                 .from('champions')
-                .select('id, first_name, last_name, email, phone, registration_token')
+                .select('id, first_name, last_name, email, phone, champion_token')
                 .eq('id', youth.champion_id)
                 .single();
 
@@ -243,7 +243,7 @@ serve(async (req) => {
               await sendNotification(
                 nudge.content_key,
                 { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: champion.phone },
-                { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL, orientation_link: `${config.BASE_URL}/orientation?token=${champion.registration_token}`, youth_phone: youth.phone ?? '' },
+                { youth_name: `${youth.first_name} ${youth.last_name}`, deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL, orientation_link: `${config.BASE_URL}/orientation?token=${champion.champion_token}`, youth_phone: youth.phone ?? '' },
                 { champion_id: champion.id, youth_id: youth.id },
               );
             }
