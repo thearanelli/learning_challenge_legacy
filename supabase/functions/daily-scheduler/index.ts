@@ -271,6 +271,18 @@ serve(async (req) => {
             }
           }
 
+          if (nudge.stage === 'final_video_pending' && youth.champion_id) {
+            const { data: fsChampion } = await supabase
+              .from('champions')
+              .select('first_name, last_name, phone')
+              .eq('id', youth.champion_id)
+              .single();
+            if (fsChampion) {
+              vars.champion_name = `${fsChampion.first_name} ${fsChampion.last_name}`;
+              vars.champion_phone = fsChampion.phone ?? '';
+            }
+          }
+
           if (nudge.notify_champion && youth.champion_id) {
             const { data: champion } = await supabase
               .from('champions')

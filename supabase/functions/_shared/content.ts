@@ -229,24 +229,30 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   nudge_full_send_1: {
-    email_subject: "You're doing it, {{first_name}}.",
+    email_subject: "Your Challenge isn't complete yet — here's what's left",
     email_body: `<p>Hey {{first_name}},</p>
-<p>7 days into your final stretch. You've put in 6 weeks of real work and you're almost at the finish line.</p>
-<p>In 5 days you'll need to submit your Full Send. Start thinking about what you want to show the world.</p>
-<p>Your video needs to cover three things. Who you are and what your passion is. What you built or learned over the past 6 weeks. What's next for you after this.</p>
-<p>Keep it real. Show the work. We can't wait to see it.</p>
+<p>One week into your final stretch. Two things need to happen before {{deadline_date}} to complete your Challenge and become a GripTape Alum.</p>
+<p>Being a GripTape Alum means access to exclusive future programs, opportunities, events, and a community of young builders who did exactly what you're doing right now.</p>
+<p>Your End of Challenge call with {{champion_name}}. And your Full Send submission.</p>
+<p>If you haven't had your End of Challenge call yet, reach out to {{champion_name}} today: {{champion_phone}}.</p>
+<p>If you haven't submitted your Full Send yet, here's your link:</p>
+<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, one week left to submit your Full Send: {{link}}',
+    sms: "Hey {{first_name}}, one week left. Two things needed: your End of Challenge call with {{champion_name}} ({{champion_phone}}) and your Full Send: {{link}}",
   },
 
   nudge_full_send_2: {
-    email_subject: "Almost there, {{first_name}}. Don't stop now.",
+    email_subject: "You started something — finish it",
     email_body: `<p>Hey {{first_name}},</p>
-<p>You have 2 days left to submit your Full Send. Six weeks of work comes down to this.</p>
-<p>Show us what you built. Show us who you became. Keep it under 90 seconds, shoot vertical, make it real.</p>
-<p>Your submission link is waiting. Let's see it.</p>
+<p>Two days left. This is your last nudge.</p>
+<p>You spent six weeks building something real. Don't let it end without crossing the finish line.</p>
+<p>Two things need to happen by {{deadline_date}}:</p>
+<p>Your End of Challenge call with {{champion_name}} — reach out today if it hasn't happened: {{champion_phone}}.</p>
+<p>Your Full Send submission — this is what officially makes you a GripTape Alum. Access to exclusive future programs, opportunities, and a community of builders who finished what they started. Just like you're about to.</p>
+<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>You've come too far to stop now. Finish it.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, last chance — your Full Send is due soon: {{link}}',
+    sms: "Hey {{first_name}}, last chance. End of Challenge call with {{champion_name}} ({{champion_phone}}) + Full Send due {{deadline_date}}: {{link}}",
   },
 
   // ── Removals ──────────────────────────────────────────────────────────────
@@ -294,50 +300,31 @@ Note: approve/reject routes not built yet — coming next session.`,
   // ── Full Send link dispatch ───────────────────────────────────────────────
 
   full_send_link: {
-    email_subject: "It's time for your Full Send. You've earned this.",
+    email_subject: "Your Challenge is almost complete",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Six weeks ago you committed to building something real. You showed up, put in the work, and didn't quit.</p>
-<p>Before you submit your Full Send, schedule your End of Challenge call with {{champion_name}}. This is a required part of your GripTape Challenge — use it to reflect on everything you built and where you're headed next. Reach out to {{champion_name}} to get it on the calendar: {{champion_phone}}.</p>
-<p>Now it's time to show the world what you made.</p>
-<p>This is your Full Send — your final video submission and the last step of your GripTape Challenge. Think of it like your First Drop, but bigger. This is your whole story.</p>
-<p><strong>You must submit by {{deadline_date}} to officially complete your GripTape Learning Challenge and become a GripTape Alum — with access to future programs, events, and the broader GripTape community.</strong></p>
-<p><strong>How to film it:</strong><br>
-🎥 Shoot vertical. Good lighting. Clear audio. Clean background. Show your face and your work.</p>
-<p><strong>Your video should cover:</strong></p>
-<p>🎯 Who are you and what's your passion?<br>
-<em>e.g. My name is Taylor, and I am passionate about amplifying restaurant owners because I want to help people in my community tell their stories.</em></p>
-<p>🎯 What did you create or accomplish?<br>
-Show us what you made — screenshots, video clips, photos, designs, whatever you built.</p>
-<p>🎯 Where did you start vs. where are you now?<br>
-Any personal growth? Confidence? New skills? What did this Challenge unlock in you?</p>
-<p>🎯 What's next?<br>
-What are you chasing after this? A next step, a new project, a big dream.</p>
-<p><strong>Keep it under 90 seconds. Make it count.</strong></p>
-<p><a href="{{link}}">Submit your Full Send →</a></p>
+<p>Six weeks ago you committed to building something real. You showed up, did the work, and didn't quit. You're almost done.</p>
+<p>Two things left to officially complete your Challenge:</p>
+<p><strong>1. Schedule your End of Challenge call with {{champion_name}}</strong> — a 30-45 minute conversation to reflect on everything you built and celebrate how far you've come. Reach out to {{champion_name}} to get it on the calendar: {{champion_phone}}.</p>
+<p><strong>2. Submit your Full Send video</strong> — a 90-second video showing your work, your growth, and where you're headed next.</p>
+<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>Both need to happen by {{deadline_date}}.</p>
+<p>Pro tip: try to have a draft of your Full Send ready before your End of Challenge call. Showing your Champion what you built makes for a better conversation — and their feedback will make your video better.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, time to submit your Full Send! Submit your video here: {{link}}',
+    sms: 'Hey {{first_name}}, your Challenge is almost complete. Two things left: your End of Challenge call with {{champion_name}} and your Full Send submission. Submit here: {{link}}',
   },
 
   // ── End of Challenge ─────────────────────────────────────────────────────
 
   end_of_challenge_champion: {
-    email_subject: "Time for {{youth_name}}'s End of Challenge call",
+    email_subject: "Time to schedule {{youth_name}}'s End of Challenge call",
     email_body: `<p>Hey {{first_name}},</p>
-<p>{{youth_name}} just received their Full Send link. Before they submit, complete your End of Challenge call together.</p>
-<p>Use the form below to guide your conversation and record their reflections. The call takes 30 to 45 minutes.</p>
+<p>{{youth_name}} just received their Full Send link. They're in the home stretch — two things need to happen before they officially complete their Challenge: your End of Challenge call and their Full Send video submission.</p>
+<p>Reach out to {{youth_name}} to schedule the call. When you do, let them know you'd love to watch their Full Send video together — it's a great way to celebrate what they built and give them feedback before they submit.</p>
 <p>{{youth_name}}'s cell: {{youth_phone}}</p>
+<p>Use the form below to guide your conversation and record their reflections during the call. It takes 30-45 minutes.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
 <p>— The GripTape Team</p>`,
-    sms: "Hey {{first_name}}, time for {{youth_name}}'s End of Challenge call. Open the form: {{eoc_link}}",
-  },
-
-  end_of_challenge_confirmed: {
-    email_subject: 'Your End of Challenge call is confirmed',
-    email_body: `<p>Hey {{first_name}},</p>
-<p>Your Champion just submitted your End of Challenge form. You have officially completed all your GripTape Challenge requirements.</p>
-<p>Now go submit your Full Send if you have not already.</p>
-<p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your Champion confirmed your End of Challenge call. Now go submit your Full Send!',
+    sms: "Hey {{first_name}}, time to schedule {{youth_name}}'s End of Challenge call. Their number: {{youth_phone}}. Open the form: {{eoc_link}}",
   },
 
   // ── Match-champion staff alerts ───────────────────────────────────────────

@@ -394,6 +394,7 @@
       { id: 'confidence_after',   label: 'After this Challenge, how confident do you feel?',                                        type: 'select',  options: ['1 - Not confident', '2', '3', '4', '5 - Very confident'] },
       { id: 'continue',           label: 'Do you plan to keep working on this project after the Challenge?',                         type: 'select',  options: ['Yes', 'Maybe', 'No'] },
       { id: 'recommend',          label: 'Would you recommend GripTape to a friend?',                                                type: 'select',  options: ['Yes', 'No'] },
+      { id: 'full_send_shown',    label: 'Did your Challenger show you their Full Send video during this call?',                      type: 'select',  options: ['Yes', 'No \u2014 we ran out of time', "They haven\u2019t started it yet"] },
     ];
 
     const params = new URLSearchParams(window.location.search);
@@ -437,6 +438,17 @@
             select.appendChild(o);
           });
           group.appendChild(select);
+
+          if (q.id === 'full_send_shown') {
+            var nudgeMsg = document.createElement('p');
+            nudgeMsg.id = 'full-send-nudge';
+            nudgeMsg.style.cssText = 'display:none;font-size:0.85rem;color:#F79227;margin:6px 0 0;line-height:1.6;';
+            nudgeMsg.textContent = 'Encourage them to submit before their deadline. Their submission link was included in the Full Send email you received.';
+            group.appendChild(nudgeMsg);
+            select.addEventListener('change', function() {
+              nudgeMsg.style.display = (select.value && select.value !== 'Yes') ? 'block' : 'none';
+            });
+          }
         } else {
           var textarea = document.createElement('textarea');
           textarea.id = q.id;
