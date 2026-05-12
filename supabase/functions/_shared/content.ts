@@ -297,6 +297,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: "It's time for your Full Send. You've earned this.",
     email_body: `<p>Hey {{first_name}},</p>
 <p>Six weeks ago you committed to building something real. You showed up, put in the work, and didn't quit.</p>
+<p>Before you submit your Full Send, schedule your End of Challenge call with {{champion_name}}. This is a required part of your GripTape Challenge — use it to reflect on everything you built and where you're headed next. Reach out to {{champion_name}} to get it on the calendar: {{champion_phone}}.</p>
 <p>Now it's time to show the world what you made.</p>
 <p>This is your Full Send — your final video submission and the last step of your GripTape Challenge. Think of it like your First Drop, but bigger. This is your whole story.</p>
 <p><strong>You must submit by {{deadline_date}} to officially complete your GripTape Learning Challenge and become a GripTape Alum — with access to future programs, events, and the broader GripTape community.</strong></p>
@@ -315,6 +316,28 @@ What are you chasing after this? A next step, a new project, a big dream.</p>
 <p><a href="{{link}}">Submit your Full Send →</a></p>
 <p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, time to submit your Full Send! Submit your video here: {{link}}',
+  },
+
+  // ── End of Challenge ─────────────────────────────────────────────────────
+
+  end_of_challenge_champion: {
+    email_subject: "Time for {{youth_name}}'s End of Challenge call",
+    email_body: `<p>Hey {{first_name}},</p>
+<p>{{youth_name}} just received their Full Send link. Before they submit, complete your End of Challenge call together.</p>
+<p>Use the form below to guide your conversation and record their reflections. The call takes 30 to 45 minutes.</p>
+<p>{{youth_name}}'s cell: {{youth_phone}}</p>
+<p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
+<p>— The GripTape Team</p>`,
+    sms: "Hey {{first_name}}, time for {{youth_name}}'s End of Challenge call. Open the form: {{eoc_link}}",
+  },
+
+  end_of_challenge_confirmed: {
+    email_subject: 'Your End of Challenge call is confirmed',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Your Champion just submitted your End of Challenge form. You have officially completed all your GripTape Challenge requirements.</p>
+<p>Now go submit your Full Send if you have not already.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, your Champion confirmed your End of Challenge call. Now go submit your Full Send!',
   },
 
   // ── Match-champion staff alerts ───────────────────────────────────────────

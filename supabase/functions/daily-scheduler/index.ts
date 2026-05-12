@@ -522,8 +522,37 @@ serve(async (req) => {
             phone: youth.phone,
           };
 
-          await sendNotification('full_send_link', recipient, { link: fullSendLink, deadline_date: formatDeadline(tokenData.stage_deadline_at), base_url: config.BASE_URL }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+          // Fetch champion for full_send_link vars and EOC notification
+          let eocChampion: { id: string; first_name: string; last_name: string; email: string; phone: string; champion_token: string } | null = null;
+          if (youth.champion_id) {
+            const { data: champData } = await supabase
+              .from('champions')
+              .select('id, first_name, last_name, email, phone, champion_token')
+              .eq('id', youth.champion_id)
+              .single();
+            eocChampion = champData ?? null;
+          }
+
+          const championName  = eocChampion ? `${eocChampion.first_name} ${eocChampion.last_name}` : '';
+          const championPhone = eocChampion?.phone ?? '';
+
+          await sendNotification('full_send_link', recipient, { link: fullSendLink, deadline_date: formatDeadline(tokenData.stage_deadline_at), base_url: config.BASE_URL, champion_name: championName, champion_phone: championPhone }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
+
+          if (eocChampion) {
+            const eocLink = `${config.BASE_URL}/end-of-challenge?token=${eocChampion.champion_token}`;
+            await sendNotification(
+              'end_of_challenge_champion',
+              { first_name: eocChampion.first_name, last_name: eocChampion.last_name, email: eocChampion.email, phone: eocChampion.phone },
+              {
+                youth_name:  `${youth.first_name} ${youth.last_name}`,
+                youth_phone: youth.phone ?? '',
+                eoc_link:    eocLink,
+                base_url:    config.BASE_URL,
+              },
+              { champion_id: eocChampion.id, youth_id: youth.id },
+            );
+          }
 
           console.log(`[daily-scheduler] S4 sent full_send_link to youth ${youth.id}, advanced to final_video_pending`);
         } catch (err) {
