@@ -2,7 +2,7 @@
 export const config = {
   PROGRAM_ID: 'nyc-2026',
   BASE_URL: 'https://learning-challenge-legacy.vercel.app',
-  EMAIL_FROM: 'noreply@griptape.org',
+  EMAIL_FROM: 'GripTape <hello@griptape.org>',
   AGE_MIN: 15,
   AGE_MAX: 19,
   ELIGIBLE_LOCATIONS: ['NYC', 'NJ'],
@@ -27,6 +27,7 @@ export const config = {
     grant_pending:       { next: 'grant_review',          deadline_days: 21,   nudge_days: [5],    auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: false },
     grant_review:        { next: 'grant_approved',        deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
     grant_approved:      { next: 'final_video_pending',   deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
+    end_of_challenge:    { next: null,                    deadline_days: null, nudge_days: [],     auto_remove: false,                                        notify_champion: false },
     grant_expired:       { next: 'final_video_pending',   deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
     final_video_pending: { next: 'full_send_review',      deadline_days: 14,   nudge_days: [7,12], auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: false },
     full_send_review:    { next: 'completed',             deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
