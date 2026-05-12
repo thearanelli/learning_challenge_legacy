@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
     // Load EOC-eligible youth for this champion
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=in.(grant_approved,grant_expired,final_video_pending)&select=id,first_name,last_name,passion`,
+      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&accepted_at=gte.${new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()}&status=not.in.(removed,rejected)&end_of_challenge_completed_at=is.null&select=id,first_name,last_name,passion`,
       {
         headers: {
           'apikey': supabaseKey,
