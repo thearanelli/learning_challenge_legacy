@@ -1826,7 +1826,7 @@ function showConsentStep() {
   el.innerHTML = `
     <label style="display:flex;gap:12px;cursor:pointer;align-items:flex-start;background:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
       <input type="checkbox" id="sms-opt-in" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#EA5329;cursor:pointer;">
-      <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;">I agree to receive SMS notifications from GripTape about my application status, program updates, and deadline reminders. Message frequency varies \u2014 up to 8 messages per program cycle. Message and data rates may apply. Reply STOP to unsubscribe.</span>
+      <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;">I agree to receive SMS notifications from GripTape about my application status, program updates, and deadline reminders. Message frequency varies \u2014 up to 8 messages per program cycle. Message and data rates may apply. Reply STOP to unsubscribe. View our <a href="https://learning-challenge-legacy.vercel.app/privacy" target="_blank" style="color:rgba(255,255,255,0.55);text-decoration:underline;">Privacy Policy</a> and <a href="https://learning-challenge-legacy.vercel.app/terms" target="_blank" style="color:rgba(255,255,255,0.55);text-decoration:underline;">Terms &amp; Conditions</a>.</span>
     </label>
     <button id="consent-submit-btn" onclick="handleConsentSubmit()" style="margin-top:10px;width:100%;padding:14px 20px;background:#EA5329;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next \u2192</button>
   `;
