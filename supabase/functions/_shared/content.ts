@@ -194,7 +194,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your Champion {{champion_name}} is ready to connect — have you reached out yet?</p>
 <p>Your orientation call needs to happen by {{deadline_date}}. That's where you'll map out your goals, plan your project, and unlock your funding.</p>
-<p>Don't wait — reach out to {{champion_name}} today and get it on the calendar.</p>`,
+<p>Don't wait. Reach out to {{champion_name}} today and get it on the calendar. Their number is {{champion_phone}}.</p>`,
     sms: 'Hey {{first_name}}, reach out to your Champion {{champion_name}} to schedule your orientation call.',
   },
 
@@ -202,7 +202,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: 'Your orientation deadline is almost here',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your orientation call must be completed by {{deadline_date}} — that's tomorrow.</p>
-<p>If you haven't connected with {{champion_name}} yet, reach out right now. After the deadline we have to give your spot to someone else.</p>`,
+<p>If you haven't connected with {{champion_name}} yet, reach out right now. Their number is {{champion_phone}}. After the deadline we have to give your spot to someone else.</p>`,
     sms: 'Hey {{first_name}}, your orientation call is due soon — connect with {{champion_name}} today.',
   },
 

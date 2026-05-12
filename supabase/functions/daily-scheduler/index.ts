@@ -259,6 +259,18 @@ serve(async (req) => {
 
           let vars: Record<string, string> = {};
 
+          if (nudge.stage === 'mentor_pending' && youth.champion_id) {
+            const { data: champData } = await supabase
+              .from('champions')
+              .select('first_name, last_name, phone')
+              .eq('id', youth.champion_id)
+              .single();
+            if (champData) {
+              vars.champion_name = `${champData.first_name} ${champData.last_name}`;
+              vars.champion_phone = champData.phone ?? '';
+            }
+          }
+
           if (nudge.notify_champion && youth.champion_id) {
             const { data: champion } = await supabase
               .from('champions')
