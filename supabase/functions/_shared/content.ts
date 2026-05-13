@@ -139,15 +139,34 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>• Date sent to finance: {{approved_at}}</p>`,
   },
 
+  full_send_received: {
+    email_subject: 'Your Full Send is in.',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>We got your video. The GripTape team will review it and be in touch.</p>
+<p>If you have not already had your End of Challenge call with {{champion_name}} — reach out to them now. That is the last step to completing your Challenge: {{champion_phone}}.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, your Full Send is in. The GripTape team will review it and be in touch.',
+  },
+
+  full_send_staff_notification: {
+    staff_email_subject: 'Full Send submitted — {{first_name}} {{last_name}}',
+    staff_email_body: `<p>{{first_name}} {{last_name}} submitted their Full Send video.</p>
+<p><strong>Video:</strong> <a href="{{full_send_url}}">{{full_send_url}}</a></p>
+<p><strong>EOC call completed:</strong> {{eoc_status}}</p>
+<p>When ready to approve, update their status to completed in Supabase. That will trigger the alum email automatically.</p>
+<p><strong>Youth ID:</strong> {{youth_id}}<br>
+<strong>Email:</strong> {{email}}</p>`,
+  },
+
   full_send_submitted: {
     email_subject: "You did it. Welcome to the GripTape Alumni family.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your Full Send is in. You're officially a GripTape Alum.</p>
-<p>Six weeks ago you made a commitment. You showed up, did the work, and finished something real. That's not nothing. Most people never do.</p>
+<p>Your Full Send is approved. You are officially a GripTape Alum.</p>
+<p>Six weeks ago you made a commitment. You showed up, did the work, and finished something real. That is not nothing. Most people never do.</p>
 <p>Now pay it forward.</p>
 <p>Know someone who has a passion and the drive to do something with it? Send them to GripTape. One registration could change everything for them the way this Challenge changed things for you.</p>
 <p>Share this link with them: <a href="{{base_url}}">{{base_url}}</a></p>
-<p>Welcome to the community. We're proud of you.</p>
+<p>Welcome to the community. We are proud of you.</p>
 <p>— The GripTape Team</p>`,
   },
 
@@ -230,31 +249,89 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms: "Hey {{first_name}}, don't forget your grant paperwork — unlock your $250 here: {{link}}",
   },
 
-  nudge_full_send_1: {
-    email_subject: "Your Challenge isn't complete yet — here's what's left",
+  nudge_full_send_neither: {
+    email_subject: 'Two things left to complete your Challenge',
     email_body: `<p>Hey {{first_name}},</p>
-<p>One week into your final stretch. Two things need to happen before {{deadline_date}} to complete your Challenge and become a GripTape Alum.</p>
-<p>Being a GripTape Alum means access to exclusive future programs, opportunities, events, and a community of young builders who did exactly what you're doing right now.</p>
-<p>Your End of Challenge call with {{champion_name}}. And your Full Send submission.</p>
-<p>If you haven't had your End of Challenge call yet, reach out to {{champion_name}} today: {{champion_phone}}.</p>
-<p>If you haven't submitted your Full Send yet, here's your link:</p>
+<p>You have until {{deadline_date}} to finish your Challenge. Two things still need to happen.</p>
+<p>Submit your Full Send video — your 90-second video showing what you built, what you learned, and where you are headed next.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>Schedule your End of Challenge call with {{champion_name}}. Reach out today: {{champion_phone}}.</p>
+<p>Both need to happen to become a GripTape Alum.</p>
 <p>— The GripTape Team</p>`,
-    sms: "Hey {{first_name}}, one week left. Two things needed: your End of Challenge call with {{champion_name}} ({{champion_phone}}) and your Full Send: {{link}}",
+    sms: 'Hey {{first_name}}, two things left before {{deadline_date}}: your Full Send {{link}} and your EOC call with {{champion_name}} ({{champion_phone}}).',
   },
 
-  nudge_full_send_2: {
-    email_subject: "You started something — finish it",
+  nudge_full_send_neither_final: {
+    email_subject: 'Last chance. Two things still needed.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Two days left. This is your last nudge.</p>
-<p>You spent six weeks building something real. Don't let it end without crossing the finish line.</p>
-<p>Two things need to happen by {{deadline_date}}:</p>
-<p>Your End of Challenge call with {{champion_name}} — reach out today if it hasn't happened: {{champion_phone}}.</p>
-<p>Your Full Send submission — this is what officially makes you a GripTape Alum. Access to exclusive future programs, opportunities, and a community of builders who finished what they started. Just like you're about to.</p>
+<p>Two days left. Neither your Full Send nor your End of Challenge call has happened yet.</p>
+<p>Submit your Full Send now:</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
-<p>You've come too far to stop now. Finish it.</p>
+<p>And reach out to {{champion_name}} today to schedule your call: {{champion_phone}}.</p>
+<p>Both need to happen by {{deadline_date}}. Do not let this slip.</p>
 <p>— The GripTape Team</p>`,
-    sms: "Hey {{first_name}}, last chance. End of Challenge call with {{champion_name}} ({{champion_phone}}) + Full Send due {{deadline_date}}: {{link}}",
+    sms: 'Hey {{first_name}}, last chance — two things due {{deadline_date}}: Full Send {{link}} and EOC call with {{champion_name}} ({{champion_phone}}).',
+  },
+
+  nudge_full_send_no_video: {
+    email_subject: 'Your EOC call is done. One thing left.',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Your End of Challenge call is complete. Nice work.</p>
+<p>One thing left — submit your Full Send video before {{deadline_date}}. That is what officially makes you a GripTape Alum.</p>
+<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, EOC call done. One thing left — submit your Full Send before {{deadline_date}}: {{link}}',
+  },
+
+  nudge_full_send_no_video_final: {
+    email_subject: 'Last chance. Submit your Full Send today.',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Your End of Challenge call is done. The only thing standing between you and becoming a GripTape Alum is your Full Send video.</p>
+<p>Submit it before {{deadline_date}}. You are this close.</p>
+<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, last chance — submit your Full Send before {{deadline_date}}: {{link}}',
+  },
+
+  nudge_full_send_no_eoc: {
+    email_subject: 'One more thing — your End of Challenge call',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Your Full Send is in. One thing left before you officially complete your Challenge.</p>
+<p>Schedule your End of Challenge call with {{champion_name}}. Reach out today: {{champion_phone}}.</p>
+<p>That call is the last step to becoming a GripTape Alum.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, Full Send received. One thing left — schedule your EOC call with {{champion_name}}: {{champion_phone}}',
+  },
+
+  nudge_full_send_no_eoc_final: {
+    email_subject: 'Last chance. Schedule your EOC call today.',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Your Full Send is submitted. You are almost done.</p>
+<p>Reach out to {{champion_name}} right now to schedule your End of Challenge call: {{champion_phone}}.</p>
+<p>This needs to happen by {{deadline_date}}. It is the last step.</p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, last chance — schedule your EOC call with {{champion_name}} ({{champion_phone}}) by {{deadline_date}}.',
+  },
+
+  nudge_full_send_champion_no_eoc: {
+    email_subject: '{{youth_name}} still needs their End of Challenge call',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>{{youth_name}} has not completed their End of Challenge call yet. Their deadline is {{deadline_date}}.</p>
+<p>Reach out to them and get it scheduled. Once the call happens submit the form below.</p>
+<p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, {{youth_name}} still needs their EOC call. Reach out and submit the form: {{eoc_link}}',
+  },
+
+  nudge_full_send_champion_no_eoc_final: {
+    email_subject: 'Last chance — {{youth_name}} EOC call',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Two days left. {{youth_name}} has not completed their End of Challenge call.</p>
+<p>Reach out today: {{youth_phone}}.</p>
+<p>Submit the form during or after your call.</p>
+<p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
+<p>— The GripTape Team</p>`,
+    sms: 'Hey {{first_name}}, last chance — {{youth_name}} EOC call due {{deadline_date}}. Form: {{eoc_link}}',
   },
 
   // ── Removals ──────────────────────────────────────────────────────────────
