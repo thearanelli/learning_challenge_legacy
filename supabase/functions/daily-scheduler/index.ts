@@ -302,9 +302,42 @@ serve(async (req) => {
             }
           }
 
-          // link for grant_pending
+          // Fetch fresh BoldSign signing links for nudge
           if (nudge.stage === 'grant_pending') {
-            vars.link = `${config.BASE_URL}/grant?token=${youth.access_token}`;
+            const boldSignApiKey = Deno.env.get('BOLDSIGN_API_KEY') ?? '';
+            let w9Link = '';
+            let agreementLink = '';
+
+            if (boldSignApiKey) {
+              try {
+                const { data: gr } = await supabase
+                  .from('grant_requests')
+                  .select('boldsign_w9_id, boldsign_agreement_id')
+                  .eq('youth_id', youth.id)
+                  .single();
+
+                if (gr?.boldsign_w9_id) {
+                  const w9Res = await fetch(
+                    `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${gr.boldsign_w9_id}&signerEmail=${encodeURIComponent(youth.email)}&linkValidTill=21`,
+                    { headers: { 'X-API-KEY': boldSignApiKey } }
+                  );
+                  if (w9Res.ok) w9Link = (await w9Res.json()).signLink ?? '';
+                }
+
+                if (gr?.boldsign_agreement_id) {
+                  const agreeRes = await fetch(
+                    `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${gr.boldsign_agreement_id}&signerEmail=${encodeURIComponent(youth.email)}&linkValidTill=21`,
+                    { headers: { 'X-API-KEY': boldSignApiKey } }
+                  );
+                  if (agreeRes.ok) agreementLink = (await agreeRes.json()).signLink ?? '';
+                }
+              } catch (err) {
+                console.error(`[daily-scheduler] BoldSign link fetch failed for nudge_grant (youth ${youth.id}):`, err);
+              }
+            }
+
+            vars.w9_link = w9Link;
+            vars.agreement_link = agreementLink;
           }
 
           // link for final_video_pending

@@ -244,9 +244,13 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: "Your funding is waiting — don't let it expire",
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your GripTape funding is sitting there waiting for you. But it won't wait forever.</p>
-<p>You have until {{deadline_date}} to sign your grant documents. After that the funding window closes. Your spot in the program stays safe but the money doesn't.</p>
-<p><a href="{{link}}">Sign your documents →</a></p>`,
-    sms: "Hey {{first_name}}, don't forget your grant paperwork — unlock your $250 here: {{link}}",
+<p>You have until {{deadline_date}} to sign both documents. After that the funding window closes. Your spot in the program stays safe but the money doesn't.</p>
+<p><strong>Your W-9 form</strong> — takes 2 minutes. Required before we can send payment.<br>
+<a href="{{w9_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;margin-top:8px;">Sign your W-9</a></p>
+<p><strong>Your Participation Agreement</strong> — outlines your commitment as a GripTape Challenger.<br>
+<a href="{{agreement_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;margin-top:8px;">Sign your Agreement</a></p>
+<p>— The GripTape Team</p>`,
+    sms: "Hey {{first_name}}, your grant documents are waiting. Check your email to sign your W-9 and Participation Agreement before {{deadline_date}}.",
   },
 
   nudge_full_send_neither: {
