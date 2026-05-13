@@ -317,7 +317,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: '{{youth_name}} still needs their End of Challenge call',
     email_body: `<p>Hey {{first_name}},</p>
 <p>{{youth_name}} has not completed their End of Challenge call yet. Their deadline is {{deadline_date}}.</p>
-<p>Reach out to them and get it scheduled. Once the call happens submit the form below.</p>
+<p>Reach out to them and get it scheduled. Use the form below to guide the call.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
 <p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, {{youth_name}} still needs their EOC call. Reach out and submit the form: {{eoc_link}}',
