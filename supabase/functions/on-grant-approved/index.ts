@@ -20,11 +20,19 @@ import { renderContent, content } from '../_shared/content.ts';
 import { config } from '../_shared/config.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
-const TREMENDOUS_BASE_URL = 'https://testflight.tremendous.com/api/v2';
 const TREMENDOUS_CAMPAIGN_ID = 'XI17V0UOF7RX';
 
 serve(async (req) => {
   try {
+    const ALLOW_REAL_GRANTS = Deno.env.get('ALLOW_REAL_GRANTS') === 'true';
+    const TREMENDOUS_BASE_URL = Deno.env.get('TREMENDOUS_BASE_URL') ?? '';
+
+    // Safety: refuse to run if sandbox URL is active with real grants enabled
+    if (ALLOW_REAL_GRANTS && TREMENDOUS_BASE_URL.includes('testflight')) {
+      console.error('[on-grant-approved] CRITICAL: ALLOW_REAL_GRANTS is true but Tremendous URL is testflight — refusing to run');
+      return new Response('Sandbox/production mismatch — refusing to process', { status: 500 });
+    }
+
     const payload = await req.json();
     const record = payload.record;
     const oldRecord = payload.old_record;
@@ -62,6 +70,18 @@ serve(async (req) => {
       return new Response('ok', { status: 200 });
     }
 
+    // Layer 2: skip Tremendous for test emails
+    const isTestEmail = youth.email.includes('thea@') || youth.email.toLowerCase().includes('test');
+
+    if (!youth.orientation_call_completed_at) {
+      console.error(`[on-grant-approved] blocking — youth ${youth.id} has no orientation call on record`);
+      return new Response('Youth has no orientation call — blocking grant', { status: 400 });
+    }
+    if (!youth.first_drop_url) {
+      console.error(`[on-grant-approved] blocking — youth ${youth.id} has no First Drop on record`);
+      return new Response('Youth has no First Drop — blocking grant', { status: 400 });
+    }
+
     // Set staff_approved_at and mailing_address — only if not already set (idempotency)
     await supabase
       .from('grant_requests')
@@ -92,86 +112,121 @@ serve(async (req) => {
       return new Response('ok', { status: 200 });
     }
 
+    const { data: alreadySent } = await supabase
+      .from('comms_log')
+      .select('id')
+      .eq('youth_id', youth.id)
+      .eq('stage_key', 'grant_approved')
+      .limit(1);
+
+    if (alreadySent && alreadySent.length > 0) {
+      console.log(`[on-grant-approved] grant_approved already in comms_log for youth ${youth.id} — skipping`);
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    const MAX_GRANT_AMOUNT = 250;
+    if (grantRequest.grant_amount > MAX_GRANT_AMOUNT) {
+      console.error(`[on-grant-approved] blocking — grant amount ${grantRequest.grant_amount} exceeds max ${MAX_GRANT_AMOUNT}`);
+      return new Response('Grant amount exceeds maximum — blocked', { status: 400 });
+    }
+
     // Call Tremendous API — must succeed before we advance status
-    const tremendousApiKey = Deno.env.get('TREMENDOUS_API_KEY');
-    if (!tremendousApiKey) {
-      throw new Error('TREMENDOUS_API_KEY not set');
-    }
+    let redemptionLink = '';
+    let tremendousRewardId = '';
+    let reward: any = null;
 
-    const orderPayload = {
-      payment: { funding_source_id: 'BALANCE' },
-      reward: {
-        campaign_id: TREMENDOUS_CAMPAIGN_ID,
-        value: {
-          denomination: grantRequest.grant_amount,
-          currency_code: 'USD',
+    if (!ALLOW_REAL_GRANTS || isTestEmail) {
+      console.log(`[on-grant-approved] skipping Tremendous — ALLOW_REAL_GRANTS=${ALLOW_REAL_GRANTS} isTestEmail=${isTestEmail}`);
+      // Still advance status and send email, just skip the money
+    } else {
+      const tremendousApiKey = Deno.env.get('TREMENDOUS_API_KEY');
+      if (!tremendousApiKey) {
+        throw new Error('TREMENDOUS_API_KEY not set');
+      }
+
+      const orderPayload = {
+        payment: { funding_source_id: 'BALANCE' },
+        reward: {
+          campaign_id: TREMENDOUS_CAMPAIGN_ID,
+          value: {
+            denomination: grantRequest.grant_amount,
+            currency_code: 'USD',
+          },
+          recipient: {
+            name: `${youth.first_name} ${youth.last_name}`,
+            email: youth.email,
+          },
+          delivery: { method: 'LINK' },
         },
-        recipient: {
-          name: `${youth.first_name} ${youth.last_name}`,
-          email: youth.email,
+      };
+
+      const tremendousRes = await fetch(`${TREMENDOUS_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tremendousApiKey}`,
         },
-        delivery: { method: 'LINK' },
-      },
-    };
+        body: JSON.stringify(orderPayload),
+      });
 
-    const tremendousRes = await fetch(`${TREMENDOUS_BASE_URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tremendousApiKey}`,
-      },
-      body: JSON.stringify(orderPayload),
-    });
-
-    if (!tremendousRes.ok) {
-      const errText = await tremendousRes.text();
-      console.error(`[on-grant-approved] Tremendous API error ${tremendousRes.status} for youth ${youthId}`);
-      try {
-        await supabase.from('agent_log').insert({
-          event: 'tremendous_order_failed',
+      if (!tremendousRes.ok) {
+        const errText = await tremendousRes.text();
+        console.error(`[on-grant-approved] Tremendous API error ${tremendousRes.status} for youth ${youthId}`);
+        try {
+          await supabase.from('agent_log').insert({
+            event: 'tremendous_order_failed',
+            youth_id: youthId,
+            grant_request_id: record.id,
+            detail: `HTTP ${tremendousRes.status}`,
+          });
+        } catch (_) { /* agent_log insert is best-effort */ }
+        await sendStaffNotification('tremendous_error', {
+          first_name: youth.first_name,
+          last_name: youth.last_name,
           youth_id: youthId,
           grant_request_id: record.id,
-          detail: `HTTP ${tremendousRes.status}`,
         });
-      } catch (_) { /* agent_log insert is best-effort */ }
-      await sendStaffNotification('tremendous_error', {
-        first_name: youth.first_name,
-        last_name: youth.last_name,
-        youth_id: youthId,
-        grant_request_id: record.id,
-      });
-      return new Response('ok', { status: 200 });
-    }
+        return new Response('ok', { status: 200 });
+      }
 
-    const tremendousData = await tremendousRes.json();
-    const redemptionLink: string = tremendousData?.order?.rewards?.[0]?.delivery?.link ?? '';
-    const tremendousRewardId: string = tremendousData?.order?.rewards?.[0]?.id ?? '';
+      const tremendousData = await tremendousRes.json();
+      redemptionLink = tremendousData?.order?.rewards?.[0]?.delivery?.link ?? '';
+      tremendousRewardId = tremendousData?.order?.rewards?.[0]?.id ?? '';
 
-    // Store reward ID for later webhook matching
-    if (tremendousRewardId) {
-      await supabase
-        .from('grant_requests')
-        .update({ tremendous_reward_id: tremendousRewardId })
-        .eq('id', record.id);
-    }
+      // Store reward ID for later webhook matching
+      if (tremendousRewardId) {
+        await supabase
+          .from('grant_requests')
+          .update({ tremendous_reward_id: tremendousRewardId })
+          .eq('id', record.id);
+      }
 
-    if (!redemptionLink) {
-      console.error(`[on-grant-approved] No redemption_url in Tremendous response for youth ${youthId}`);
-      try {
-        await supabase.from('agent_log').insert({
-          event: 'tremendous_no_redemption_url',
+      if (!redemptionLink) {
+        console.error(`[on-grant-approved] No redemption_url in Tremendous response for youth ${youthId}`);
+        try {
+          await supabase.from('agent_log').insert({
+            event: 'tremendous_no_redemption_url',
+            youth_id: youthId,
+            grant_request_id: record.id,
+            detail: 'rewards[0].redemption_url missing from response',
+          });
+        } catch (_) { /* agent_log insert is best-effort */ }
+        await sendStaffNotification('tremendous_error', {
+          first_name: youth.first_name,
+          last_name: youth.last_name,
           youth_id: youthId,
           grant_request_id: record.id,
-          detail: 'rewards[0].redemption_url missing from response',
         });
-      } catch (_) { /* agent_log insert is best-effort */ }
-      await sendStaffNotification('tremendous_error', {
-        first_name: youth.first_name,
-        last_name: youth.last_name,
-        youth_id: youthId,
-        grant_request_id: record.id,
-      });
-      return new Response('ok', { status: 200 });
+        return new Response('ok', { status: 200 });
+      }
+
+      reward = tremendousData?.order?.rewards?.[0];
+      if (!reward?.id || !reward?.delivery?.link) {
+        throw new Error('Tremendous order created but reward missing — not advancing status');
+      }
     }
 
     // advance_status: grant_review -> grant_approved
@@ -213,6 +268,25 @@ serve(async (req) => {
       receipt_link:    receiptLink,
       base_url:        config.BASE_URL,
     }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+
+    await sendNotification(
+      'ryan_notification',
+      { first_name: 'GripTape', last_name: 'Staff', email: Deno.env.get('STAFF_EMAIL')!, phone: '' },
+      {
+        youth_id: youth.id,
+        legal_name: grantRequest.legal_name ?? '',
+        preferred_name: youth.first_name ?? '',
+        last_name: youth.last_name ?? '',
+        email: youth.email ?? '',
+        grant_amount: String(grantRequest.grant_amount ?? 0),
+        grant_format: grantRequest.grant_format ?? '',
+        grant_coding: 'GS_NLC',
+        approved_at: new Date().toISOString(),
+        tremendous_reward_id: reward?.id ?? 'N/A (test mode)',
+      },
+      { youth_id: youth.id },
+      { skipSms: true },
+    );
 
     // Send disbursement notification to Ryan
     const ryanEmail = config.RYAN_EMAIL;
