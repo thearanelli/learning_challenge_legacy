@@ -46,8 +46,8 @@ export const content = {
 <p>That someone is {{champion_first_name}} — your Champion.</p>
 <p>{{champion_bio}}</p>
 <p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps. That includes accessing your funding and joining the GripTape community.</p>
-<p>Reach out to {{champion_first_name}} to schedule that call as soon as possible: {{champion_phone}}</p>
-<p>You have 7 days to complete your orientation — after that we have to give your spot to someone else.</p>
+<p>Reach out to {{champion_first_name}} to schedule that call as soon as possible. Their number is {{champion_phone}} and their email is {{champion_email}}.</p>
+<p>You have 7 days to complete your orientation. After that we have to give your spot to someone else.</p>
 <p>— The GripTape Team</p>`,
     sms: "You're officially a GripTape Challenger! Meet your Champion: {{champion_name}}. They'll be in touch soon. Let's build something real.",
     nudge_email_subject: 'Placeholder — replace before launch',
@@ -61,11 +61,13 @@ export const content = {
     email_body: `<p>Hey {{first_name}},</p>
 <p>You have been matched with a new GripTape Challenger. Here is everything you need to get started.</p>
 <p><strong>Your Challenger:</strong> {{youth_name}}<br>
-<strong>Their passion:</strong> {{passion}}</p>
+<strong>Their passion:</strong> {{passion}}<br>
+<strong>Their email:</strong> {{youth_email}}<br>
+<strong>Their cell:</strong> {{youth_phone}}</p>
 <p><strong>Watch their First Drop video first:</strong><br>
 <a href="{{first_drop_url}}">{{first_drop_url}}</a></p>
 <p>Watch it before you reach out. Then contact {{youth_name}} directly and let them know you watched their video and are excited to start the journey together. That first message sets the tone for everything.</p>
-<p>Once you have connected and completed your orientation call submit the orientation form below. That is what unlocks their funding.</p>
+<p>Fill out the orientation form below DURING your call together. That is what unlocks their funding. You have 7 days from today to complete the call and submit the form.</p>
 <p><a href="{{orientation_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit orientation form</a></p>
 <p>Questions? Reply to this email.</p>
 <p>— The GripTape Team</p>`,
