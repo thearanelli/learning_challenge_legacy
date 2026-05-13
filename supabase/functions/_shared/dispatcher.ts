@@ -55,15 +55,24 @@ export async function sendNotification(
   };
   if (b.email_subject && b.email_body) {
     const subject = renderContent(b.email_subject, allVars);
+    const renderedBody = renderContent(b.email_body, allVars);
+    const unreplacedVars = (renderedBody + ' ' + subject).match(/\{\{[^}]+\}\}/g);
+    if (unreplacedVars) {
+      console.warn(`[dispatcher] WARNING: unreplaced variables in ${stageKey}: ${[...new Set(unreplacedVars)].join(', ')}`);
+    }
     await sendEmail({
       to: recipient.email,
       subject,
-      html: renderContent(b.email_body, allVars),
+      html: renderedBody,
     });
     await logComms({ channel: 'email', stage_key: stageKey, message_body: subject, ...meta });
   }
   if (b.sms && !options.skipSms) {
     const body = renderContent(b.sms, allVars);
+    const unreplacedSmsVars = body?.match(/\{\{[^}]+\}\}/g);
+    if (unreplacedSmsVars) {
+      console.warn(`[dispatcher] WARNING: unreplaced SMS variables in ${stageKey}: ${[...new Set(unreplacedSmsVars)].join(', ')}`);
+    }
     await sendSMS({
       to: recipient.phone,
       body,
