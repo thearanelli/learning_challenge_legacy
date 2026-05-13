@@ -188,8 +188,6 @@ serve(async (req) => {
     { stage: 'mentor_pending',      nudge_day: 3,  content_key: 'nudge_orientation_1', notify_champion: false, has_deadline: true  },
     { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: false, has_deadline: true  },
     { stage: 'grant_pending',       nudge_day: 5,  content_key: 'nudge_grant',          notify_champion: false, has_deadline: false },
-    { stage: 'final_video_pending', nudge_day: 7,  content_key: 'nudge_full_send_1',   notify_champion: false, has_deadline: true  },
-    { stage: 'final_video_pending', nudge_day: 12, content_key: 'nudge_full_send_2',   notify_champion: false, has_deadline: true  },
   ];
 
   try {
@@ -325,6 +323,133 @@ serve(async (req) => {
     }
   } catch (err) {
     console.error('[daily-scheduler] S2 youth nudges fatal:', err);
+  }
+
+  // ── Final video smart nudges ─────────────────────────────────────────────
+  try {
+    const now = new Date().toISOString();
+
+    for (const nudge_day of [7, 12]) {
+      const cutoff = new Date(Date.now() - nudge_day * dayMs).toISOString();
+      const isFinal = nudge_day === 12;
+
+      const { data: youths, error } = await supabase
+        .from('youth')
+        .select('*')
+        .eq('status', 'final_video_pending')
+        .lte('stage_entered_at', cutoff)
+        .gt('token_expires_at', now);
+
+      if (error) {
+        console.error(`[daily-scheduler] smart nudge query error (day ${nudge_day}):`, error.message);
+        continue;
+      }
+
+      for (const youth of (youths ?? [])) {
+        try {
+          const hasVideo = !!youth.full_send_url;
+          const hasEoc = !!youth.end_of_challenge_completed_at;
+
+          // Skip if both done
+          if (hasVideo && hasEoc) continue;
+
+          // Determine youth content key
+          let youthKey: string;
+          if (!hasVideo && !hasEoc) {
+            youthKey = isFinal ? 'nudge_full_send_neither_final' : 'nudge_full_send_neither';
+          } else if (hasEoc && !hasVideo) {
+            youthKey = isFinal ? 'nudge_full_send_no_video_final' : 'nudge_full_send_no_video';
+          } else {
+            youthKey = isFinal ? 'nudge_full_send_no_eoc_final' : 'nudge_full_send_no_eoc';
+          }
+
+          // Idempotency check for youth
+          const { data: existing } = await supabase
+            .from('comms_log')
+            .select('id')
+            .eq('youth_id', youth.id)
+            .eq('stage_key', youthKey)
+            .limit(1);
+
+          if (existing && existing.length > 0) continue;
+
+          // Fetch champion
+          let championName = '';
+          let championPhone = '';
+          let championRecord: any = null;
+          let championToken = '';
+
+          if (youth.champion_id) {
+            const { data: champ } = await supabase
+              .from('champions')
+              .select('id, first_name, last_name, email, phone, champion_token')
+              .eq('id', youth.champion_id)
+              .single();
+            if (champ) {
+              championRecord = champ;
+              championName = `${champ.first_name} ${champ.last_name}`;
+              championPhone = champ.phone ?? '';
+              championToken = champ.champion_token ?? '';
+            }
+          }
+
+          const eocLink = `${config.BASE_URL}/end-of-challenge?token=${championToken}`;
+          const fullSendLink = `${config.BASE_URL}/final-video?token=${youth.access_token}`;
+
+          // Send youth nudge
+          await sendNotification(
+            youthKey,
+            { first_name: youth.first_name, last_name: youth.last_name, email: youth.email, phone: youth.phone },
+            {
+              link: fullSendLink,
+              deadline_date: formatDeadline(youth.token_expires_at),
+              champion_name: championName,
+              champion_phone: championPhone,
+              base_url: config.BASE_URL,
+            },
+            { youth_id: youth.id },
+            { skipSms: !youth.sms_consent },
+          );
+
+          console.log(`[daily-scheduler] smart nudge ${youthKey} → youth ${youth.id}`);
+
+          // Send champion nudge if EOC missing
+          if (!hasEoc && championRecord) {
+            const champKey = isFinal
+              ? 'nudge_full_send_champion_no_eoc_final'
+              : 'nudge_full_send_champion_no_eoc';
+
+            const { data: champExisting } = await supabase
+              .from('comms_log')
+              .select('id')
+              .eq('youth_id', youth.id)
+              .eq('champion_id', championRecord.id)
+              .eq('stage_key', champKey)
+              .limit(1);
+
+            if (!champExisting || champExisting.length === 0) {
+              await sendNotification(
+                champKey,
+                { first_name: championRecord.first_name, last_name: championRecord.last_name, email: championRecord.email, phone: championRecord.phone },
+                {
+                  youth_name: `${youth.first_name} ${youth.last_name}`,
+                  youth_phone: youth.phone ?? '',
+                  deadline_date: formatDeadline(youth.token_expires_at),
+                  eoc_link: eocLink,
+                  base_url: config.BASE_URL,
+                },
+                { youth_id: youth.id, champion_id: championRecord.id },
+              );
+              console.log(`[daily-scheduler] smart nudge ${champKey} → champion ${championRecord.id}`);
+            }
+          }
+        } catch (err) {
+          console.error(`[daily-scheduler] smart nudge error (youth ${youth.id}):`, err);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[daily-scheduler] smart nudges fatal:', err);
   }
 
   // ── Section 3 — Deadline removals ──────────────────────────────────────────
