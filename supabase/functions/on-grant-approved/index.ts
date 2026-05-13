@@ -212,7 +212,7 @@ serve(async (req) => {
       grant_amount:    String(grantRequest.grant_amount),
       receipt_link:    receiptLink,
       base_url:        config.BASE_URL,
-    });
+    }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
 
     // Send disbursement notification to Ryan
     const ryanEmail = config.RYAN_EMAIL;
