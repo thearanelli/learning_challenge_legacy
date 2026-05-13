@@ -8,7 +8,6 @@
     body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; }
     h1 { font-size: 1.4rem; margin-bottom: 8px; }
     p { line-height: 1.6; color: #444; }
-    button { margin-top: 20px; display: block; padding: 12px 24px; font-size: 1rem; background: #1a1a1a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     .doc-section { margin-top: 28px; }
     .doc-section h2 { font-size: 1rem; margin-bottom: 4px; }
     .inline-msg { margin-top: 8px; font-size: 0.9rem; color: #555; }
@@ -29,19 +28,19 @@
     <h1>Sign your documents</h1>
     <p>Hi <span id="first-name"></span>! Complete both forms below to unlock your $250 learning stipend.</p>
 
+    <p id="docs-status" class="inline-msg" style="display:none;"></p>
+
     <div class="doc-section">
       <h2>W-9 form</h2>
-      <button type="button" id="w9-btn">Sign W-9 form</button>
-      <p id="w9-msg" class="inline-msg" style="display:none;">Signing link coming soon — check back shortly.</p>
+      <div id="w9-action"><p class="inline-msg">Loading your signing link…</p></div>
     </div>
 
     <div class="doc-section">
       <h2>Participation agreement</h2>
-      <button type="button" id="agreement-btn">Sign participation agreement</button>
-      <p id="agreement-msg" class="inline-msg" style="display:none;">Signing link coming soon — check back shortly.</p>
+      <div id="agreement-action"><p class="inline-msg">Loading your signing link…</p></div>
     </div>
 
-    <p class="note">Once both documents are signed, the GripTape team will review and confirm your stipend. Questions? Email <a href="mailto:thea@griptape.org">thea@griptape.org</a></p>
+    <p class="note">Once both documents are signed, the GripTape team will review and confirm your stipend. Questions? Email <a href="mailto:hello@griptape.org">hello@griptape.org</a></p>
   </div>
 
   <script>
@@ -68,6 +67,8 @@
         document.getElementById('first-name').textContent = data.first_name;
         document.getElementById('loading').style.display = 'none';
         document.getElementById('form-section').style.display = 'block';
+
+        loadGrantLinks();
       } catch {
         showInvalid();
       }
@@ -78,13 +79,55 @@
       document.getElementById('invalid-section').style.display = 'block';
     }
 
-    document.getElementById('w9-btn').addEventListener('click', function() {
-      document.getElementById('w9-msg').style.display = 'block';
-    });
+    async function loadGrantLinks() {
+      try {
+        const res = await fetch(`/api/get-grant-links?token=${encodeURIComponent(token)}`);
+        const data = await res.json();
 
-    document.getElementById('agreement-btn').addEventListener('click', function() {
-      document.getElementById('agreement-msg').style.display = 'block';
-    });
+        if (data.signed) {
+          document.getElementById('w9-action').innerHTML = '';
+          document.getElementById('agreement-action').innerHTML = '';
+          const status = document.getElementById('docs-status');
+          status.textContent = 'Your documents have been received. You are all set.';
+          status.style.display = 'block';
+          return;
+        }
+
+        if (!data.valid) {
+          const errMsg = 'Your signing links have expired. Please contact GripTape at <a href="mailto:hello@griptape.org">hello@griptape.org</a> for help.';
+          document.getElementById('w9-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
+          document.getElementById('agreement-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
+          return;
+        }
+
+        const w9Anchor = document.createElement('a');
+        w9Anchor.href = data.w9_link;
+        w9Anchor.target = '_blank';
+        w9Anchor.rel = 'noopener noreferrer';
+        w9Anchor.textContent = 'Sign your W-9';
+        w9Anchor.setAttribute('style', 'display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;');
+
+        const agreementAnchor = document.createElement('a');
+        agreementAnchor.href = data.agreement_link;
+        agreementAnchor.target = '_blank';
+        agreementAnchor.rel = 'noopener noreferrer';
+        agreementAnchor.textContent = 'Sign your Participation Agreement';
+        agreementAnchor.setAttribute('style', 'display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;');
+
+        const w9Action = document.getElementById('w9-action');
+        w9Action.innerHTML = '';
+        w9Action.appendChild(w9Anchor);
+
+        const agreementAction = document.getElementById('agreement-action');
+        agreementAction.innerHTML = '';
+        agreementAction.appendChild(agreementAnchor);
+
+      } catch {
+        const errMsg = 'Your signing links have expired. Please contact GripTape at <a href="mailto:hello@griptape.org">hello@griptape.org</a> for help.';
+        document.getElementById('w9-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
+        document.getElementById('agreement-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
+      }
+    }
 
     init();
   </script>
