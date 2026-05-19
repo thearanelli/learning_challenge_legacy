@@ -162,7 +162,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Tomorrow is your last day to commit to your GripTape Challenge. It takes 5 minutes.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Commit</a></p>`,
-    sms: "Hey {{first_name}}, don't forget to complete your GripTape declaration: {{link}}",
+    sms: "Hey {{first_name}}, tomorrow is your last day to commit to your GripTape Challenge: {{link}}",
   },
 
   nudge_first_drop_1: {
