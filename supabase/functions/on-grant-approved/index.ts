@@ -75,10 +75,32 @@ serve(async (req) => {
 
     if (!youth.orientation_call_completed_at) {
       console.error(`[on-grant-approved] blocking — youth ${youth.id} has no orientation call on record`);
+      const staffEmail = Deno.env.get('STAFF_EMAIL');
+      if (staffEmail) {
+        await sendEmail({
+          to: staffEmail,
+          subject: `Grant blocked — no orientation call on record for ${youth.first_name} ${youth.last_name}`,
+          html: `<p>A grant approval was blocked because no orientation call is on record for this youth.</p>
+<p><strong>youth_id:</strong> ${youth.id}<br>
+<strong>grant_request_id:</strong> ${record.id}</p>
+<p>Please verify the orientation was completed and manually unblock if needed.</p>`,
+        });
+      }
       return new Response('Youth has no orientation call — blocking grant', { status: 400 });
     }
     if (!youth.first_drop_url) {
       console.error(`[on-grant-approved] blocking — youth ${youth.id} has no First Drop on record`);
+      const staffEmail = Deno.env.get('STAFF_EMAIL');
+      if (staffEmail) {
+        await sendEmail({
+          to: staffEmail,
+          subject: `Grant blocked — no First Drop on record for ${youth.first_name} ${youth.last_name}`,
+          html: `<p>A grant approval was blocked because no First Drop video is on record for this youth.</p>
+<p><strong>youth_id:</strong> ${youth.id}<br>
+<strong>grant_request_id:</strong> ${record.id}</p>
+<p>Please verify the First Drop was submitted and manually unblock if needed.</p>`,
+        });
+      }
       return new Response('Youth has no First Drop — blocking grant', { status: 400 });
     }
 

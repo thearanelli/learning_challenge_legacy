@@ -10,6 +10,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendEmail } from '../_shared/email.ts';
 
 serve(async (req) => {
   if (req.method !== 'POST') {
@@ -106,7 +107,18 @@ serve(async (req) => {
           await grantSignedRes.text()
         );
         // Non-fatal — grant_requests row is fully updated.
-        // Staff can manually trigger process-grant-signed if needed.
+        const staffEmail = Deno.env.get('STAFF_EMAIL');
+        if (staffEmail) {
+          await sendEmail({
+            to: staffEmail,
+            subject: `Grant flow error — process-grant-signed failed for grant ${grantRequest.id}`,
+            html: `<p>Both BoldSign documents are signed, but the <strong>process-grant-signed</strong> function failed to execute.</p>
+<p><strong>youth_id:</strong> ${updated.youth_id}<br>
+<strong>grant_request_id:</strong> ${grantRequest.id}<br>
+<strong>HTTP status:</strong> ${grantSignedRes.status}</p>
+<p>Please check the function logs and manually trigger process-grant-signed for this youth.</p>`,
+          });
+        }
       }
     }
 

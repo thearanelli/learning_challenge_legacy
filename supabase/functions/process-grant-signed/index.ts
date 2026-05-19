@@ -7,11 +7,14 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendStaffNotification } from '../_shared/dispatcher.ts';
+import { sendEmail } from '../_shared/email.ts';
 import { config } from '../_shared/config.ts';
 
 serve(async (req) => {
+  let youth_id: string | null = null;
   try {
-    const { youth_id } = await req.json();
+    const parsed = await req.json();
+    youth_id = parsed.youth_id ?? null;
 
     if (!youth_id) {
       return new Response('Missing youth_id', { status: 400 });
@@ -96,8 +99,19 @@ serve(async (req) => {
 
   } catch (err) {
     console.error('[ERROR] process-grant-signed:', err);
+    const staffEmail = Deno.env.get('STAFF_EMAIL');
+    if (staffEmail) {
+      await sendEmail({
+        to: staffEmail,
+        subject: `Grant flow error — process-grant-signed failed`,
+        html: `<p>The <strong>process-grant-signed</strong> function threw an error.</p>
+<p><strong>youth_id:</strong> ${youth_id ?? 'unknown (parsing failed)'}<br>
+<strong>error:</strong> ${(err as Error).message}</p>
+<p>Please check the function logs and manually advance the youth to grant_review if needed.</p>`,
+      });
+    }
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: (err as Error).message }),
       { headers: { 'Content-Type': 'application/json' }, status: 500 },
     );
   }
