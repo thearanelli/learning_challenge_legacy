@@ -217,7 +217,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>{{youth_name}} has been matched with you as their GripTape Champion and is still waiting to schedule their orientation call.</p>
 <p>They have until {{deadline_date}} to complete the call. Reach out to them directly and get it on the calendar.</p>
 <p><strong>{{youth_name}}'s cell:</strong> {{youth_phone}}</p>
-<p>Once the call is done submit the orientation form below.</p>
+<p>Use the orientation form below to guide your call.</p>
 <p><a href="{{orientation_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit orientation form</a></p>
 <p>Questions? Reply to this email.</p>
 <p>— The GripTape Team</p>`,
