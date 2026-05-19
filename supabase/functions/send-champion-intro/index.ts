@@ -109,15 +109,6 @@ serve(async (req) => {
       { youth_id: youth.id },
     );
 
-    // Champion: email only, no SMS
-    await sendNotification(
-      'mentor_pending',
-      { first_name: champion.first_name, last_name: champion.last_name, email: champion.email, phone: '' },
-      vars,
-      { youth_id: youth.id },
-      { skipSms: true },
-    );
-
     const orientationLink = `${config.BASE_URL}/orientation?token=${champion.champion_token}`;
     const youthAppRes = await supabase
       .from('applications')
