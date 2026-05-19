@@ -2,7 +2,7 @@
 export const config = {
   PROGRAM_ID: 'nyc-2026',
   BASE_URL: 'https://learning-challenge-legacy.vercel.app',
-  EMAIL_FROM: 'GripTape <hello@griptape.org>',
+  EMAIL_FROM: 'GripTape <team@griptape.org>',
   AGE_MIN: 15,
   AGE_MAX: 19,
   ELIGIBLE_LOCATIONS: ['NYC', 'NJ'],
