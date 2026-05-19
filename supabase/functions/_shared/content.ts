@@ -15,17 +15,6 @@ export const content = {
 <p>Starting is sometimes the hardest part. Don't overthink it. Pick something small, make it happen, and build from there.</p>
 <p>Head down. No excuses. We'll send you your First Drop submission link in 7 days. Until then, just go build something.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hi {{first_name}}, you\'re in. Submit your video: {{video_link}} Your profile: {{profile_link}}',
-  },
-  video_pending: {
-    email_subject: 'You\'re accepted — submit your intro video',
-    email_body: `<p>Hi {{first_name}},</p>
-      <p>You've been accepted to the GripTape Learning Challenge!</p>
-      <p>Submit your intro video within 10 days to secure your spot.</p>
-      <p><a href="{{link}}">Click here to submit your video</a></p>
-      <p><a href="{{profile_link}}">See your builder profile</a></p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
-    sms: 'Hi {{first_name}}! You\'re accepted to GripTape. Submit your video: {{link}} (placeholder)',
   },
   rejected: {
     email_subject: 'Your GripTape Learning Challenge application',
@@ -49,11 +38,7 @@ export const content = {
 <p>Reach out to {{champion_first_name}} to schedule that call as soon as possible. Their number is {{champion_phone}} and their email is {{champion_email}}.</p>
 <p>You have 7 days to complete your orientation. After that we have to give your spot to someone else.</p>
 <p>— The GripTape Team</p>`,
-    sms: "You're officially a GripTape Challenger! Meet your Champion: {{champion_name}}. They'll be in touch soon. Let's build something real.",
-    nudge_email_subject: 'Placeholder — replace before launch',
-    nudge_email_body: `Placeholder — replace before launch`,
-    removal_email_subject: 'Placeholder — replace before launch',
-    removal_email_body: `Placeholder — replace before launch`,
+    sms: "Congrats {{first_name}}, you're officially a GripTape Challenger! Check your email for next steps ASAP.",
   },
 
   champion_intro: {
@@ -188,7 +173,6 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your video needs to cover three things. Who you are and what your passion is. What you've actually done in the past 10 days. Where you're taking this next.</p>
 <p>Keep it under 90 seconds, shoot vertical, show your work. Real talk only.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your First Drop video is due soon: {{link}}',
   },
 
   nudge_first_drop_mid: {
@@ -207,7 +191,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
 <p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, last chance to submit your First Drop: {{link}}',
+    sms: 'Hey {{first_name}}, your First Drop video for GripTape is due today: {{link}}',
   },
 
   nudge_orientation_1: {
