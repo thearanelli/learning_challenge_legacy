@@ -18,10 +18,10 @@ export const content = {
   },
   rejected: {
     email_subject: 'Your GripTape Learning Challenge application',
-    email_body: `<p>Hi {{first_name}},</p>
-      <p>Thank you for applying. Unfortunately we\'re unable to move forward at this time.</p>
-      <p><strong>Placeholder — replace with real copy before pilot launch.</strong></p>`,
-    sms: 'Hi {{first_name}}, thanks for applying to GripTape. We\'re unable to move forward at this time.',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Thank you for applying to the GripTape Learning Challenge. After reviewing your application, we're not able to offer you a spot in this cycle.</p>
+<p>We know that's hard to hear — and we want you to know that applying took courage. Keep pursuing what drives you.</p>
+<p>— The GripTape Team</p>`,
   },
   flagged: {
     staff_sms: '[CONTENT FLAG] {{first_name}} {{last_name}} needs review. {{reasoning}}',
@@ -328,30 +328,24 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: 'Your GripTape spot has been released',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your deadline to complete Step 2 passed on {{deadline_date}} and your spot has been released.</p>
-<p>Don't let that be the end of your story. If you're still serious about your passion, you can start fresh — register again at the link below and earn your spot from the beginning.</p>
-<p><a href="{{base_url}}">Register again →</a></p>
+<p>Whatever is going on, don't stop. The work you care about is still worth doing.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your GripTape declaration deadline passed. Your spot has been released.',
   },
 
   removed_first_drop: {
     email_subject: 'Your GripTape spot has been released',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your deadline to submit your First Drop passed on {{deadline_date}} and your spot has been released.</p>
-<p>Life gets in the way — we get it. But if you're still serious about your passion, you can start fresh. Register again at the link below.</p>
-<p><a href="{{base_url}}">Register again →</a></p>
+<p>Life gets in the way — we get it. Don't let it stop you from the thing you were building.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your First Drop deadline passed. Your spot has been released.',
   },
 
   removed_orientation: {
     email_subject: 'Your GripTape spot has been released',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your deadline to complete your orientation call passed on {{deadline_date}} and your spot has been released.</p>
-<p>If you're still serious about your passion, you can start fresh — register again at the link below and earn your spot from the beginning.</p>
-<p><a href="{{base_url}}">Register again →</a></p>
+<p>We hope you keep going. Whatever brought you here in the first place is still real.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your orientation deadline passed. Your spot has been released.',
   },
 
   removed_full_send: {
@@ -361,7 +355,6 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>You showed up. You committed. You spent weeks working on something you care about. That's real — and most people never do it.</p>
 <p>We hope you keep going. Whatever you built, keep building it.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your Full Send deadline passed. Your GripTape program has ended.',
   },
 
   // ── Full Send link dispatch ───────────────────────────────────────────────
