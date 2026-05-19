@@ -767,6 +767,39 @@ h1 {
 .hero-ticker-item.active { opacity: 1; }
 .hero-ticker-item .ticker-name { color: var(--lime); font-weight: 600; }
 
+/* CONTACT FOOTER (inside final CTA) */
+.contact-footer {
+  text-align: center;
+  margin-top: 16px;
+}
+.contact-footer a {
+  color: rgba(245, 245, 240, 0.5);
+  font-size: 13px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.contact-footer a:hover {
+  color: #EA5329;
+}
+
+/* SITE FOOTER */
+.site-footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  position: relative;
+  z-index: 1;
+}
+.site-footer a {
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.site-footer a:hover { color: var(--lime); }
+
 /* ── RESPONSIVE ── */
 
 /* Mobile: hide nav pills, large h1, reorder examples section */
@@ -1058,9 +1091,16 @@ h1 {
       <button class="btn-main" onclick="startApp()">I'm ready →</button>
     </div>
     <p class="cta-sub">Takes 5 minutes. No resume needed.</p>
+    <div class="contact-footer">
+      <a href="/help">Questions? Contact us →</a>
+    </div>
   </div>
 
   </div><!-- /.landing-container -->
+
+  <footer class="site-footer">
+    Questions? <a href="/help">Contact us →</a>
+  </footer>
 
 </div>
 
