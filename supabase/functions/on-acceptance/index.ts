@@ -70,7 +70,7 @@ serve(async (req) => {
         birthdate:      application.birthdate,
         gender:         application.gender         ?? null,
         pronouns:       application.pronouns       ?? null,
-        passion:        application.passion        ?? application.application_responses?.passion  ?? null,
+        passion:        application.passion        ?? null,
         status:         INITIAL_STATUS,
         first_drop_url: application.video_url ?? null,
         accepted_at:    new Date().toISOString(),
@@ -93,7 +93,7 @@ serve(async (req) => {
   } catch (err) {
     console.error('[on-acceptance] error:', err);
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
       { headers: { 'Content-Type': 'application/json' }, status: 500 },
     );
   }
