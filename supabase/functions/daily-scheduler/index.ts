@@ -144,6 +144,11 @@ serve(async (req) => {
             continue; // already sent
           }
 
+          if ((nudge.stage === 'declaration_pending' || nudge.stage === 'video_pending') && app.notify_after && app.notify_after > now) {
+            console.log(`[daily-scheduler] S2 skip ${nudge.content_key} — notify_after not yet reached for app ${app.id}`);
+            continue;
+          }
+
           const link = nudge.link_field === 'access_token' && nudge.stage === 'declaration_pending'
             ? `${config.BASE_URL}/declare?token=${app.access_token}`
             : nudge.link_field === 'access_token'
