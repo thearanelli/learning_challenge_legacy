@@ -72,6 +72,20 @@ serve(async (req) => {
           };
 
           if (app.screening_status === 'declaration_pending') {
+            // If token is missing (e.g. manually moved from flagged), generate one now
+            if (!app.access_token) {
+              const tokenData = generateToken(config.STAGES.declaration_pending.deadline_days);
+              await supabase
+                .from('applications')
+                .update({
+                  access_token:      tokenData.access_token,
+                  stage_deadline_at: tokenData.stage_deadline_at,
+                })
+                .eq('id', app.id);
+              app.access_token      = tokenData.access_token;
+              app.stage_deadline_at = tokenData.stage_deadline_at;
+              console.log(`[daily-scheduler] S1 generated missing access_token for app ${app.id}`);
+            }
             const declareLink = `${config.BASE_URL}/declare?token=${app.access_token}`;
             const profileLink = `${config.BASE_URL}/profile?token=${app.profile_token}`;
             await sendNotification(
