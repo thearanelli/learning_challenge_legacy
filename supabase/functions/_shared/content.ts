@@ -200,7 +200,6 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your Champion {{champion_name}} is ready to connect — have you reached out yet?</p>
 <p>Your orientation call needs to happen by {{deadline_date}}. That's where you'll map out your goals, plan your project, and unlock your funding.</p>
 <p>Don't wait. Reach out to {{champion_name}} today and get it on the calendar. Their number is {{champion_phone}}.</p>`,
-    sms: 'Hey {{first_name}}, reach out to your Champion {{champion_name}} to schedule your orientation call.',
   },
 
   nudge_orientation_2: {
