@@ -130,7 +130,6 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>We got your video. The GripTape team will review it and be in touch.</p>
 <p>If you have not already had your End of Challenge call with {{champion_name}} — reach out to them now. That is the last step to completing your Challenge: {{champion_phone}}.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your Full Send is in. The GripTape team will review it and be in touch.',
   },
 
   full_send_staff_notification: {
