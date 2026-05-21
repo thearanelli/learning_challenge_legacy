@@ -71,7 +71,7 @@ export const content = {
 <a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
 <p>You have 21 days to sign both documents. After that the funding window closes. Your spot in the program is safe either way.</p>
 <p>— The GripTape Team</p>`,
-    sms: `GripTape: Sign your documents to unlock your stipend. W-9: {{w9_link}} Agreement: {{agreement_link}}`,
+    sms: `Congrats on completing your GripTape orientation call! Now check your email to unlock your funding.`,
   },
 
   grant_review: {
