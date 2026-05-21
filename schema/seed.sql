@@ -475,7 +475,9 @@ base AS (
       WHEN ca.last_comm_at IS NOT NULL
         THEN FLOOR(EXTRACT(EPOCH FROM (now() - ca.last_comm_at)) / 86400)::integer
       ELSE NULL
-    END                                               AS days_since_last_comm
+    END                                               AS days_since_last_comm,
+    FLOOR(EXTRACT(EPOCH FROM (now() - y.accepted_at)) / 604800)::int
+                                                      AS week_in_program
   FROM applications a
   LEFT JOIN youth     y  ON y.application_id = a.id
   LEFT JOIN comms_agg ca ON ca.application_id = a.id
@@ -488,15 +490,15 @@ expected AS (
     b.*,
     CASE b.current_stage
       WHEN 'declaration_pending' THEN ARRAY['declaration_pending']::text[]
-      WHEN 'video_pending'       THEN ARRAY['declaration_pending','declaration_confirmed']::text[]
-      WHEN 'video_review'        THEN ARRAY['declaration_pending','declaration_confirmed']::text[]
-      WHEN 'mentor_pending'      THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending']::text[]
-      WHEN 'grant_pending'       THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending']::text[]
-      WHEN 'grant_approved'      THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','grant_approved']::text[]
-      WHEN 'grant_expired'       THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending']::text[]
-      WHEN 'final_video_pending' THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','full_send_link']::text[]
-      WHEN 'full_send_review'    THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','full_send_link','full_send_submitted']::text[]
-      WHEN 'completed'           THEN ARRAY['declaration_pending','declaration_confirmed','mentor_pending','grant_pending','full_send_link','full_send_submitted']::text[]
+      WHEN 'video_pending'       THEN ARRAY['declaration_pending','video_pending']::text[]
+      WHEN 'video_review'        THEN ARRAY['declaration_pending','video_pending']::text[]
+      WHEN 'mentor_pending'      THEN ARRAY['declaration_pending','video_pending','mentor_pending']::text[]
+      WHEN 'grant_pending'       THEN ARRAY['declaration_pending','video_pending','mentor_pending','grant_pending']::text[]
+      WHEN 'grant_approved'      THEN ARRAY['declaration_pending','video_pending','mentor_pending','grant_pending','grant_approved']::text[]
+      WHEN 'grant_expired'       THEN ARRAY['declaration_pending','video_pending','mentor_pending','grant_pending']::text[]
+      WHEN 'final_video_pending' THEN ARRAY['declaration_pending','video_pending','mentor_pending','grant_pending','full_send_link']::text[]
+      WHEN 'full_send_review'    THEN ARRAY['declaration_pending','video_pending','mentor_pending','grant_pending','full_send_link','full_send_submitted']::text[]
+      WHEN 'completed'           THEN ARRAY['declaration_pending','video_pending','mentor_pending','grant_pending','full_send_link','full_send_submitted']::text[]
       WHEN 'rejected'            THEN ARRAY['rejected']::text[]
       ELSE                            ARRAY[]::text[]
     END AS expected_keys
@@ -523,6 +525,7 @@ computed AS (
     e.last_comm_sent,
     e.last_comm_at,
     e.days_since_last_comm,
+    e.week_in_program,
 
     -- next_comm: label of next scheduled comm for the current stage
     CASE e.current_stage
@@ -530,19 +533,23 @@ computed AS (
         CASE WHEN NOT ('nudge_declaration'  = ANY(e.received_keys)) THEN 'nudge_declaration'
              ELSE 'deadline_removal' END
       WHEN 'video_pending' THEN
-        CASE WHEN NOT ('nudge_first_drop_1' = ANY(e.received_keys)) THEN 'nudge_first_drop_1'
-             WHEN NOT ('nudge_first_drop_2' = ANY(e.received_keys)) THEN 'nudge_first_drop_2'
+        CASE WHEN NOT ('nudge_first_drop_1'   = ANY(e.received_keys)) THEN 'nudge_first_drop_1'
+             WHEN NOT ('nudge_first_drop_mid' = ANY(e.received_keys)) THEN 'nudge_first_drop_mid'
+             WHEN NOT ('nudge_first_drop_2'   = ANY(e.received_keys)) THEN 'nudge_first_drop_2'
              ELSE 'deadline_removal' END
       WHEN 'mentor_pending' THEN
-        CASE WHEN NOT ('nudge_orientation_1' = ANY(e.received_keys)) THEN 'nudge_orientation_1'
-             WHEN NOT ('nudge_orientation_2' = ANY(e.received_keys)) THEN 'nudge_orientation_2'
+        CASE WHEN NOT ('nudge_orientation_1'        = ANY(e.received_keys)) THEN 'nudge_orientation_1'
+             WHEN NOT ('nudge_orientation_champion' = ANY(e.received_keys)) THEN 'nudge_orientation_champion'
+             WHEN NOT ('nudge_orientation_2'        = ANY(e.received_keys)) THEN 'nudge_orientation_2'
              ELSE 'deadline_removal' END
       WHEN 'grant_pending' THEN
         CASE WHEN NOT ('nudge_grant' = ANY(e.received_keys)) THEN 'nudge_grant'
              ELSE 'grant_expired' END
       WHEN 'final_video_pending' THEN
-        CASE WHEN NOT ('nudge_full_send_1' = ANY(e.received_keys)) THEN 'nudge_full_send_1'
-             WHEN NOT ('nudge_full_send_2' = ANY(e.received_keys)) THEN 'nudge_full_send_2'
+        CASE WHEN NOT (e.received_keys && ARRAY['nudge_full_send_neither','nudge_full_send_no_video','nudge_full_send_no_eoc']::text[])
+               THEN 'nudge_full_send_neither'
+             WHEN NOT (e.received_keys && ARRAY['nudge_full_send_neither_final','nudge_full_send_no_video_final','nudge_full_send_no_eoc_final']::text[])
+               THEN 'nudge_full_send_no_video'
              ELSE 'deadline_removal' END
       ELSE NULL
     END AS next_comm,
@@ -551,32 +558,36 @@ computed AS (
     -- SYNC WITH config.ts STAGES nudge_days if nudge schedules change
     CASE e.current_stage
       WHEN 'declaration_pending' THEN
-        CASE WHEN NOT ('nudge_declaration'  = ANY(e.received_keys)) THEN GREATEST(0,  6 - e.days_in_stage)
-             ELSE                                                         GREATEST(0, 10 - e.days_in_stage) END
+        CASE WHEN NOT ('nudge_declaration'  = ANY(e.received_keys)) THEN GREATEST(0, 6 - e.days_in_stage)
+             ELSE                                                         GREATEST(0, 8 - e.days_in_stage) END
       WHEN 'video_pending' THEN
-        CASE WHEN NOT ('nudge_first_drop_1' = ANY(e.received_keys)) THEN GREATEST(0,  5 - e.days_in_stage)
-             WHEN NOT ('nudge_first_drop_2' = ANY(e.received_keys)) THEN GREATEST(0,  9 - e.days_in_stage)
-             ELSE                                                         GREATEST(0, 10 - e.days_in_stage) END
+        CASE WHEN NOT ('nudge_first_drop_1'   = ANY(e.received_keys)) THEN GREATEST(0,  5 - e.days_in_stage)
+             WHEN NOT ('nudge_first_drop_mid' = ANY(e.received_keys)) THEN GREATEST(0,  7 - e.days_in_stage)
+             WHEN NOT ('nudge_first_drop_2'   = ANY(e.received_keys)) THEN GREATEST(0,  9 - e.days_in_stage)
+             ELSE                                                           GREATEST(0, 10 - e.days_in_stage) END
       WHEN 'mentor_pending' THEN
-        CASE WHEN NOT ('nudge_orientation_1' = ANY(e.received_keys)) THEN GREATEST(0, 3 - e.days_in_stage)
-             WHEN NOT ('nudge_orientation_2' = ANY(e.received_keys)) THEN GREATEST(0, 6 - e.days_in_stage)
-             ELSE                                                          GREATEST(0, 7 - e.days_in_stage) END
+        CASE WHEN NOT ('nudge_orientation_1'        = ANY(e.received_keys)) THEN GREATEST(0, 3 - e.days_in_stage)
+             WHEN NOT ('nudge_orientation_champion' = ANY(e.received_keys)) THEN GREATEST(0, 4 - e.days_in_stage)
+             WHEN NOT ('nudge_orientation_2'        = ANY(e.received_keys)) THEN GREATEST(0, 6 - e.days_in_stage)
+             ELSE                                                                 GREATEST(0, 8 - e.days_in_stage) END
       WHEN 'grant_pending' THEN
         CASE WHEN NOT ('nudge_grant' = ANY(e.received_keys)) THEN GREATEST(0,  5 - e.days_in_stage)
              ELSE                                                  GREATEST(0, 21 - e.days_in_stage) END
       WHEN 'final_video_pending' THEN
-        CASE WHEN NOT ('nudge_full_send_1' = ANY(e.received_keys)) THEN GREATEST(0,  7 - e.days_in_stage)
-             WHEN NOT ('nudge_full_send_2' = ANY(e.received_keys)) THEN GREATEST(0, 12 - e.days_in_stage)
-             ELSE                                                        GREATEST(0, 14 - e.days_in_stage) END
+        CASE WHEN NOT (e.received_keys && ARRAY['nudge_full_send_neither','nudge_full_send_no_video','nudge_full_send_no_eoc']::text[])
+               THEN GREATEST(0,  7 - e.days_in_stage)
+             WHEN NOT (e.received_keys && ARRAY['nudge_full_send_neither_final','nudge_full_send_no_video_final','nudge_full_send_no_eoc_final']::text[])
+               THEN GREATEST(0, 12 - e.days_in_stage)
+             ELSE GREATEST(0, 14 - e.days_in_stage) END
       ELSE NULL
     END AS next_comm_in_days,
 
     -- deadline_in_days: days until stage deadline (negative = past deadline, null = no deadline)
     -- SYNC WITH config.ts STAGES deadline_days if deadlines change
     CASE e.current_stage
-      WHEN 'declaration_pending' THEN (10 - e.days_in_stage)
+      WHEN 'declaration_pending' THEN ( 8 - e.days_in_stage)
       WHEN 'video_pending'       THEN (10 - e.days_in_stage)
-      WHEN 'mentor_pending'      THEN ( 7 - e.days_in_stage)
+      WHEN 'mentor_pending'      THEN ( 8 - e.days_in_stage)
       WHEN 'grant_pending'       THEN (21 - e.days_in_stage)
       WHEN 'final_video_pending' THEN (14 - e.days_in_stage)
       ELSE NULL
@@ -604,7 +615,8 @@ SELECT
   (
     CARDINALITY(c.missing_comms) > 0
     OR (c.deadline_in_days IS NOT NULL AND c.deadline_in_days <= 2)
-  ) AS at_risk
+  ) AS at_risk,
+  c.week_in_program
 FROM computed c;
 
 -- Restrict access: service_role only
