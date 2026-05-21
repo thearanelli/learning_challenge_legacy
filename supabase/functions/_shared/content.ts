@@ -5,6 +5,7 @@ export const content = {
 <p>Your passion for {{passion}} stood out. We think you should commit to it and make it a real project.</p>
 <p>Here's what happens next: set a 10-day goal, work on it, then film a short video showing what you built. That's your First Drop — and it's how you earn your spot at GripTape.</p>
 <p><a href="{{link}}" style="display:block;background:#EA5329;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;text-align:center;margin:20px 0;font-family:Arial,Helvetica,sans-serif">Start Step 2 →</a></p>
+<p>You have until {{deadline_date}} to commit to this.</p>
 <p>— The GripTape Team</p>`,
     sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next: {{link}}',
   },
