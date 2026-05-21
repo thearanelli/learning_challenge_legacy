@@ -769,16 +769,29 @@ serve(async (req) => {
     if (atRiskErr) {
       console.error('[daily-scheduler] S5 query error:', atRiskErr.message);
     } else if (atRiskYouth && atRiskYouth.length > 0) {
-      const staffPhone = Deno.env.get('STAFF_PHONE') ?? '';
-      if (!staffPhone) {
-        console.error('[daily-scheduler] S5 STAFF_PHONE not set');
+      // Idempotency: skip if at-risk alert already sent in the last 24 hours
+      const { data: recentAlert } = await supabase
+        .from('comms_log')
+        .select('id')
+        .eq('stage_key', 'staff_at_risk_alert')
+        .gt('sent_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .limit(1);
+
+      if (recentAlert && recentAlert.length > 0) {
+        console.log('[daily-scheduler] S5 skip — at-risk alert already sent today');
       } else {
-        const names = atRiskYouth
-          .map((y: { first_name: string; current_stage: string }) => `${y.first_name} (${y.current_stage})`)
-          .join(', ');
-        const smsBody = `GripTape alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
-        await sendSMS({ to: staffPhone, body: smsBody });
-        console.log(`[daily-scheduler] S5 sent at-risk alert for ${atRiskYouth.length} youth`);
+        const staffPhone = Deno.env.get('STAFF_PHONE') ?? '';
+        if (!staffPhone) {
+          console.error('[daily-scheduler] S5 STAFF_PHONE not set');
+        } else {
+          const names = atRiskYouth
+            .map((y: { first_name: string; current_stage: string }) => `${y.first_name} (${y.current_stage})`)
+            .join(', ');
+          const smsBody = `GripTape alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
+          await sendSMS({ to: staffPhone, body: smsBody });
+          await supabase.from('comms_log').insert({ stage_key: 'staff_at_risk_alert', sent_at: new Date().toISOString() });
+          console.log(`[daily-scheduler] S5 sent at-risk alert for ${atRiskYouth.length} youth`);
+        }
       }
     }
   } catch (err) {
