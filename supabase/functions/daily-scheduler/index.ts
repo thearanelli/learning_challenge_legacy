@@ -8,11 +8,13 @@
 // Section 2 — Nudges (application stages, youth stages)
 // Section 3 — Deadline removals (application stages, youth stages)
 // Section 4 — Full Send link dispatch (grant_approved / grant_expired → final_video_pending)
+// Section 5 — Staff Alerts (at-risk youth SMS)
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
 import { sendNotification } from '../_shared/dispatcher.ts';
+import { sendSMS } from '../_shared/sms.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
 serve(async (req) => {
@@ -737,6 +739,32 @@ serve(async (req) => {
     }
   } catch (err) {
     console.error('[daily-scheduler] S4 fatal:', err);
+  }
+
+  // ── Section 5 — Staff Alerts ───────────────────────────────────────────────
+  try {
+    const { data: atRiskYouth, error: atRiskErr } = await supabase
+      .from('youth_comms_checklist')
+      .select('first_name, status')
+      .eq('at_risk', true);
+
+    if (atRiskErr) {
+      console.error('[daily-scheduler] S5 query error:', atRiskErr.message);
+    } else if (atRiskYouth && atRiskYouth.length > 0) {
+      const staffPhone = Deno.env.get('STAFF_PHONE') ?? '';
+      if (!staffPhone) {
+        console.error('[daily-scheduler] S5 STAFF_PHONE not set');
+      } else {
+        const names = atRiskYouth
+          .map((y: { first_name: string; status: string }) => `${y.first_name} (${y.status})`)
+          .join(', ');
+        const smsBody = `GripTape alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
+        await sendSMS({ to: staffPhone, body: smsBody });
+        console.log(`[daily-scheduler] S5 sent at-risk alert for ${atRiskYouth.length} youth`);
+      }
+    }
+  } catch (err) {
+    console.error('[daily-scheduler] S5 fatal:', err);
   }
 
   console.log('[daily-scheduler] run complete');
