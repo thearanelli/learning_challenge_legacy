@@ -745,7 +745,7 @@ serve(async (req) => {
   try {
     const { data: atRiskYouth, error: atRiskErr } = await supabase
       .from('youth_comms_checklist')
-      .select('first_name, status')
+      .select('first_name, current_stage')
       .eq('at_risk', true);
 
     if (atRiskErr) {
@@ -756,7 +756,7 @@ serve(async (req) => {
         console.error('[daily-scheduler] S5 STAFF_PHONE not set');
       } else {
         const names = atRiskYouth
-          .map((y: { first_name: string; status: string }) => `${y.first_name} (${y.status})`)
+          .map((y: { first_name: string; current_stage: string }) => `${y.first_name} (${y.current_stage})`)
           .join(', ');
         const smsBody = `GripTape alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
         await sendSMS({ to: staffPhone, body: smsBody });
