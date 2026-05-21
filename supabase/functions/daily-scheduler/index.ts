@@ -789,7 +789,15 @@ serve(async (req) => {
             .join(', ');
           const smsBody = `GripTape alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
           await sendSMS({ to: staffPhone, body: smsBody });
-          await supabase.from('comms_log').insert({ stage_key: 'staff_at_risk_alert', sent_at: new Date().toISOString() });
+          const { error: logErr } = await supabase.from('comms_log').insert({
+            stage_key: 'staff_at_risk_alert',
+            direction: 'outbound',
+            channel: 'sms',
+            sent_at: new Date().toISOString(),
+            delivery_status: 'sent',
+            program_id: 'nyc-2026',
+          });
+          if (logErr) console.error('[daily-scheduler] S5 comms_log insert failed:', logErr.message);
           console.log(`[daily-scheduler] S5 sent at-risk alert for ${atRiskYouth.length} youth`);
         }
       }
