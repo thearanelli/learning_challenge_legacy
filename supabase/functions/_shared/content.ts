@@ -182,16 +182,16 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
 <p>Film a 90-second video showing what you accomplished. Real work only. Then submit the YouTube link below.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your First Drop video is due soon: {{link}}',
+    sms: 'Hey {{first_name}}, your GripTape First Drop video submission link is ready: {{link}}',
   },
 
   nudge_first_drop_2: {
     email_subject: 'Last chance — First Drop due tomorrow',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
-<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste.</p>
+<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. We're so excited to see what you acomplished.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your First Drop video for GripTape is due today: {{link}}',
+    sms: 'Hey {{first_name}}, your First Drop video for GripTape is due tomorrow: {{link}}',
   },
 
   nudge_orientation_1: {
