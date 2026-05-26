@@ -194,6 +194,7 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${tremendousApiKey}`,
+        'User-Agent': 'GripTape-LearningChallenge/1.0',
       },
       body: JSON.stringify(orderPayload),
     });
