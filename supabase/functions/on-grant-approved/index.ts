@@ -201,6 +201,7 @@ serve(async (req) => {
     if (!tremendousRes.ok) {
       const errText = await tremendousRes.text();
       console.error(`[on-grant-approved] Tremendous API error ${tremendousRes.status} for youth ${youthId}`);
+      console.error('[on-grant-approved] Tremendous error body:', errText);
       try {
         await supabase.from('agent_log').insert({
           event: 'tremendous_order_failed',
