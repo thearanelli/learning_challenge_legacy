@@ -20,7 +20,7 @@ import { renderContent, content } from '../_shared/content.ts';
 import { config } from '../_shared/config.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
-const TREMENDOUS_CAMPAIGN_ID = 'XI17V0UOF7RX';
+const TREMENDOUS_CAMPAIGN_ID = Deno.env.get('TREMENDOUS_CAMPAIGN_ID') ?? 'NHJKHB0YT1OD';
 
 serve(async (req) => {
   try {
@@ -110,7 +110,7 @@ serve(async (req) => {
       .update({
         staff_approved_at: new Date().toISOString(),
         updated_at:        new Date().toISOString(),
-        mailing_address:   youth.address ?? null,
+        mailing_address:   [youth.street_address, youth.city, youth.state, youth.zip].filter(Boolean).join(', ') || null,
       })
       .eq('id', record.id)
       .is('staff_approved_at', null);
