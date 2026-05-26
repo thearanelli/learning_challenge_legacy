@@ -90,7 +90,7 @@ serve(async (req) => {
         grant_amount:    grant_amount,
         challenge_topic: challenge_topic,
         legal_name:      legal_name,
-        mailing_address: youth.address ?? null,
+        mailing_address: [youth.street_address, youth.city, youth.state, youth.zip].filter(Boolean).join(', ') || null,
         updated_at:      new Date().toISOString(),
       })
       .eq('youth_id', youth.id);
