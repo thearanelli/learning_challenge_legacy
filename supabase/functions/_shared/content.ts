@@ -133,6 +133,16 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>— The GripTape Team</p>`,
   },
 
+  first_drop_review: {
+    staff_email_subject: 'First Drop ready for review — {{first_name}} {{last_name}}',
+    staff_email_body: `<p>{{first_name}} {{last_name}} submitted their First Drop video.</p>
+<p><strong>Video:</strong> <a href="{{video_url}}">{{video_url}}</a><br>
+<strong>Passion:</strong> {{passion}}<br>
+<strong>Email:</strong> {{email}}<br>
+<strong>Application ID:</strong> {{application_id}}</p>
+<p>To accept, update their status to <code>accepted</code> in Supabase.</p>`,
+  },
+
   full_send_staff_notification: {
     staff_email_subject: 'Full Send submitted — {{first_name}} {{last_name}}',
     staff_email_body: `<p>{{first_name}} {{last_name}} submitted their Full Send video.</p>

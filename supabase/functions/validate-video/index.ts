@@ -9,6 +9,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
+import { sendStaffNotification } from '../_shared/dispatcher.ts';
 
 serve(async (req) => {
   try {
@@ -61,6 +62,15 @@ serve(async (req) => {
     if (updateError) {
       throw new Error(`video_submitted_at update error: ${updateError.message}`);
     }
+
+    await sendStaffNotification('first_drop_review', {
+      first_name: record.first_name,
+      last_name: record.last_name,
+      email: record.email,
+      video_url: record.video_url,
+      passion: record.passion ?? '',
+      application_id: record.id,
+    });
 
     console.log('[validate-video] advanced to video_review:', record.id);
     return new Response(JSON.stringify({ success: true }), {
