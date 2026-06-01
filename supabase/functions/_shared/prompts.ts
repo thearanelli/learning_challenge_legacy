@@ -15,6 +15,8 @@ Rules:
 - decision is "accepted" only if ALL three criteria pass
 - decision is "rejected" if any criterion clearly fails
 - decision is "flagged" if you are uncertain on any criterion
+- If prior_griptape_experience is "returning", note this in your reasoning and lean toward "flagged" so staff can review — this is not an automatic rejection
+- If prior_griptape_experience is "not_sure" or null, treat it as neutral
 - failed_criteria names the criterion that failed, or null if accepted
 - passion: summarize the applicant's passion answer into 1-2 words
   maximum that capture the core topic (e.g. "soccer", "music production",
@@ -46,5 +48,6 @@ Age (calculated from birthdate ${birthdate}): ${age}
 Address: ${application.street_address}, ${application.city}, ${application.state} ${application.zip}
 Passion: ${responses.passion || '(empty)'}
 Why join: ${responses.why_join || '(empty)'}
+Prior GripTape experience: ${application.prior_griptape_experience || 'not provided'}
   `.trim();
 }

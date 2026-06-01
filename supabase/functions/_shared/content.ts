@@ -25,7 +25,7 @@ export const content = {
 <p>— The GripTape Team</p>`,
   },
   flagged: {
-    staff_sms: '[CONTENT FLAG] {{first_name}} {{last_name}} needs review. {{reasoning}}',
+    staff_sms: '[NEW APP] {{first_name}} {{last_name}} submitted. AI rec: {{ai_decision}}. {{reasoning}}',
   },
 
   mentor_pending: {

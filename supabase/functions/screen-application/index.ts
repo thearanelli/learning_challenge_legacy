@@ -1,4 +1,4 @@
-// OWNER: submitted -> screening -> declaration_pending transition
+// OWNER: submitted -> flagged transition (AI reviews but does not decide)
 // Triggered by: Supabase database webhook on applications INSERT
 // Does NOT handle deadline removal — that is owned by daily-scheduler
 
@@ -6,7 +6,6 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendStaffNotification } from '../_shared/dispatcher.ts';
 import { config } from '../_shared/config.ts';
-import { generateToken } from '../_shared/tokens.ts';
 import {
   screenApplicationSystemPrompt,
   buildScreenApplicationPrompt,
@@ -27,9 +26,8 @@ async function retryWithBackoff(fn: () => Promise<Response>, retries = 3): Promi
 }
 
 serve(async (req) => {
-  let payload: any;
   try {
-    payload = await req.json();
+    const payload = await req.json();
     const application = payload.record;
 
     if (!application?.id) {
@@ -46,30 +44,7 @@ serve(async (req) => {
       Deno.env.get('DB_SERVICE_KEY')!,
     );
 
-    const { data: advanced, error: advanceError } = await supabase
-      .rpc('advance_status', {
-        record_id: application.id,
-        table_name: 'applications',
-        expected_current_status: config.STATUS.SUBMITTED,
-        next_status: config.STATUS.SCREENING,
-        additional_fields: {
-          stage_entered_at: new Date().toISOString(),
-        },
-      });
-
-    if (advanceError) {
-      if (advanceError.message?.includes('StatusConflictError')) {
-        console.log(`[SKIP] ${application.id} — StatusConflictError, already claimed`);
-        return new Response('Already claimed', { status: 200 });
-      }
-      throw new Error(`advance_status error: ${advanceError.message}`);
-    }
-    if (!advanced) {
-      console.log(`[SKIP] ${application.id} — already claimed`);
-      return new Response('Already processing', { status: 200 });
-    }
-
-    // Call Claude
+    // Call Claude for recommendation only — does not affect routing
     const claudeRes = await retryWithBackoff(() => fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -91,11 +66,8 @@ serve(async (req) => {
 
     const claudeData = await claudeRes.json();
     const rawText = claudeData.content[0]?.text || '';
+    const cleaned = rawText.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
 
-    const cleaned = rawText
-      .replace(/```json\n?/gi, '')
-      .replace(/```\n?/g, '')
-      .trim();
     let aiResult: { decision: string; reasoning: string; failed_criteria: string | null; passion: string | null };
     try {
       aiResult = JSON.parse(cleaned);
@@ -104,83 +76,46 @@ serve(async (req) => {
     }
 
     const { decision, reasoning, failed_criteria, passion } = aiResult;
-    console.log(`[SCREEN] ${application.id}: ${decision}`);
+    console.log(`[SCREEN] ${application.id}: AI rec = ${decision}`);
 
-    // next stage per config.STAGES.screening.next
-    const newStatus = decision === 'accepted'
-      ? config.STATUS.DECLARATION_PENDING
-      : config.STATUS.FLAGGED;
-
-    const tokenData = decision === 'accepted'
-      ? generateToken(config.STAGES.declaration_pending.deadline_days)
-      : null;
-
-    const additionalFields: Record<string, unknown> = {
-      ai_decision: decision,
-      ai_reasoning: reasoning,
-      failed_criteria: failed_criteria ?? null,
-      passion: passion ?? null,
-      stage_entered_at: new Date().toISOString(),
-    };
-    let profileToken: string | undefined;
-    if (tokenData) {
-      additionalFields.access_token = tokenData.access_token;
-      additionalFields.stage_deadline_at = tokenData.stage_deadline_at;
-    }
-    if (decision === 'accepted') {
-      profileToken = crypto.randomUUID();
-      additionalFields.profile_token = profileToken;
-    }
-    if (decision === 'accepted') {
-      additionalFields.notify_after = new Date(
-        Date.now() + 48 * 60 * 60 * 1000
-      ).toISOString();
-    }
-
-    // advance_status: screening -> declaration_pending | rejected | flagged
-    const { error: updateError } = await supabase.rpc('advance_status', {
+    // Always route to flagged regardless of AI decision — staff reviews manually
+    const { error: advanceError } = await supabase.rpc('advance_status', {
       record_id: application.id,
       table_name: 'applications',
-      expected_current_status: config.STATUS.SCREENING,
-      next_status: newStatus,
-      additional_fields: additionalFields,
+      expected_current_status: config.STATUS.SUBMITTED,
+      next_status: config.STATUS.FLAGGED,
+      additional_fields: {
+        ai_decision: decision,
+        ai_reasoning: reasoning,
+        failed_criteria: failed_criteria ?? null,
+        passion: passion ?? null,
+        stage_entered_at: new Date().toISOString(),
+      },
     });
 
-    if (updateError) {
-      if (updateError.message?.includes('StatusConflictError')) {
-        console.log(`[SKIP] ${application.id} — StatusConflictError on screening → final, already processed`);
+    if (advanceError) {
+      if (advanceError.message?.includes('StatusConflictError')) {
+        console.log(`[SKIP] ${application.id} — StatusConflictError, already processed`);
         return new Response('Already processed', { status: 200 });
       }
-      throw new Error(`advance_status (screening → final) error: ${updateError.message}`);
+      throw new Error(`advance_status error: ${advanceError.message}`);
     }
 
-    if (decision === 'flagged') {
-      // Flagged — notify staff only, no email to youth
-      await sendStaffNotification(config.STATUS.FLAGGED, {
-        first_name: application.first_name,
-        last_name: application.last_name,
-        reasoning,
-      }, { application_id: application.id });
-    }
+    await sendStaffNotification(
+      config.STATUS.FLAGGED,
+      { first_name: application.first_name, last_name: application.last_name, ai_decision: decision, reasoning },
+      { application_id: application.id },
+    );
 
     return new Response(
-      JSON.stringify({ success: true, decision }),
+      JSON.stringify({ success: true, ai_decision: decision }),
       { headers: { 'Content-Type': 'application/json' }, status: 200 },
     );
 
   } catch (err) {
-    const supabaseForReset = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('DB_SERVICE_KEY')!,
-    );
-    await supabaseForReset
-      .from('applications')
-      .update({ screening_status: config.STATUS.SUBMITTED })
-      .eq('id', payload?.record?.id)
-      .eq('screening_status', config.STATUS.SCREENING); // safety: only reset if still stuck
     console.error('[ERROR] screen-application:', err);
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: (err as Error).message }),
       { headers: { 'Content-Type': 'application/json' }, status: 500 },
     );
   }

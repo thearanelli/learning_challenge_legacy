@@ -927,6 +927,7 @@ h1 {
 
 }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -1225,7 +1226,7 @@ const STEP_BIRTHDATE = 6;
 // After QUESTIONS we do: address block, gender, pronouns, consent
 // Total counted steps = 13 (pauses don't count)
 
-const TOTAL_STEPS = 13;
+const TOTAL_STEPS = 14;
 
 const answers = {};
 let step = 0;
@@ -1781,7 +1782,7 @@ function submitAddress() {
         'pronouns',
         12, TOTAL_STEPS,
         false,
-        () => submitApp()
+        () => showPriorGriptapeStep()
       )
     );
   }, 450);
@@ -1849,11 +1850,51 @@ function skipOptional(fieldKey, btn) {
       'pronouns',
       12, TOTAL_STEPS,
       false,
-      () => submitApp()
+      () => showPriorGriptapeStep()
     );
   } else if (fieldKey === 'pronouns') {
-    submitApp();
+    showPriorGriptapeStep();
   }
+}
+
+async function showPriorGriptapeStep() {
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  setProgress(13, TOTAL_STEPS);
+  await addAiMsg(
+    'Is this your first time doing a GripTape experience?',
+    { type: '', icon: 'ℹ️', text: 'The Learning Challenge is only open to new GripTape participants.' }
+  );
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'choice-step-prior_griptape_experience';
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;flex-direction:column;gap:8px;';
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+  const options = [
+    { label: 'Yes, first time',            value: 'first_time' },
+    { label: "I've done GripTape before",  value: 'returning'  },
+    { label: 'Not sure',                   value: 'not_sure'   },
+  ];
+  options.forEach(function(opt) {
+    const btn = document.createElement('button');
+    btn.textContent = opt.label;
+    btn.style.cssText = 'padding:10px 18px;background:#161616;border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:#F5F5F0;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:border-color 0.15s,color 0.15s;';
+    btn.onmouseover = function() { btn.style.borderColor = '#EA5329'; btn.style.color = '#EA5329'; };
+    btn.onmouseout  = function() { btn.style.borderColor = 'rgba(255,255,255,0.15)'; btn.style.color = '#F5F5F0'; };
+    btn.onclick = function() {
+      haptic();
+      answers['prior_griptape_experience'] = opt.value;
+      addUserMsg(opt.label, 'prior_griptape_experience');
+      el.remove();
+      submitApp();
+    };
+    btnRow.appendChild(btn);
+  });
+  el.appendChild(btnRow);
+  chat.appendChild(el);
+  scrollBottom();
 }
 
 function showConsentStep() {
@@ -1904,10 +1945,11 @@ async function submitApp() {
     zip:            answers['zip']            || '',
     email:          answers['email']          || '',
     phone:          answers['phone']          || '',
-    gender:         answers['gender']         || null,
-    pronouns:       answers['pronouns']       || null,
-    passion:        answers['passion']        || '',
-    sms_consent:    smsConsent,
+    gender:                    answers['gender']                    || null,
+    pronouns:                  answers['pronouns']                  || null,
+    passion:                   answers['passion']                   || '',
+    prior_griptape_experience: answers['prior_griptape_experience'] || null,
+    sms_consent:               smsConsent,
     application_responses: {
       passion:  answers['passion']  || '',
       why_join: answers['why_join'] || '',
