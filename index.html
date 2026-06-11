@@ -1226,7 +1226,7 @@ const STEP_BIRTHDATE = 6;
 // After QUESTIONS we do: address block, gender, pronouns, consent
 // Total counted steps = 13 (pauses don't count)
 
-const TOTAL_STEPS = 14;
+const TOTAL_STEPS = 15;
 
 const answers = {};
 let step = 0;
@@ -1757,6 +1757,11 @@ function submitAddress() {
   if (!state)            { showAddrError('Please select your state.'); return; }
   if (!/^\d{5}$/.test(zip)) { showAddrError('Zip code must be exactly 5 digits.'); return; }
 
+  if (state !== 'NY' && state !== 'NJ') {
+    showAddrError('The Learning Challenge is only open to youth in New York and New Jersey.');
+    return;
+  }
+
   errEl.style.display = 'none';
   answers['street_address'] = street;
   answers['city']           = city;
@@ -1888,13 +1893,54 @@ async function showPriorGriptapeStep() {
       answers['prior_griptape_experience'] = opt.value;
       addUserMsg(opt.label, 'prior_griptape_experience');
       el.remove();
-      submitApp();
+      showHeardAboutStep();
     };
     btnRow.appendChild(btn);
   });
   el.appendChild(btnRow);
   chat.appendChild(el);
   scrollBottom();
+}
+
+async function showHeardAboutStep() {
+  showTyping();
+  await new Promise(r => setTimeout(r, 900));
+  hideTyping();
+  setProgress(14, TOTAL_STEPS);
+  await addAiMsg('Last one — how did you hear about GripTape?', null);
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'heard-about-block';
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);max-width:680px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
+  const inputStyle = 'width:100%;background:#161616;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:#F5F5F0;font-size:0.95rem;font-family:inherit;outline:none;transition:border-color 0.2s;box-sizing:border-box;';
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
+      <input id="heard-about-input" type="text" placeholder="e.g. a friend, Instagram, my school..." style="${inputStyle}" maxlength="200">
+      <div id="heard-about-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
+      <button onclick="submitHeardAbout()" style="padding:14px 20px;background:#EA5329;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next →</button>
+    </div>`;
+  el.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('focus', () => { inp.style.borderColor = 'rgba(234,83,41,0.5)'; inp.style.boxShadow = '0 0 0 3px rgba(234,83,41,0.08)'; });
+    inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitHeardAbout(); });
+  });
+  chat.appendChild(el);
+  scrollBottom();
+}
+
+function submitHeardAbout() {
+  const val = document.getElementById('heard-about-input').value.trim();
+  const errEl = document.getElementById('heard-about-error');
+  if (val.length < 2) {
+    errEl.textContent = 'Please tell us how you heard about us.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  answers['heard_about'] = val;
+  addUserMsg(val, 'heard_about');
+  document.getElementById('heard-about-block').remove();
+  submitApp();
 }
 
 function showConsentStep() {
@@ -1953,6 +1999,7 @@ async function submitApp() {
     application_responses: {
       passion:  answers['passion']  || '',
       why_join: answers['why_join'] || '',
+      heard_about: answers['heard_about'] || '',
     },
   };
 
