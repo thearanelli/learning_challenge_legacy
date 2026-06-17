@@ -1232,6 +1232,7 @@ const answers = {};
 let step = 0;
 let passionDraft = '';
 let smsConsent = false;
+let smsConsentNudgeShown = false;
 let userName = '';
 
 // Track which logical phase we're in after QUESTIONS array ends
@@ -1961,7 +1962,22 @@ function showConsentStep() {
 
 function handleConsentSubmit() {
   haptic([15]);
-  smsConsent = document.getElementById('sms-opt-in').checked;
+  const checked = document.getElementById('sms-opt-in').checked;
+
+  if (!checked && !smsConsentNudgeShown) {
+    smsConsentNudgeShown = true;
+    const btn = document.getElementById('consent-submit-btn');
+    const nudge = document.createElement('div');
+    nudge.id = 'sms-confirm-nudge';
+    nudge.style.cssText = 'margin-top:10px;padding:12px 14px;background:rgba(234,83,41,0.1);border:1px solid rgba(234,83,41,0.3);border-radius:10px;font-size:0.8rem;color:rgba(255,255,255,0.75);line-height:1.6;';
+    nudge.textContent = "Are you sure? If you make it in, we'll text you next steps and deadlines so nothing slips through the cracks.";
+    btn.insertAdjacentElement('beforebegin', nudge);
+    btn.textContent = 'No thanks, email only \u2192';
+    scrollBottom();
+    return;
+  }
+
+  smsConsent = checked;
   const el = document.getElementById('consent-step');
   if (el) el.remove();
   showBirthdateBlock();
