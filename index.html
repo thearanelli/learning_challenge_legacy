@@ -1359,6 +1359,10 @@ async function showCommitmentGate() {
   hideTyping();
   await addAiMsg("Hey, welcome. We\u2019re glad you\u2019re here.", null);
   showTyping();
+  await new Promise(r => setTimeout(r, 700));
+  hideTyping();
+  await addAiMsg("Just so you know \u2014 the Learning Challenge is currently only open to teens in New York and New Jersey.", null);
+  showTyping();
   await new Promise(r => setTimeout(r, 800));
   hideTyping();
   await addAiMsg("Before you dive in \u2014 the Learning Challenge is for teenagers who have something they genuinely care about and are ready to put real effort into it. No experience needed. No perfect plan.", null);
