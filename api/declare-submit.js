@@ -8,7 +8,7 @@
 function isTokenValid(application, token) {
   if (!application.access_token || application.access_token !== token) return false;
   if (!application.stage_deadline_at) return false;
-  return new Date(application.stage_deadline_at) > new Date();
+  return new Date(application.stage_deadline_at).getTime() + 86400000 > Date.now();
 }
 
 export default async function handler(req, res) {

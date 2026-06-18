@@ -22,5 +22,5 @@ export function isTokenValid(
 ): boolean {
   if (!record.access_token || record.access_token !== token) return false;
   if (!record.stage_deadline_at) return false;
-  return new Date(record.stage_deadline_at) > new Date();
+  return new Date(record.stage_deadline_at).getTime() + 86400000 > Date.now();
 }

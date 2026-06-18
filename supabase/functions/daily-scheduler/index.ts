@@ -522,11 +522,14 @@ serve(async (req) => {
     const now = new Date().toISOString();
 
     for (const removal of APP_REMOVAL_STAGES) {
+      const cutoff = removal.stage === 'video_pending'
+        ? new Date(Date.now() - dayMs).toISOString()
+        : now;
       const { data: apps, error: appsErr } = await supabase
         .from('applications')
         .select('*')
         .eq('screening_status', removal.stage)
-        .lte('stage_deadline_at', now);
+        .lte('stage_deadline_at', cutoff);
 
       if (appsErr) {
         console.error(`[daily-scheduler] S3 app removal query error (${removal.stage}):`, appsErr.message);
