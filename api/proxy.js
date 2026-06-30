@@ -1,4 +1,4 @@
-const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://learning-challenge-legacy.vercel.app'];
+const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://thelearningchallenge.org', 'https://learning-challenge-legacy.vercel.app'];
 
 export default async function handler(req, res) {
   const origin = req.headers.origin;

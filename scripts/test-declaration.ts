@@ -22,7 +22,7 @@ const SUPABASE_URL         = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_KEY') ?? '';
 const SUPABASE_ANON_KEY    = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
-const BASE_URL = 'https://learning-challenge-legacy.vercel.app';
+const BASE_URL = 'https://thelearningchallenge.org';
 
 function log(level: 'INFO' | 'PASS' | 'FAIL', msg: string) {
   const prefix = level === 'PASS' ? '\x1b[32m✓\x1b[0m'

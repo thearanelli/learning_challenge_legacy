@@ -1,7 +1,7 @@
 // Keep STAGES in sync with config.js (Vercel-side)
 export const config = {
   PROGRAM_ID: 'nyc-2026',
-  BASE_URL: 'https://learning-challenge-legacy.vercel.app',
+  BASE_URL: 'https://thelearningchallenge.org',
   EMAIL_FROM: 'GripTape <team@griptape.org>',
   AGE_MIN: 15,
   AGE_MAX: 19,
