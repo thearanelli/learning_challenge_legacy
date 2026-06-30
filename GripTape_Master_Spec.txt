@@ -1296,7 +1296,7 @@ Before Pilot Launch:
   - W-9 storage compliance — confirm with accountant/lawyer
   - W-9 requirement at $250 — confirm with accountant
     (IRS threshold is $600 but org policy may differ)
-  - Grant coding value (e.g. GS_NLC) — confirm with Ryan before
+  - Grant coding value (e.g. GS_NYLC) — confirm with Ryan before
     building Tremendous integration
   - Age range discrepancy: privacy policy and terms say 14-19 but
     program is 15-19. Update docs before pilot.

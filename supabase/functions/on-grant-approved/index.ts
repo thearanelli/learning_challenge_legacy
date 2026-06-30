@@ -327,7 +327,7 @@ serve(async (req) => {
         email: youth.email ?? '',
         grant_amount: String(grantRequest.grant_amount ?? 0),
         grant_format: grantRequest.grant_format ?? '',
-        grant_coding: 'GS_NLC',
+        grant_coding: 'GS_NYLC',
         approved_at: new Date().toISOString(),
         tremendous_reward_id: reward?.id ?? 'N/A (test mode)',
       },
@@ -347,7 +347,7 @@ serve(async (req) => {
         grant_format:   grantRequest.grant_format ?? 'Not specified',
         email:          youth.email,
         legal_name:     grantRequest.legal_name  ?? 'Not provided',
-        grant_coding:   grantRequest.grant_coding ?? 'GS_NLC',
+        grant_coding:   grantRequest.grant_coding ?? 'GS_NYLC',
         approved_at:    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
       await sendEmail({

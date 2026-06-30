@@ -107,7 +107,7 @@ async function main() {
         grant_amount:   150,
         legal_name:     'Ryan Testuser',
         grant_format:   'ACH',
-        grant_coding:   'GS_NLC',
+        grant_coding:   'GS_NYLC',
         w9_doc_url:     'https://example.com/test-w9.pdf',
         staff_approved: false,
       })
