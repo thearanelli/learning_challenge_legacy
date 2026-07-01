@@ -18,10 +18,9 @@ export const content = {
 <p>— The GripTape Team</p>`,
   },
   rejected: {
-    email_subject: 'Your GripTape Learning Challenge application',
+    email_subject: 'Your GripTape Learning Challenge registration',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Thank you for applying to the GripTape Learning Challenge. After reviewing your application, we're not able to offer you a spot in this cycle.</p>
-<p>We know that's hard to hear — and we want you to know that applying took courage. Keep pursuing what drives you.</p>
+<p>Thank you for registering for the GripTape Learning Challenge. Unfortunately you are ineligible. If you think this is a mistake or would like more information reply here.</p>
 <p>— The GripTape Team</p>`,
   },
   flagged: {
@@ -32,7 +31,7 @@ export const content = {
     email_subject: "You're in. Meet your Champion.",
     email_body: `<p>Hey {{first_name}},</p>
 <p>You made it. Your First Drop video was impressive. You're officially a GripTape Challenger.</p>
-<p>This is real — you've earned up to $250 to invest in your passion project, and someone in your corner the whole way.</p>
+<p>This is real — you've earned up to $150 to invest in your passion project, and someone in your corner the whole way.</p>
 <p>That someone is {{champion_first_name}} — your Champion.</p>
 <p>{{champion_bio}}</p>
 <p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps. That includes accessing your funding and joining the GripTape community.</p>
