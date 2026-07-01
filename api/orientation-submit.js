@@ -23,6 +23,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing token, youth_id, or responses' });
   }
 
+  if (!responses.champion_approved) {
+    return res.status(400).json({ error: 'Champion approval is required' });
+  }
+
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
   if (!supabaseUrl || !supabaseKey) {
