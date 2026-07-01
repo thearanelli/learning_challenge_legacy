@@ -846,11 +846,18 @@ h1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    overflow-x: visible;
+    overflow: hidden;
     padding: 0;
   }
-  .short-card { width: auto; flex-shrink: 1; }
-  .hero-shorts { overflow: hidden; max-height: calc(100vh - 150px); }
+  .hero-shorts { overflow: hidden; }
+  .short-card {
+    width: auto;
+    flex-shrink: 1;
+    display: none;
+  }
+  .short-card.carousel-visible {
+    display: block;
+  }
 
   /* Stats: horizontal row */
   .stats-section {
@@ -2116,6 +2123,37 @@ window.addEventListener('load', () => {
     }
   } catch(e) {}
 });
+</script>
+<script>
+(function() {
+  function initShortsCarousel() {
+    if (window.innerWidth < 768) return;
+
+    var cards = Array.from(document.querySelectorAll('.shorts-inner .short-card'));
+    if (cards.length < 2) return;
+
+    var current = 0;
+
+    function showPair(index) {
+      cards.forEach(function(c) { c.classList.remove('carousel-visible'); });
+      cards[index % cards.length].classList.add('carousel-visible');
+      cards[(index + 1) % cards.length].classList.add('carousel-visible');
+    }
+
+    showPair(0);
+
+    setInterval(function() {
+      current = (current + 2) % cards.length;
+      showPair(current);
+    }, 3500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initShortsCarousel);
+  } else {
+    initShortsCarousel();
+  }
+})();
 </script>
 </body>
 </html>
