@@ -316,25 +316,6 @@ serve(async (req) => {
       base_url:        config.BASE_URL,
     }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
 
-    await sendNotification(
-      'ryan_notification',
-      { first_name: 'GripTape', last_name: 'Staff', email: Deno.env.get('STAFF_EMAIL')!, phone: '' },
-      {
-        youth_id: youth.id,
-        legal_name: grantRequest.legal_name ?? '',
-        preferred_name: youth.first_name ?? '',
-        last_name: youth.last_name ?? '',
-        email: youth.email ?? '',
-        grant_amount: String(grantRequest.grant_amount ?? 0),
-        grant_format: grantRequest.grant_format ?? '',
-        grant_coding: 'GS_NYLC',
-        approved_at: new Date().toISOString(),
-        tremendous_reward_id: reward?.id ?? 'N/A (test mode)',
-      },
-      { youth_id: youth.id },
-      { skipSms: true },
-    );
-
     // Send disbursement notification to Ryan
     const ryanEmail = config.RYAN_EMAIL;
     if (ryanEmail) {
@@ -351,7 +332,7 @@ serve(async (req) => {
         approved_at:    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
       await sendEmail({
-        to:      ryanEmail,
+        to:      [ryanEmail, 'ryanalex@gmail.com'],
         subject: renderContent(block.staff_email_subject, vars),
         html:    renderContent(block.staff_email_body, vars),
       });
