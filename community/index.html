@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community — The Learning Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #EA5329;
+  --orange-light: #e85d26;
+  --bg: #001722;
+  --bg2: #161616;
+  --white: #F5F5F0;
+  --gray: #777;
+  --border: rgba(255,255,255,0.08);
+  --pill-bg: #fff3ee;
+  --pill-text: #c44e17;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(0,23,34,0.85);
+}
+.logo {
+  font-family: 'Anton', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.logo a { text-decoration: none; }
+.nav-links { display: flex; gap: 1.25rem; align-items: center; }
+.nav-links a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 4rem 1.5rem 2.5rem;
+}
+.hero h1 {
+  font-family: 'Anton', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+.hero .subtitle {
+  font-size: 1.05rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+.hero .count { color: var(--orange); font-weight: 600; }
+
+/* GRID */
+.grid-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+/* CARD */
+.card {
+  background: var(--bg2);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.card.is-me {
+  border-color: var(--orange-light);
+}
+
+/* VIDEO AREA */
+.card-video {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: var(--bg);
+  overflow: hidden;
+}
+.card-video img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-video .play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.card-video .play-btn::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 13px;
+  border-color: transparent transparent transparent var(--bg);
+  margin-left: 2px;
+}
+.you-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* CARD BODY */
+.card-body {
+  padding: 10px 12px 12px;
+}
+.card-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-passion {
+  font-size: 12px;
+  color: var(--orange);
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-passion::before {
+  content: '\2728';
+  margin-right: 4px;
+  font-size: 11px;
+}
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.card-location {
+  font-size: 11px;
+  color: var(--gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-location::before {
+  content: '\uD83D\uDCCD';
+  margin-right: 3px;
+  font-size: 10px;
+}
+.card-champion {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--pill-text);
+  background: var(--pill-bg);
+  padding: 3px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* EMPTY / ERROR */
+.msg-center {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  color: var(--gray);
+  font-size: 1rem;
+}
+
+@media (max-width: 500px) {
+  nav { padding: 1rem 1.25rem; }
+  .hero { padding: 2.5rem 1.25rem 1.5rem; }
+  .grid-wrap { padding: 0 1rem 3rem; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <a href="/">
+      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="GripTape" style="height:28px;">
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/profile" id="nav-profile">My Profile</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>Meet your fellow Challengers</h1>
+  <p class="subtitle" id="subtitle"></p>
+</section>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <div class="msg-center" id="msg" style="display:none;"></div>
+</div>
+
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('token');
+  var myId = null;
+
+  // Update profile nav link
+  if (token) {
+    document.getElementById('nav-profile').href = '/profile?token=' + encodeURIComponent(token);
+  }
+
+  fetch('/api/community')
+    .then(function(r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    })
+    .then(function(challengers) {
+      if (!challengers.length) {
+        showMsg('Challengers will appear here once they complete their orientation call.');
+        return;
+      }
+
+      // Find the viewer
+      if (token) {
+        for (var i = 0; i < challengers.length; i++) {
+          if (challengers[i].profile_token === token) {
+            myId = challengers[i].id;
+            break;
+          }
+        }
+      }
+
+      document.getElementById('subtitle').innerHTML =
+        '<span class="count">' + challengers.length + '</span> young people building something this summer';
+
+      var grid = document.getElementById('grid');
+      challengers.forEach(function(c) {
+        grid.appendChild(buildCard(c));
+      });
+    })
+    .catch(function() {
+      showMsg("Couldn\u2019t load the community right now. Try refreshing.");
+    });
+
+  function buildCard(c) {
+    var card = document.createElement('div');
+    card.className = 'card' + (c.id === myId ? ' is-me' : '');
+
+    var videoId = extractVideoId(c.first_drop_url);
+    var hasVideo = !!videoId;
+
+    var videoHtml = '<div class="card-video">';
+    if (c.id === myId) {
+      videoHtml += '<div class="you-badge">You</div>';
+    }
+    if (hasVideo) {
+      videoHtml += '<img src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + esc(c.first_name) + '\'s first drop" loading="lazy">';
+      videoHtml += '<div class="play-btn"></div>';
+    }
+    videoHtml += '</div>';
+
+    var locationParts = [];
+    if (c.city) locationParts.push(c.city);
+    if (c.state) locationParts.push(c.state);
+    var locationStr = locationParts.join(', ');
+
+    var bodyHtml = '<div class="card-body">';
+    bodyHtml += '<div class="card-name">' + esc(c.first_name) + (c.last_initial ? ' ' + esc(c.last_initial) + '.' : '') + '</div>';
+    if (c.passion) {
+      bodyHtml += '<div class="card-passion">' + esc(c.passion) + '</div>';
+    }
+    bodyHtml += '<div class="card-bottom">';
+    if (locationStr) {
+      bodyHtml += '<span class="card-location">' + esc(locationStr) + '</span>';
+    }
+    if (c.champion_first_name) {
+      bodyHtml += '<span class="card-champion">w/ ' + esc(c.champion_first_name) + '</span>';
+    }
+    bodyHtml += '</div></div>';
+
+    card.innerHTML = videoHtml + bodyHtml;
+
+    if (hasVideo) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function() {
+        window.open(c.first_drop_url, '_blank');
+      });
+    }
+
+    return card;
+  }
+
+  function extractVideoId(url) {
+    if (!url) return null;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function showMsg(text) {
+    var el = document.getElementById('msg');
+    el.textContent = text;
+    el.style.display = 'block';
+    document.getElementById('subtitle').textContent = '';
+  }
+})();
+</script>
+
+</body>
+</html>

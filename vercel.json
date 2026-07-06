@@ -15,6 +15,7 @@
     { "src": "/final-video/?", "dest": "/forms/final-video/index.html" },
     { "src": "/images/(.*)", "dest": "/images/$1" },
     { "src": "/end-of-challenge", "dest": "/forms/end-of-challenge/index.html" },
+    { "src": "/community", "dest": "/community/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
