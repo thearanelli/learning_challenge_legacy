@@ -35,24 +35,36 @@ async function fetchCommunity() {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables');
   }
 
-  const query = `select=id,first_name,last_name,city,state,passion,first_drop_url,application_id,champion_id,champions(first_name),applications(profile_token)&orientation_call_completed_at=not.is.null&order=orientation_call_completed_at.asc`;
+  const headers = {
+    'apikey': supabaseKey,
+    'Authorization': `Bearer ${supabaseKey}`,
+  };
 
-  const response = await fetch(`${supabaseUrl}/rest/v1/youth?${query}`, {
-    method: 'GET',
-    headers: {
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-    },
-  });
+  // Query 1: youth joined to applications (no FK to champions)
+  const youthQuery = `select=id,first_name,last_name,city,state,passion,first_drop_url,champion_id,applications!inner(profile_token)&orientation_call_completed_at=not.is.null&order=orientation_call_completed_at.asc`;
+  const youthRes = await fetch(`${supabaseUrl}/rest/v1/youth?${youthQuery}`, { headers });
+  if (!youthRes.ok) {
+    const errorText = await youthRes.text();
+    throw new Error(`Supabase youth error ${youthRes.status}: ${errorText}`);
+  }
+  const youth = await youthRes.json();
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Supabase error ${response.status}: ${errorText}`);
+  // Query 2: champions lookup (separate — no FK constraint on youth.champion_id)
+  const championIds = [...new Set(youth.map(y => y.champion_id).filter(Boolean))];
+  const championMap = {};
+
+  if (championIds.length > 0) {
+    const champQuery = `select=id,first_name&id=in.(${championIds.join(',')})`;
+    const champRes = await fetch(`${supabaseUrl}/rest/v1/champions?${champQuery}`, { headers });
+    if (champRes.ok) {
+      const champions = await champRes.json();
+      for (const c of champions) {
+        championMap[c.id] = c.first_name;
+      }
+    }
   }
 
-  const rows = await response.json();
-
-  return rows.map(row => ({
+  return youth.map(row => ({
     id: row.id,
     first_name: row.first_name,
     last_initial: row.last_name ? row.last_name[0].toUpperCase() : '',
@@ -60,7 +72,7 @@ async function fetchCommunity() {
     state: row.state || '',
     passion: row.passion || '',
     first_drop_url: row.first_drop_url || null,
-    champion_first_name: row.champions?.first_name || null,
+    champion_first_name: championMap[row.champion_id] || null,
     profile_token: row.applications?.profile_token || null,
   }));
 }
