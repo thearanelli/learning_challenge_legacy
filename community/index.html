@@ -68,6 +68,14 @@ nav {
   text-align: center;
   padding: 4rem 1.5rem 2.5rem;
 }
+.hero .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--orange);
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
 .hero h1 {
   font-family: 'Anton', sans-serif;
   font-weight: 800;
@@ -106,7 +114,7 @@ nav {
   background: var(--bg2);
   border-radius: 12px;
   overflow: hidden;
-  border: 1.5px solid transparent;
+  border: 1.5px solid rgba(234,83,41,0.35);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .card:hover {
@@ -114,7 +122,10 @@ nav {
   box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 .card.is-me {
-  border-color: var(--orange-light);
+  border: 2px solid var(--orange);
+}
+.card.is-me .card-body {
+  padding-top: 18px;
 }
 
 /* VIDEO AREA */
@@ -157,18 +168,28 @@ nav {
   border-color: transparent transparent transparent var(--bg);
   margin-left: 2px;
 }
-.you-badge {
+.cohort-chip {
   position: absolute;
   top: 8px;
   left: 8px;
   background: var(--orange);
   color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-family: 'Anton', sans-serif;
+  font-size: 11px;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 5px;
+  letter-spacing: 0.06em;
+  z-index: 2;
+}
+.you-mark {
+  position: absolute;
+  bottom: -13px;
+  left: 10px;
+  font-family: 'Anton', sans-serif;
+  font-size: 42px;
+  color: var(--orange);
+  line-height: 1;
+  z-index: 2;
 }
 
 /* CARD BODY */
@@ -176,8 +197,11 @@ nav {
   padding: 10px 12px 12px;
 }
 .card-name {
-  font-size: 14px;
-  font-weight: 500;
+  font-family: 'Anton', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -186,26 +210,23 @@ nav {
 .card-passion {
   font-size: 12px;
   color: var(--orange);
+  font-weight: 500;
+  text-transform: uppercase;
   margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.card-passion::before {
-  content: '✨';
-  margin-right: 4px;
-  font-size: 11px;
-}
-.card-bottom {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 .card-location {
   font-size: 11px;
   color: var(--gray);
-  flex: 1 1 100%;
+  margin-bottom: 6px;
+}
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
 .card-location::before {
   content: '📍';
@@ -221,6 +242,12 @@ nav {
   border-radius: 100px;
   white-space: nowrap;
   flex-shrink: 0;
+}
+.card-number {
+  font-size: 10px;
+  color: var(--gray);
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 /* GHOST CARD (+1) */
@@ -248,15 +275,15 @@ nav {
   text-align: center;
 }
 .ghost-plus {
-  font-size: 48px;
-  font-weight: 300;
+  font-family: 'Anton', sans-serif;
+  font-size: 40px;
   color: var(--orange);
   line-height: 1;
   margin-bottom: 8px;
 }
 .ghost-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--white);
   margin-bottom: 6px;
 }
@@ -312,6 +339,7 @@ nav {
 </nav>
 
 <section class="hero">
+  <p class="eyebrow">Summer 2026 &middot; Cohort 01</p>
   <h1>Challengers only.</h1>
   <p class="subtitle" id="subtitle">Everyone here earned their spot. This is who you're in it with.</p>
   <p class="count-line" id="count"></p>
@@ -347,8 +375,8 @@ nav {
         '<span class="count">' + challengers.length + '</span> Challengers &middot; Summer 2026';
 
       var grid = document.getElementById('grid');
-      challengers.forEach(function(c) {
-        grid.appendChild(buildCard(c));
+      challengers.forEach(function(c, idx) {
+        grid.appendChild(buildCard(c, idx));
       });
 
       // Insert ghost card after the viewer's card
@@ -364,16 +392,18 @@ nav {
       showMsg("Couldn\u2019t load the community right now. Try refreshing.");
     });
 
-  function buildCard(c) {
+  function buildCard(c, idx) {
+    var isMe = c.profile_token === token;
     var card = document.createElement('div');
-    card.className = 'card' + (c.profile_token === token ? ' is-me' : '');
+    card.className = 'card' + (isMe ? ' is-me' : '');
 
     var videoId = extractVideoId(c.first_drop_url);
     var hasVideo = !!videoId;
 
     var videoHtml = '<div class="card-video">';
-    if (c.profile_token === token) {
-      videoHtml += '<div class="you-badge">You</div>';
+    videoHtml += '<div class="cohort-chip">C01</div>';
+    if (isMe) {
+      videoHtml += '<div class="you-mark">YOU</div>';
     }
     if (hasVideo) {
       videoHtml += '<img src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + esc(c.first_name) + '\'s first drop" loading="lazy">';
@@ -391,13 +421,14 @@ nav {
     if (c.passion) {
       bodyHtml += '<div class="card-passion">' + esc(c.passion) + '</div>';
     }
-    bodyHtml += '<div class="card-bottom">';
     if (locationStr) {
       bodyHtml += '<span class="card-location">' + esc(locationStr) + '</span>';
     }
+    bodyHtml += '<div class="card-bottom">';
     if (c.champion_first_name) {
       bodyHtml += '<span class="card-champion">w/ ' + esc(c.champion_first_name) + '</span>';
     }
+    bodyHtml += '<span class="card-number">No. ' + (idx + 1) + '</span>';
     bodyHtml += '</div></div>';
 
     card.innerHTML = videoHtml + bodyHtml;
@@ -417,9 +448,9 @@ nav {
     card.className = 'card ghost-card';
     card.innerHTML =
       '<div class="ghost-video"><div class="ghost-video-inner">' +
-        '<div class="ghost-plus">+</div>' +
-        '<div class="ghost-title">Your +1</div>' +
-        '<div class="ghost-desc">Every Challenger gets one sponsorship. Who do you believe in?</div>' +
+        '<div class="ghost-plus">+1</div>' +
+        '<div class="ghost-title">Your seat to give</div>' +
+        '<div class="ghost-desc">You hold one invitation. Spend it well.</div>' +
       '</div></div>' +
       '<div class="ghost-body">' +
         '<button class="ghost-btn">Send your +1</button>' +
