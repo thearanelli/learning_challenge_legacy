@@ -223,6 +223,64 @@ nav {
   flex-shrink: 0;
 }
 
+/* GHOST CARD (+1) */
+.card.ghost-card {
+  background: transparent;
+  border: 2px dashed var(--orange);
+}
+.card.ghost-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+.ghost-video {
+  position: relative;
+  width: 100%;
+  padding-top: 177.78%;
+}
+.ghost-video-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+}
+.ghost-plus {
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--orange);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.ghost-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.ghost-desc {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.4;
+}
+.ghost-body {
+  padding: 10px 12px 12px;
+}
+.ghost-btn {
+  width: 100%;
+  background: var(--orange);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 /* EMPTY / ERROR */
 .msg-center {
   text-align: center;
@@ -292,6 +350,15 @@ nav {
       challengers.forEach(function(c) {
         grid.appendChild(buildCard(c));
       });
+
+      // Insert ghost card after the viewer's card
+      if (token) {
+        var meCard = grid.querySelector('.is-me');
+        if (meCard) {
+          var ghost = buildGhostCard(token);
+          meCard.insertAdjacentElement('afterend', ghost);
+        }
+      }
     })
     .catch(function() {
       showMsg("Couldn\u2019t load the community right now. Try refreshing.");
@@ -341,6 +408,41 @@ nav {
         window.open(c.first_drop_url, '_blank');
       });
     }
+
+    return card;
+  }
+
+  function buildGhostCard(viewerToken) {
+    var card = document.createElement('div');
+    card.className = 'card ghost-card';
+    card.innerHTML =
+      '<div class="ghost-video"><div class="ghost-video-inner">' +
+        '<div class="ghost-plus">+</div>' +
+        '<div class="ghost-title">Your +1</div>' +
+        '<div class="ghost-desc">Every Challenger gets one sponsorship. Who do you believe in?</div>' +
+      '</div></div>' +
+      '<div class="ghost-body">' +
+        '<button class="ghost-btn">Send your +1</button>' +
+      '</div>';
+
+    var btn = card.querySelector('.ghost-btn');
+    var shareUrl = 'https://thelearningchallenge.org/apply?ref=' + encodeURIComponent(viewerToken);
+
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (navigator.share) {
+        navigator.share({
+          title: 'The Learning Challenge',
+          text: "I get one sponsorship this summer \u2014 I\u2019m using it on you. Come build something.",
+          url: shareUrl
+        }).catch(function() {});
+      } else {
+        navigator.clipboard.writeText(shareUrl).then(function() {
+          btn.textContent = 'Link copied!';
+          setTimeout(function() { btn.textContent = 'Send your +1'; }, 2000);
+        }).catch(function() {});
+      }
+    });
 
     return card;
   }
