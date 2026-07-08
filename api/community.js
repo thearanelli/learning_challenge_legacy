@@ -65,7 +65,6 @@ async function fetchCommunity() {
   }
 
   return youth.map(row => ({
-    id: row.id,
     first_name: row.first_name,
     last_initial: row.last_name ? row.last_name[0].toUpperCase() : '',
     city: row.city || '',
@@ -73,6 +72,6 @@ async function fetchCommunity() {
     passion: row.passion || '',
     first_drop_url: row.first_drop_url || null,
     champion_first_name: championMap[row.champion_id] || null,
-    profile_token: row.applications?.profile_token || null,
+    profile_token: Array.isArray(row.applications) ? (row.applications[0]?.profile_token || null) : (row.applications?.profile_token || null),
   }));
 }
