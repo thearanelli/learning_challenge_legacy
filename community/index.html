@@ -320,7 +320,6 @@ nav {
   </div>
   <div class="nav-links">
     <a href="/">Home</a>
-    <a href="/profile" id="nav-profile">My Profile</a>
   </div>
 </nav>
 
@@ -340,11 +339,6 @@ nav {
 (function() {
   var params = new URLSearchParams(window.location.search);
   var token = params.get('token');
-
-  // Update profile nav link
-  if (token) {
-    document.getElementById('nav-profile').href = '/profile?token=' + encodeURIComponent(token);
-  }
 
   fetch('/api/community')
     .then(function(r) {
