@@ -124,9 +124,6 @@ nav {
 .card.is-me {
   border: 2px solid var(--orange);
 }
-.card.is-me .card-body {
-  padding-top: 18px;
-}
 
 /* VIDEO AREA */
 .card-video {
@@ -181,17 +178,6 @@ nav {
   letter-spacing: 0.06em;
   z-index: 2;
 }
-.you-mark {
-  position: absolute;
-  bottom: -13px;
-  left: 10px;
-  font-family: 'Anton', sans-serif;
-  font-size: 42px;
-  color: var(--orange);
-  line-height: 1;
-  z-index: 2;
-}
-
 /* CARD BODY */
 .card-body {
   padding: 10px 12px 12px;
@@ -374,6 +360,18 @@ nav {
       document.getElementById('count').innerHTML =
         '<span class="count">' + challengers.length + '</span> Challengers &middot; Summer 2026';
 
+      // Move viewer's card to front
+      if (token) {
+        var meIdx = -1;
+        for (var i = 0; i < challengers.length; i++) {
+          if (challengers[i].profile_token === token) { meIdx = i; break; }
+        }
+        if (meIdx > 0) {
+          var me = challengers.splice(meIdx, 1)[0];
+          challengers.unshift(me);
+        }
+      }
+
       var grid = document.getElementById('grid');
       challengers.forEach(function(c, idx) {
         grid.appendChild(buildCard(c, idx));
@@ -402,9 +400,6 @@ nav {
 
     var videoHtml = '<div class="card-video">';
     videoHtml += '<div class="cohort-chip">C01</div>';
-    if (isMe) {
-      videoHtml += '<div class="you-mark">YOU</div>';
-    }
     if (hasVideo) {
       videoHtml += '<img src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + esc(c.first_name) + '\'s first drop" loading="lazy">';
       videoHtml += '<div class="play-btn"></div>';
