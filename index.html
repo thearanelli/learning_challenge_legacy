@@ -957,8 +957,7 @@ h1 {
           <p style="color:#8899aa;font-size:11px;margin:0;">Cohort 01 Challenger</p>
         </div>
       </div>
-      <p style="color:#8899aa;font-size:12px;line-height:1.6;margin-bottom:18px;">The NYC Learning Challenge gives teens a $150 grant, a mentor, and 6 weeks to pursue a passion project of your choosing.</p>
-      <button onclick="acceptInvite()" style="width:100%;background:#EA5329;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">Accept your invitation →</button>
+      <button onclick="acceptInvite()" style="width:100%;background:#EA5329;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">Accept</button>
       <p style="text-align:center;color:#566070;font-size:11px;">thelearningchallenge.org</p>
     </div>
     <div style="margin:8px 24px 20px;border-top:0.5px solid #1e2d40;padding-top:14px;display:flex;align-items:center;justify-content:center;">
@@ -1401,7 +1400,11 @@ async function showCommitmentGate() {
   showTyping();
   await new Promise(r => setTimeout(r, 900));
   hideTyping();
-  await addAiMsg("Hey, welcome. We\u2019re glad you\u2019re here.", null);
+  var refParam = new URLSearchParams(window.location.search).get('ref');
+  var welcomeMsg = refParam
+    ? 'Welcome. ' + refParam.split('-').map(function(p){ return p.charAt(0).toUpperCase()+p.slice(1); })[0] + ' vouched for you. We\u2019re glad you\u2019re here.'
+    : 'Hey, welcome. We\u2019re glad you\u2019re here.';
+  await addAiMsg(welcomeMsg, null);
   showTyping();
   await new Promise(r => setTimeout(r, 700));
   hideTyping();
@@ -2193,17 +2196,8 @@ window.addEventListener('load', () => {
 })();
 </script>
 <!-- INVITE BANNER -->
-<div id="invite-banner" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:460px;z-index:9998;">
-  <div style="background:#111827;border:0.5px solid #EA5329;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
-    <div id="banner-avatar" style="width:34px;height:34px;border-radius:50%;background:#EA5329;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <span id="banner-initials" style="color:#fff;font-weight:700;font-size:12px;">?</span>
-    </div>
-    <div style="flex:1;min-width:0;">
-      <p id="banner-text" style="color:#fff;font-size:13px;font-weight:600;margin:0 0 2px;">You have an invitation</p>
-      <p style="color:#8899aa;font-size:11px;margin:0;">Cohort 01 · Summer 2026</p>
-    </div>
-    <button onclick="startApp()" style="background:#EA5329;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">Register now →</button>
-  </div>
+<div id="invite-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#EA5329;padding:10px 24px;text-align:center;">
+  <p id="banner-text" style="color:#fff;font-size:13px;font-weight:600;margin:0;">Ruiyu brought you in. Welcome to the Challenge.</p>
 </div>
 <script>
 (function() {
@@ -2222,8 +2216,7 @@ window.addEventListener('load', () => {
   document.getElementById('invite-initials').textContent = initials;
 
   // Populate banner
-  document.getElementById('banner-text').textContent = 'You have an invitation from ' + parts[0];
-  document.getElementById('banner-initials').textContent = initials;
+  document.getElementById('banner-text').textContent = parts[0] + ' brought you in. Welcome to the Challenge.';
 
   // Show modal
   var modal = document.getElementById('invite-modal');
@@ -2232,6 +2225,7 @@ window.addEventListener('load', () => {
   window.acceptInvite = function() {
     modal.style.display = 'none';
     document.getElementById('invite-banner').style.display = 'block';
+    document.body.style.paddingTop = '40px';
   };
 })();
 </script>
