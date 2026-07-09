@@ -319,10 +319,10 @@ nav {
 </head>
 <body>
 
-<div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:#111827;border:0.5px solid #2a3448;border-radius:16px;width:100%;max-width:360px;overflow:hidden;font-family:'Instrument Sans',sans-serif;">
+<div id="invite-modal" onclick="closeInviteModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
+  <div onclick="event.stopPropagation()" style="background:#111827;border:0.5px solid #2a3448;border-radius:16px;width:100%;max-width:360px;overflow:hidden;font-family:'Instrument Sans',sans-serif;">
     <div style="display:flex;justify-content:flex-end;padding:12px 16px 0;">
-      <button onclick="closeInviteModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;">✕</button>
+      <button onclick="closeInviteModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;">✕</button>
     </div>
     <div style="background:#EA5329;padding:24px 24px 20px;text-align:center;">
       <p style="font-size:56px;font-weight:900;color:#fff;margin:0;line-height:1;">+2</p>
@@ -347,6 +347,7 @@ nav {
         </div>
       </div>
       <button id="invite-share-btn" style="width:100%;background:#EA5329;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">Send an invitation →</button>
+      <p id="invite-plain-url" style="text-align:center;color:#566070;font-size:11px;margin:8px 0 0;word-break:break-all;"></p>
       <p style="text-align:center;color:#566070;font-size:11px;margin:0;">2 invitations remaining</p>
     </div>
   </div>
@@ -376,6 +377,10 @@ nav {
 </div>
 
 <script>
+function closeInviteModal() {
+  document.getElementById('invite-modal').style.display = 'none';
+}
+
 (function() {
   var params = new URLSearchParams(window.location.search);
   var token = params.get('token');
@@ -520,13 +525,12 @@ nav {
           }).catch(function() {});
         }
       };
+
+      var urlDisplay = document.getElementById('invite-plain-url');
+      if (urlDisplay) urlDisplay.textContent = shareUrl;
     });
 
     return card;
-  }
-
-  function closeInviteModal() {
-    document.getElementById('invite-modal').style.display = 'none';
   }
 
   function extractVideoId(url) {
