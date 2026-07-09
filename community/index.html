@@ -274,26 +274,6 @@ nav {
   color: var(--white);
   margin-bottom: 6px;
 }
-.ghost-desc {
-  font-size: 11px;
-  color: var(--gray);
-  line-height: 1.4;
-}
-.ghost-body {
-  padding: 10px 12px 12px;
-}
-.ghost-btn {
-  width: 100%;
-  background: var(--orange);
-  color: #fff;
-  border-radius: 8px;
-  padding: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-}
 
 /* EMPTY / ERROR */
 .msg-center {
@@ -312,6 +292,37 @@ nav {
 </style>
 </head>
 <body>
+
+<div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#111827;border:0.5px solid #2a3448;border-radius:16px;width:100%;max-width:360px;overflow:hidden;font-family:'Instrument Sans',sans-serif;">
+    <div style="background:#EA5329;padding:24px 24px 20px;text-align:center;">
+      <p style="font-size:56px;font-weight:900;color:#fff;margin:0;line-height:1;">+2</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.8);margin:8px 0 0;letter-spacing:1px;text-transform:uppercase;">Your invitations to give</p>
+    </div>
+    <div style="padding:22px 24px 24px;">
+      <p style="color:#fff;font-size:15px;font-weight:600;margin:0 0 10px;line-height:1.4;">You hold two spots in Cohort 01.</p>
+      <p style="color:#8899aa;font-size:13px;line-height:1.7;margin:0 0 6px;">You earned your place. Now you can bring someone else in. Pick someone who deserves it — a friend, a sibling, a classmate, anyone with a passion they haven't had the chance to pursue.</p>
+      <p style="color:#8899aa;font-size:13px;line-height:1.7;margin:0 0 20px;">They complete the same steps you did and are guaranteed a spot. Your invite makes it official.</p>
+      <div style="background:#1a2235;border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#EA5329;flex-shrink:0;"></div>
+          <p style="color:#fff;font-size:12px;margin:0;">You share your invitation link</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#EA5329;flex-shrink:0;"></div>
+          <p style="color:#fff;font-size:12px;margin:0;">They register for the Challenge</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#EA5329;flex-shrink:0;"></div>
+          <p style="color:#fff;font-size:12px;margin:0;">They join your cohort</p>
+        </div>
+      </div>
+      <button id="invite-share-btn" style="width:100%;background:#EA5329;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">Send an invitation →</button>
+      <p style="text-align:center;color:#566070;font-size:11px;margin:0;">2 invitations remaining</p>
+    </div>
+    <button onclick="closeInviteModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.6);font-size:20px;cursor:pointer;">✕</button>
+  </div>
+</div>
 
 <nav>
   <div class="logo">
@@ -446,37 +457,43 @@ nav {
   function buildGhostCard(viewerToken, viewerName) {
     var card = document.createElement('div');
     card.className = 'card ghost-card';
+    card.style.cursor = 'pointer';
     card.innerHTML =
       '<div class="ghost-video"><div class="ghost-video-inner">' +
         '<div class="ghost-plus">+2</div>' +
         '<div class="ghost-title">Your invitations to give</div>' +
-        '<div class="ghost-desc">You have two spots to give. Choose well.</div>' +
-      '</div></div>' +
-      '<div class="ghost-body">' +
-        '<button class="ghost-btn">Send an invitation</button>' +
-      '</div>';
+      '</div></div>';
 
-    var btn = card.querySelector('.ghost-btn');
     var nameSlug = (viewerName || viewerToken).toLowerCase().replace(/\s+/g, '-');
     var shareUrl = 'https://thelearningchallenge.org?ref=' + encodeURIComponent(nameSlug);
 
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (navigator.share) {
-        navigator.share({
-          title: 'The Learning Challenge',
-          text: "I have two invitations to the NYC Learning Challenge this summer \u2014 I\u2019m using one on you. Come build something.",
-          url: shareUrl
-        }).catch(function() {});
-      } else {
-        navigator.clipboard.writeText(shareUrl).then(function() {
-          btn.textContent = 'Link copied!';
-          setTimeout(function() { btn.textContent = 'Send an invitation'; }, 2000);
-        }).catch(function() {});
-      }
+    card.addEventListener('click', function() {
+      var modal = document.getElementById('invite-modal');
+      modal.style.display = 'flex';
+
+      var btn = document.getElementById('invite-share-btn');
+      btn.textContent = 'Send an invitation →';
+      btn.onclick = function() {
+        if (navigator.share) {
+          navigator.share({
+            title: 'The Learning Challenge',
+            text: "I have two invitations to the NYC Learning Challenge this summer — I'm using one on you. Come build something.",
+            url: shareUrl
+          }).catch(function() {});
+        } else {
+          navigator.clipboard.writeText(shareUrl).then(function() {
+            btn.textContent = 'Link copied!';
+            setTimeout(function() { btn.textContent = 'Send an invitation →'; }, 2000);
+          }).catch(function() {});
+        }
+      };
     });
 
     return card;
+  }
+
+  function closeInviteModal() {
+    document.getElementById('invite-modal').style.display = 'none';
   }
 
   function extractVideoId(url) {
