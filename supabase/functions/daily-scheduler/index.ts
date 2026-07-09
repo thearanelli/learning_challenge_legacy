@@ -880,7 +880,7 @@ serve(async (req) => {
 
   // ── S6 — Airtable sync (runs every 30 min) ─────────────────────────────────
   const s6Now = new Date();
-  if (s6Now.getUTCMinutes() % 30 === 0) {
+  if (true) { // TODO: restore s6Now.getUTCMinutes() % 30 === 0 after testing
 
     const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
     if (!airtableApiKey) {
