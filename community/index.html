@@ -376,7 +376,8 @@ nav {
       if (token) {
         var meCard = grid.querySelector('.is-me');
         if (meCard) {
-          var ghost = buildGhostCard(token);
+          var viewer = challengers[0];
+          var ghost = buildGhostCard(token, viewer.first_name + '-' + viewer.last_name);
           meCard.insertAdjacentElement('afterend', ghost);
         }
       }
@@ -433,34 +434,35 @@ nav {
     return card;
   }
 
-  function buildGhostCard(viewerToken) {
+  function buildGhostCard(viewerToken, viewerName) {
     var card = document.createElement('div');
     card.className = 'card ghost-card';
     card.innerHTML =
       '<div class="ghost-video"><div class="ghost-video-inner">' +
-        '<div class="ghost-plus">+1</div>' +
-        '<div class="ghost-title">Your seat to give</div>' +
-        '<div class="ghost-desc">You hold one invitation. Spend it well.</div>' +
+        '<div class="ghost-plus">+2</div>' +
+        '<div class="ghost-title">Your invitations to give</div>' +
+        '<div class="ghost-desc">You have two spots to give. Choose well.</div>' +
       '</div></div>' +
       '<div class="ghost-body">' +
-        '<button class="ghost-btn">Send your +1</button>' +
+        '<button class="ghost-btn">Send an invitation</button>' +
       '</div>';
 
     var btn = card.querySelector('.ghost-btn');
-    var shareUrl = 'https://thelearningchallenge.org/apply?ref=' + encodeURIComponent(viewerToken);
+    var nameSlug = (viewerName || viewerToken).toLowerCase().replace(/\s+/g, '-');
+    var shareUrl = 'https://thelearningchallenge.org?ref=' + encodeURIComponent(nameSlug);
 
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (navigator.share) {
         navigator.share({
           title: 'The Learning Challenge',
-          text: "I get one sponsorship this summer \u2014 I\u2019m using it on you. Come build something.",
+          text: "I have two invitations to the NYC Learning Challenge this summer \u2014 I\u2019m using one on you. Come build something.",
           url: shareUrl
         }).catch(function() {});
       } else {
         navigator.clipboard.writeText(shareUrl).then(function() {
           btn.textContent = 'Link copied!';
-          setTimeout(function() { btn.textContent = 'Send your +1'; }, 2000);
+          setTimeout(function() { btn.textContent = 'Send an invitation'; }, 2000);
         }).catch(function() {});
       }
     });
