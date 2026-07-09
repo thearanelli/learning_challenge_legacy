@@ -1978,6 +1978,13 @@ async function showHeardAboutStep() {
   });
   chat.appendChild(el);
   scrollBottom();
+
+  var refParam = new URLSearchParams(window.location.search).get('ref');
+  if (refParam) {
+    var firstName = refParam.split('-').map(function(p){ return p.charAt(0).toUpperCase()+p.slice(1); })[0];
+    var heardInput = document.getElementById('heard-about-input');
+    if (heardInput) heardInput.value = 'A friend (' + firstName + ')';
+  }
 }
 
 function submitHeardAbout() {
@@ -2068,6 +2075,7 @@ async function submitApp() {
       why_join: answers['why_join'] || '',
       heard_about: answers['heard_about'] || '',
     },
+    referred_by: new URLSearchParams(window.location.search).get('ref') || null,
   };
 
   try {

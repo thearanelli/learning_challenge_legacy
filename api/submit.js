@@ -54,6 +54,7 @@ async function writeToSupabase(fields) {
     pronouns:                  fields.pronouns                  ?? null,
     prior_griptape_experience: fields.prior_griptape_experience ?? null,
     heard_about:               fields.application_responses?.heard_about || null,
+    referred_by:               fields.referred_by || null,
     sms_consent:               fields.sms_consent === true,
     screening_status:      'submitted',
     submitted_at:          new Date().toISOString(),
