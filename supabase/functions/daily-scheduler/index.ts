@@ -882,7 +882,7 @@ serve(async (req) => {
 
   // ── S6 — Airtable sync (runs every 30 min) ─────────────────────────────────
   const s6Now = new Date();
-  if (true) { // TODO: restore s6Now.getUTCMinutes() % 30 === 0 after testing
+  if (s6Now.getUTCMinutes() % 30 === 0) {
 
     const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
     const baseId = 'apprXwArE9tAzGFnp';
@@ -895,7 +895,7 @@ serve(async (req) => {
       // Query 1: get pending grant_requests
       const { data: pendingGrants, error: grantsError } = await supabase
         .from('grant_requests')
-        .select('id, youth_id')
+        .select('id, youth_id, challenge_topic')
         .eq('catherine_approved', true)
         .is('airtable_synced_at', null);
 
@@ -907,7 +907,7 @@ serve(async (req) => {
         const youthIds = pendingGrants.map(g => g.youth_id);
         const { data: youthRecords, error: youthError } = await supabase
           .from('youth')
-          .select('id, first_name, last_name, email, phone, street_address, city, state, zip, date_of_birth, accepted_at, pronouns, first_drop_url, challenge_topic')
+          .select('id, first_name, last_name, email, phone, street_address, city, state, zip, birthdate, accepted_at, pronouns, first_drop_url')
           .in('id', youthIds);
 
         if (youthError) {
@@ -956,11 +956,11 @@ serve(async (req) => {
                       'City':            y.city ?? '',
                       'State':           y.state ?? '',
                       'Zip Code':        y.zip ?? '',
-                      'Date of Birth':   y.date_of_birth ?? '',
+                      'Date of Birth':   y.birthdate ?? '',
                       'Accepted Date':   y.accepted_at ? y.accepted_at.slice(0, 10) : '',
                       'Gender/Pronouns': y.pronouns ?? '',
                       'First Drop URL':  y.first_drop_url ?? '',
-                      'LC Topic':        y.challenge_topic ?? '',
+                      'LC Topic':        grant.challenge_topic ?? '',
                       'Status':          'Launched',
                     },
                   }),
