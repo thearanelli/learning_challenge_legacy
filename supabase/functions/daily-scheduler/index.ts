@@ -812,7 +812,7 @@ serve(async (req) => {
 
   // ── S5 — Bill.com vendor import batch (runs every 30 min) ────────────────
   const s5Now = new Date();
-  if (s5Now.getUTCMinutes() % 30 === 0) {
+  if (true) { // TODO: restore s5Now.getUTCMinutes() % 30 === 0 after testing
 
     const { data: pendingGrants } = await supabase
       .from('grant_requests')
@@ -827,7 +827,7 @@ serve(async (req) => {
           zip
         )
       `)
-      .eq('staff_approved', true)
+      .eq('catherine_approved', true)
       .is('vendor_import_sent_at', null);
 
     if (pendingGrants && pendingGrants.length > 0) {
