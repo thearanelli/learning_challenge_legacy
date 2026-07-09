@@ -376,8 +376,9 @@ nav {
       if (token) {
         var meCard = grid.querySelector('.is-me');
         if (meCard) {
-          var viewer = challengers[0];
-          var ghost = buildGhostCard(token, viewer.first_name + '-' + viewer.last_name);
+          var me = challengers[0];
+          var slugParts = [me.first_name, me.last_name].map(toSlug).filter(Boolean);
+          var ghost = buildGhostCard(token, slugParts.join('-'));
           meCard.insertAdjacentElement('afterend', ghost);
         }
       }
@@ -432,6 +433,14 @@ nav {
     }
 
     return card;
+  }
+
+  function toSlug(str) {
+    return (str || '').trim()
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
   function buildGhostCard(viewerToken, viewerName) {

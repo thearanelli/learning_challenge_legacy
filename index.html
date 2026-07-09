@@ -2214,7 +2214,9 @@ window.addEventListener('load', () => {
   if (!ref) return;
 
   // Parse name from slug e.g. "ruiyu-tang" → "Ruiyu Tang" → initials "RT"
-  var parts = ref.split('-').map(function(p) { return p.charAt(0).toUpperCase() + p.slice(1); });
+  var rawParts = ref.split('-').filter(Boolean);
+  var parts = rawParts.map(function(p) { return p.charAt(0).toUpperCase() + p.slice(1); });
+  var firstName = parts[0] || '';
   var displayName = parts.join(' ');
   var initials = parts.map(function(p) { return p.charAt(0); }).join('').slice(0, 2).toUpperCase();
 
