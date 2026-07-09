@@ -911,6 +911,8 @@ serve(async (req) => {
         .eq('catherine_approved', true)
         .is('airtable_synced_at', null);
 
+      console.log(`[S6] pendingSync count: ${pendingSync?.length ?? 0}`, JSON.stringify(pendingSync));
+
       if (pendingSync && pendingSync.length > 0) {
         const baseId = 'apprXwArE9tAzGFnp';
         const tableId = 'tblgtDO4PbNHcDuZi';
