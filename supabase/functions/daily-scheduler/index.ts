@@ -100,6 +100,7 @@ serve(async (req) => {
               { application_id: app.id },
               { skipSms: !app.sms_consent },
             );
+            await supabase.from('applications').update({ notify_after: null }).eq('id', app.id);
             console.log(`[daily-scheduler] S1 sent declaration_pending to app ${app.id}`);
           } else if (app.screening_status === 'rejected') {
             await sendNotification(
@@ -109,6 +110,7 @@ serve(async (req) => {
               { application_id: app.id },
               { skipSms: !app.sms_consent },
             );
+            await supabase.from('applications').update({ notify_after: null }).eq('id', app.id);
             console.log(`[daily-scheduler] S1 sent rejected to app ${app.id}`);
           }
         } catch (err) {
