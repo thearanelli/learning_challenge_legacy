@@ -80,11 +80,13 @@ export async function sendEmail({
   subject,
   html,
   skipWrapper = false,
+  attachments,
 }: {
   to: string | string[];
   subject: string;
   html: string;
   skipWrapper?: boolean;
+  attachments?: Array<{ filename: string; content: string; content_type: string }>;
 }) {
   const apiKey = Deno.env.get('RESEND_API_KEY');
   if (!apiKey) throw new Error('RESEND_API_KEY not set');
@@ -100,6 +102,7 @@ export async function sendEmail({
       to,
       subject,
       html: skipWrapper ? html : wrapEmailHtml(styledEmailBody(html), `${config.BASE_URL}/help`),
+      ...(attachments ? { attachments } : {}),
     }),
   });
 

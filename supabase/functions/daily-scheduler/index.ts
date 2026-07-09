@@ -14,6 +14,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
 import { sendNotification } from '../_shared/dispatcher.ts';
+import { sendEmail } from '../_shared/email.ts';
 import { sendSMS } from '../_shared/sms.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
@@ -807,6 +808,74 @@ serve(async (req) => {
     }
   } catch (err) {
     console.error('[daily-scheduler] S5 fatal:', err);
+  }
+
+  // ── S5 — Bill.com vendor import batch (runs every 30 min) ────────────────
+  const s5Now = new Date();
+  if (s5Now.getUTCMinutes() % 30 === 0) {
+
+    const { data: pendingGrants } = await supabase
+      .from('grant_requests')
+      .select(`
+        id,
+        legal_name,
+        youth:youth_id (
+          email,
+          street_address,
+          city,
+          state,
+          zip
+        )
+      `)
+      .eq('staff_approved', true)
+      .is('vendor_import_sent_at', null);
+
+    if (pendingGrants && pendingGrants.length > 0) {
+
+      const header = 'Vendor name*,Tax ID,1099 Vendor,Address Line 1,Address Line 2,Address Line 3,Address Line 4,City,State / Province,ZIP / Postal Code,Country,Primary Email';
+      const rows = pendingGrants.map(g => {
+        const y = g.youth as any;
+        const esc = (v: string) => v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
+        return [
+          esc(g.legal_name ?? ''),
+          '000-000-000',
+          'Yes',
+          esc(y?.street_address ?? ''),
+          '', '', '',
+          esc(y?.city ?? ''),
+          esc(y?.state ?? ''),
+          esc(y?.zip ?? ''),
+          'United States',
+          esc(y?.email ?? ''),
+        ].join(',');
+      });
+      const csv = [header, ...rows].join('\r\n');
+
+      const dateStr = s5Now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const filename = `vendor_import_${s5Now.toISOString().slice(0, 10)}.csv`;
+
+      await sendEmail({
+        to: ['thea@griptape.org'],
+        subject: `Bill.com Vendor Import — ${dateStr}`,
+        html: `<p>Please find attached the vendor import CSV for ${pendingGrants.length} Challenger(s) approved on ${dateStr}. Import this file into Bill.com to create the vendor records.</p>`,
+        attachments: [
+          {
+            filename,
+            content: btoa(csv),
+            content_type: 'text/csv',
+          }
+        ],
+      });
+
+      await supabase
+        .from('grant_requests')
+        .update({ vendor_import_sent_at: s5Now.toISOString() })
+        .in('id', pendingGrants.map(g => g.id));
+
+      console.log(`[S5] Vendor import sent for ${pendingGrants.length} grant(s)`);
+    } else {
+      console.log('[S5] No pending grants for vendor import');
+    }
   }
 
   console.log('[daily-scheduler] run complete');

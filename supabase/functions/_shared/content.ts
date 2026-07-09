@@ -422,6 +422,11 @@ WHERE id = '{{youth_id}}'
 <p>Error: {{error}}</p>`,
   },
 
+  vendor_import_email: {
+    subject: 'Bill.com Vendor Import — {{date}}',
+    body: 'Please find attached the vendor import CSV for {{count}} Challenger(s) approved on {{date}}. Import this file into Bill.com to create the vendor records.',
+  },
+
   // Frontend form copy — canonical source; mirrored inline in forms/video/index.html
   forms: {
     video_oembed_error: "That doesn't appear to be a public YouTube video. Please check the link and try again.",
