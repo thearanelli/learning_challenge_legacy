@@ -878,6 +878,119 @@ serve(async (req) => {
     }
   }
 
+  // ── S6 — Airtable sync (runs every 30 min) ─────────────────────────────────
+  const s6Now = new Date();
+  if (s6Now.getUTCMinutes() % 30 === 0) {
+
+    const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
+    if (!airtableApiKey) {
+      console.error('[S6] AIRTABLE_API_KEY not set — skipping');
+    } else {
+
+      const { data: pendingSync } = await supabase
+        .from('grant_requests')
+        .select(`
+          id,
+          youth:youth_id (
+            id,
+            first_name,
+            last_name,
+            email,
+            phone,
+            street_address,
+            city,
+            state,
+            zip,
+            date_of_birth,
+            accepted_at,
+            pronouns,
+            first_drop_url,
+            challenge_topic
+          )
+        `)
+        .eq('catherine_approved', true)
+        .is('airtable_synced_at', null);
+
+      if (pendingSync && pendingSync.length > 0) {
+        const baseId = 'apprXwArE9tAzGFnp';
+        const tableId = 'tblgtDO4PbNHcDuZi';
+        const synced: string[] = [];
+
+        for (const grant of pendingSync) {
+          const y = grant.youth as any;
+          if (!y?.id) continue;
+
+          try {
+            // Check for existing record to prevent duplicates
+            const searchRes = await fetch(
+              `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${encodeURIComponent(`{Youth ID}="${y.id}"`)}`,
+              { headers: { Authorization: `Bearer ${airtableApiKey}` } }
+            );
+            const searchData = await searchRes.json();
+
+            if (searchData.records && searchData.records.length > 0) {
+              console.log(`[S6] Airtable record already exists for youth ${y.id} — marking synced`);
+              synced.push(grant.id);
+              continue;
+            }
+
+            const airtableRes = await fetch(
+              `https://api.airtable.com/v0/${baseId}/${tableId}`,
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${airtableApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  fields: {
+                    'Youth ID':        y.id,
+                    'First Name':      y.first_name ?? '',
+                    'Last Name':       y.last_name ?? '',
+                    'Email':           y.email ?? '',
+                    'Cell':            y.phone ?? '',
+                    'Street Address':  y.street_address ?? '',
+                    'City':            y.city ?? '',
+                    'State':           y.state ?? '',
+                    'Zip Code':        y.zip ?? '',
+                    'Date of Birth':   y.date_of_birth ?? '',
+                    'Accepted Date':   y.accepted_at ? y.accepted_at.slice(0, 10) : '',
+                    'Gender/Pronouns': y.pronouns ?? '',
+                    'First Drop URL':  y.first_drop_url ?? '',
+                    'LC Topic':        y.challenge_topic ?? '',
+                    'Status':          'Launched',
+                  },
+                }),
+              }
+            );
+
+            if (!airtableRes.ok) {
+              const errText = await airtableRes.text();
+              console.error(`[S6] Airtable create failed for youth ${y.id}: ${errText}`);
+            } else {
+              console.log(`[S6] Airtable record created for youth ${y.id}`);
+              synced.push(grant.id);
+            }
+          } catch (err) {
+            console.error(`[S6] Airtable error for youth ${y.id}:`, err);
+          }
+        }
+
+        // Stamp airtable_synced_at on successfully synced rows
+        if (synced.length > 0) {
+          await supabase
+            .from('grant_requests')
+            .update({ airtable_synced_at: s6Now.toISOString() })
+            .in('id', synced);
+          console.log(`[S6] Airtable sync complete for ${synced.length} record(s)`);
+        }
+
+      } else {
+        console.log('[S6] No pending Airtable syncs');
+      }
+    }
+  }
+
   console.log('[daily-scheduler] run complete');
 
   return new Response(JSON.stringify({ ok: true }), {
