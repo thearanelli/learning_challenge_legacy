@@ -16,6 +16,8 @@
     { "src": "/images/(.*)", "dest": "/images/$1" },
     { "src": "/end-of-challenge", "dest": "/forms/end-of-challenge/index.html" },
     { "src": "/community", "dest": "/community/index.html" },
+    { "src": "/og-community.png", "dest": "/og-community.png" },
+    { "src": "/og-invite.png", "dest": "/og-invite.png" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
