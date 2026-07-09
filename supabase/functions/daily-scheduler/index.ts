@@ -983,6 +983,14 @@ serve(async (req) => {
               if (!airtableRes.ok) {
                 const errText = await airtableRes.text();
                 console.error(`[S6] Airtable create failed for youth ${y.id}: ${errText}`);
+                const staffEmail = Deno.env.get('STAFF_EMAIL');
+                if (staffEmail) {
+                  await sendEmail({
+                    to: [staffEmail],
+                    subject: `Airtable sync failed — ${y.first_name} ${y.last_name}`,
+                    html: `<p>Airtable record creation failed for <strong>${y.first_name} ${y.last_name}</strong> (youth_id: ${y.id}).</p><p>Error: ${errText}</p><p>The record will retry on the next 30-minute cycle.</p>`,
+                  });
+                }
               } else {
                 console.log(`[S6] Airtable record created for youth ${y.id}`);
                 synced.push(grant.id);
