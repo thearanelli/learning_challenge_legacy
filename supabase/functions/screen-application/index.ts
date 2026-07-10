@@ -66,46 +66,119 @@ serve(async (req) => {
 
     const claudeData = await claudeRes.json();
     const rawText = claudeData.content[0]?.text || '';
-    const cleaned = rawText.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
 
-    let aiResult: { decision: string; reasoning: string; failed_criteria: string | null; passion: string | null };
-    try {
-      aiResult = JSON.parse(cleaned);
-    } catch {
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
       throw new Error(`Claude returned invalid JSON: ${rawText}`);
     }
+    const aiResult = JSON.parse(jsonMatch[0]);
 
     const { decision, reasoning, failed_criteria, passion } = aiResult;
-    console.log(`[SCREEN] ${application.id}: AI rec = ${decision}`);
+    console.log(`[SCREEN] ${application.id}: AI decision = ${decision}`);
 
-    // Always route to flagged regardless of AI decision — staff reviews manually
-    const { error: advanceError } = await supabase.rpc('advance_status', {
-      record_id: application.id,
-      table_name: 'applications',
-      expected_current_status: config.STATUS.SUBMITTED,
-      next_status: config.STATUS.FLAGGED,
-      additional_fields: {
-        ai_decision: decision,
-        ai_reasoning: reasoning,
-        failed_criteria: failed_criteria ?? null,
-        passion: passion ?? null,
-        stage_entered_at: new Date().toISOString(),
-      },
-    });
+    const notify_after = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
-    if (advanceError) {
-      if (advanceError.message?.includes('StatusConflictError')) {
-        console.log(`[SKIP] ${application.id} — StatusConflictError, already processed`);
-        return new Response('Already processed', { status: 200 });
+    if (decision === 'accepted') {
+      const { error: advanceError } = await supabase.rpc('advance_status', {
+        record_id: application.id,
+        table_name: 'applications',
+        expected_current_status: config.STATUS.SUBMITTED,
+        next_status: config.STATUS.ACCEPTED,
+        additional_fields: {
+          ai_decision: decision,
+          ai_reasoning: reasoning,
+          passion: passion ?? null,
+          notify_after,
+          stage_entered_at: new Date().toISOString(),
+        },
+      });
+      if (advanceError) {
+        if (advanceError.message?.includes('StatusConflictError')) {
+          console.log(`[SKIP] ${application.id} — already processed`);
+          return new Response('Already processed', { status: 200 });
+        }
+        throw new Error(`advance_status error: ${advanceError.message}`);
       }
-      throw new Error(`advance_status error: ${advanceError.message}`);
-    }
+      await sendStaffNotification(
+        'application_accepted',
+        {
+          first_name: application.first_name as string,
+          last_name: application.last_name as string,
+          email: application.email as string,
+          passion: passion ?? '',
+          referred_by: (application.referred_by as string) ?? 'none',
+          reasoning,
+        },
+        { application_id: application.id },
+      );
 
-    await sendStaffNotification(
-      config.STATUS.FLAGGED,
-      { first_name: application.first_name, last_name: application.last_name, ai_decision: decision, reasoning },
-      { application_id: application.id },
-    );
+    } else if (decision === 'rejected') {
+      const { error: advanceError } = await supabase.rpc('advance_status', {
+        record_id: application.id,
+        table_name: 'applications',
+        expected_current_status: config.STATUS.SUBMITTED,
+        next_status: config.STATUS.REJECTED,
+        additional_fields: {
+          ai_decision: decision,
+          ai_reasoning: reasoning,
+          failed_criteria: failed_criteria ?? null,
+          notify_after,
+          stage_entered_at: new Date().toISOString(),
+        },
+      });
+      if (advanceError) {
+        if (advanceError.message?.includes('StatusConflictError')) {
+          console.log(`[SKIP] ${application.id} — already processed`);
+          return new Response('Already processed', { status: 200 });
+        }
+        throw new Error(`advance_status error: ${advanceError.message}`);
+      }
+      await sendStaffNotification(
+        'application_rejected',
+        {
+          first_name: application.first_name as string,
+          last_name: application.last_name as string,
+          email: application.email as string,
+          failed_criteria: failed_criteria ?? '',
+          reasoning,
+        },
+        { application_id: application.id },
+      );
+
+    } else {
+      // flagged
+      const { error: advanceError } = await supabase.rpc('advance_status', {
+        record_id: application.id,
+        table_name: 'applications',
+        expected_current_status: config.STATUS.SUBMITTED,
+        next_status: config.STATUS.FLAGGED,
+        additional_fields: {
+          ai_decision: decision,
+          ai_reasoning: reasoning,
+          failed_criteria: failed_criteria ?? null,
+          passion: passion ?? null,
+          stage_entered_at: new Date().toISOString(),
+        },
+      });
+      if (advanceError) {
+        if (advanceError.message?.includes('StatusConflictError')) {
+          console.log(`[SKIP] ${application.id} — already processed`);
+          return new Response('Already processed', { status: 200 });
+        }
+        throw new Error(`advance_status error: ${advanceError.message}`);
+      }
+      await sendStaffNotification(
+        'flagged',
+        {
+          first_name: application.first_name as string,
+          last_name: application.last_name as string,
+          ai_decision: decision,
+          reasoning,
+          failed_criteria: failed_criteria ?? '',
+        },
+        { application_id: application.id },
+      );
+    }
 
     return new Response(
       JSON.stringify({ success: true, ai_decision: decision }),

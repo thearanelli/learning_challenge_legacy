@@ -25,6 +25,34 @@ export const content = {
   },
   flagged: {
     staff_sms: '[NEW APP] {{first_name}} {{last_name}} submitted. AI rec: {{ai_decision}}. {{reasoning}}',
+    staff_email_subject: 'Flagged for review — {{first_name}} {{last_name}}',
+    staff_email_body: `<p>A new application was flagged for manual review.</p>
+<p><strong>Applicant:</strong> {{first_name}} {{last_name}}<br>
+<strong>AI decision:</strong> {{ai_decision}}<br>
+<strong>Reasoning:</strong> {{reasoning}}<br>
+<strong>Failed criteria:</strong> {{failed_criteria}}</p>
+<p>Review in Supabase and update <code>screening_status</code> manually.</p>`,
+  },
+
+  application_accepted: {
+    staff_email_subject: 'Auto-accepted — {{first_name}} {{last_name}}',
+    staff_email_body: `<p>An application was automatically accepted.</p>
+<p><strong>Applicant:</strong> {{first_name}} {{last_name}}<br>
+<strong>Email:</strong> {{email}}<br>
+<strong>Passion:</strong> {{passion}}<br>
+<strong>Referred by:</strong> {{referred_by}}<br>
+<strong>Reasoning:</strong> {{reasoning}}</p>
+<p>The applicant will be notified in 48 hours.</p>`,
+  },
+
+  application_rejected: {
+    staff_email_subject: 'Auto-rejected — {{first_name}} {{last_name}}',
+    staff_email_body: `<p>An application was automatically rejected.</p>
+<p><strong>Applicant:</strong> {{first_name}} {{last_name}}<br>
+<strong>Email:</strong> {{email}}<br>
+<strong>Failed criteria:</strong> {{failed_criteria}}<br>
+<strong>Reasoning:</strong> {{reasoning}}</p>
+<p>The applicant will be notified in 48 hours.</p>`,
   },
 
   mentor_pending: {

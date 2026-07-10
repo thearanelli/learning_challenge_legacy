@@ -40,6 +40,7 @@ export const config = {
     DECLARATION_PENDING:   'declaration_pending',
     VIDEO_PENDING:         'video_pending',
     VIDEO_REVIEW:          'video_review',
+    ACCEPTED:              'accepted',
     FLAGGED:               'flagged',
     ONBOARDING:            'onboarding',
     MENTOR_PENDING:        'mentor_pending',
