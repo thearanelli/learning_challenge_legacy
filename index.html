@@ -126,6 +126,7 @@ nav {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
   padding: 40px 20px 48px;
   max-width: 480px;
@@ -191,6 +192,7 @@ h1 {
   color: var(--gray);
   line-height: 1.7;
   margin-bottom: 1.25rem;
+  max-width: 420px;
 }
 
 .hero-quote {
@@ -1003,8 +1005,7 @@ h1 {
         </div>
         <p style="font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:3px;color:var(--lime);text-transform:uppercase;margin:0 0 4px;">The</p>
         <h1 style="text-transform:uppercase;letter-spacing:-1px;">New York City<br><span style="color:var(--lime);">Learning</span><br>Challenge</h1>
-        <p class="hero-desc">What would you build if someone actually backed you? GripTape gives teens up to $150, a personal mentor, and a chance to do something real.</p>
-        <p class="hero-ticker" id="hero-ticker"></p>
+        <p class="hero-desc">We back NYC teens with a grant, a mentor, and 6 weeks to go all in on a passion project. No catch. Join the community today.</p>
         <div class="cta-wrap">
           <button class="btn-main" onclick="startApp()">I'm ready →</button>
         </div>
@@ -2149,21 +2150,6 @@ function launchConfetti() {
     { project: 'Self-published a graphic novel', name: 'Destiny, 17' },
     { project: 'Designed a clothing line and sold at a pop-up', name: 'Aaliyah, 16' },
   ];
-  const el = document.getElementById('hero-ticker');
-  if (!el) return;
-  examples.forEach(function(e, i) {
-    const item = document.createElement('div');
-    item.className = 'hero-ticker-item' + (i === 0 ? ' active' : '');
-    item.innerHTML = e.project + ' \u2014 <span class="ticker-name">' + e.name + '</span>';
-    el.appendChild(item);
-  });
-  let idx = 0;
-  setInterval(function() {
-    const items = el.querySelectorAll('.hero-ticker-item');
-    items[idx].classList.remove('active');
-    idx = (idx + 1) % examples.length;
-    items[idx].classList.add('active');
-  }, 3000);
 })();
 
 // Restore draft on load
