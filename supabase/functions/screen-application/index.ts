@@ -83,7 +83,7 @@ serve(async (req) => {
         record_id: application.id,
         table_name: 'applications',
         expected_current_status: config.STATUS.SUBMITTED,
-        next_status: config.STATUS.ACCEPTED,
+        next_status: config.STATUS.DECLARATION_PENDING,
         additional_fields: {
           ai_decision: decision,
           ai_reasoning: reasoning,
