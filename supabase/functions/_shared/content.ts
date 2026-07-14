@@ -97,7 +97,7 @@ export const content = {
 <a href="{{w9_link}}">Sign your W-9 →</a></p>
 <p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a GripTape Challenger.<br>
 <a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
-<p>You have 21 days to sign both documents. After that the funding window closes. Your spot in the program is safe either way.</p>
+<p>You have 10 days to sign both documents. After that the funding window closes. Your spot in the program is safe either way.</p>
 <p>— The GripTape Team</p>`,
     sms: `Congrats on completing your GripTape orientation call! Now check your email to unlock your funding.`,
   },
@@ -258,6 +258,12 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Questions? Reply to this email.</p>
 <p>— The GripTape Team</p>`,
     sms: 'Hey {{first_name}}, your GripTape Challenger {{youth_name}} is still waiting to schedule their orientation call. Their number: {{youth_phone}}',
+  },
+
+  nudge_grant_final: {
+    email_subject: null,
+    email_body: null,
+    sms: `Hey {{first_name}}, your grant paperwork is due tomorrow. Sign your W-9 and Participation Agreement now or you won't be able to receive your funding. Check your email for the links.`,
   },
 
   nudge_grant: {

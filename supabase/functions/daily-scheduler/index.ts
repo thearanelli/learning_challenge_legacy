@@ -216,6 +216,7 @@ serve(async (req) => {
     { stage: 'mentor_pending',      nudge_day: 3,  content_key: 'nudge_orientation_1', notify_champion: false, has_deadline: true  },
     { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: false, has_deadline: true  },
     { stage: 'grant_pending',       nudge_day: 5,  content_key: 'nudge_grant',          notify_champion: false, has_deadline: false },
+    { stage: 'grant_pending',       nudge_day: 9,  content_key: 'nudge_grant_final',   notify_champion: false, has_deadline: false },
   ];
 
   try {
@@ -346,7 +347,7 @@ serve(async (req) => {
 
                 if (gr?.boldsign_w9_id) {
                   const w9Res = await fetch(
-                    `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${gr.boldsign_w9_id}&signerEmail=${encodeURIComponent(youth.email)}&linkValidTill=21`,
+                    `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${gr.boldsign_w9_id}&signerEmail=${encodeURIComponent(youth.email)}&linkValidTill=12`,
                     { headers: { 'X-API-KEY': boldSignApiKey } }
                   );
                   if (w9Res.ok) w9Link = (await w9Res.json()).signLink ?? '';
@@ -354,7 +355,7 @@ serve(async (req) => {
 
                 if (gr?.boldsign_agreement_id) {
                   const agreeRes = await fetch(
-                    `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${gr.boldsign_agreement_id}&signerEmail=${encodeURIComponent(youth.email)}&linkValidTill=21`,
+                    `https://api.boldsign.com/v1/document/getEmbeddedSignLink?documentId=${gr.boldsign_agreement_id}&signerEmail=${encodeURIComponent(youth.email)}&linkValidTill=12`,
                     { headers: { 'X-API-KEY': boldSignApiKey } }
                   );
                   if (agreeRes.ok) agreementLink = (await agreeRes.json()).signLink ?? '';
@@ -589,7 +590,7 @@ serve(async (req) => {
     next_status: string;
   }> = [
     { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed'       },
-    { stage: 'grant_pending',       deadline_days: 21,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
+    { stage: 'grant_pending',       deadline_days: 11,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
     { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days!, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed'       },
   ];
 
