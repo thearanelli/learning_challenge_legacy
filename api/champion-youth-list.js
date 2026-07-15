@@ -93,22 +93,15 @@ export default async function handler(req, res) {
     const appIds = youth.map(y => y.application_id).filter(Boolean);
     if (appIds.length > 0) {
       const appsRes = await fetch(
-        `${supabaseUrl}/rest/v1/applications?select=id,application_responses&id=in.(${appIds.join(',')})`,
+        `${supabaseUrl}/rest/v1/applications?select=id,passion&id=in.(${appIds.join(',')})`,
         { headers }
       );
 
       if (appsRes.ok) {
         const apps = await appsRes.json();
         for (const app of apps) {
-          try {
-            const responses = typeof app.application_responses === 'string'
-              ? JSON.parse(app.application_responses)
-              : app.application_responses;
-            if (responses && responses.passion) {
-              passionByAppId[app.id] = responses.passion;
-            }
-          } catch (_) {
-            // skip parse errors
+          if (app.passion) {
+            passionByAppId[app.id] = app.passion;
           }
         }
       }
