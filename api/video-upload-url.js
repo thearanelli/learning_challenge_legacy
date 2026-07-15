@@ -81,7 +81,7 @@ export default async function handler(req, res) {
           ...headers,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ expiresIn: 3600 }),
+        body: JSON.stringify({ expiresIn: 3600, upsertEnabled: true }),
       }
     );
 
