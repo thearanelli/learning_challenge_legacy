@@ -7,7 +7,7 @@ export const content = {
 <p><a href="{{link}}" style="display:block;background:#EA5329;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;text-align:center;margin:20px 0;font-family:Arial,Helvetica,sans-serif">Start Step 2 →</a></p>
 <p>You have until {{deadline_date}} to commit to this.</p>
 <p>— The GripTape Team</p>`,
-    sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next: {{link}}',
+    sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next: {{link_sms}}',
   },
   declaration_confirmed: {
     email_subject: 'Your 10 days start now.',

@@ -91,12 +91,13 @@ serve(async (req) => {
               await supabase.from('applications').update(patch).eq('id', app.id);
               console.log(`[daily-scheduler] S1 generated missing fields for app ${app.id} — flagged→manual path`);
             }
-            const declareLink = `${config.BASE_URL}/declare?token=${app.access_token}&src=acceptance_email`;
+            const declareLink    = `${config.BASE_URL}/declare?token=${app.access_token}&src=acceptance_email`;
+            const declareLinkSms = `${config.BASE_URL}/declare?token=${app.access_token}&src=acceptance_sms`;
             const profileLink = `${config.BASE_URL}/profile?token=${app.profile_token}`;
             await sendNotification(
               'declaration_pending',
               recipient,
-              { link: declareLink, profile_link: profileLink, deadline_date: formatDeadline(app.stage_deadline_at), passion: app.passion ?? '', base_url: config.BASE_URL },
+              { link: declareLink, link_sms: declareLinkSms, profile_link: profileLink, deadline_date: formatDeadline(app.stage_deadline_at), passion: app.passion ?? '', base_url: config.BASE_URL },
               { application_id: app.id },
               { skipSms: !app.sms_consent },
             );
