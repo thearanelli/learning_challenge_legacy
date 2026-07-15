@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
     // Load active youth for this champion — excluding terminal statuses
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(removed,completed)&select=id,first_name,last_name,status,stage_entered_at,accepted_at,first_drop_url`,
+      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(removed,completed)&select=id,first_name,last_name,status,stage_entered_at,accepted_at,first_drop_url,application_id`,
       { headers }
     );
 
@@ -88,12 +88,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // Fetch passion from applications for each youth
-    let passionByYouth = {};
-    if (youth.length > 0) {
-      const youthIds = youth.map(y => y.id).join(',');
+    // Fetch passion from applications for each youth (join via application_id)
+    let passionByAppId = {};
+    const appIds = youth.map(y => y.application_id).filter(Boolean);
+    if (appIds.length > 0) {
       const appsRes = await fetch(
-        `${supabaseUrl}/rest/v1/applications?select=youth_id,application_responses&youth_id=in.(${youthIds})`,
+        `${supabaseUrl}/rest/v1/applications?select=id,application_responses&id=in.(${appIds.join(',')})`,
         { headers }
       );
 
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
               ? JSON.parse(app.application_responses)
               : app.application_responses;
             if (responses && responses.passion) {
-              passionByYouth[app.youth_id] = responses.passion;
+              passionByAppId[app.id] = responses.passion;
             }
           } catch (_) {
             // skip parse errors
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
     // Attach checkins and passion to each youth, then sort
     const enriched = youth.map(y => ({
       ...y,
-      passion: passionByYouth[y.id] || null,
+      passion: (y.application_id && passionByAppId[y.application_id]) || null,
       checkins: checkinsByYouth[y.id] || [],
     }));
 
