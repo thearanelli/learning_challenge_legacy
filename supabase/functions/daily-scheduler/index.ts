@@ -172,11 +172,13 @@ serve(async (req) => {
             continue;
           }
 
-          const link = nudge.link_field === 'access_token' && nudge.stage === 'declaration_pending'
-            ? `${config.BASE_URL}/declare?token=${app.access_token}&src=${nudge.content_key}`
+          const baseLink = nudge.link_field === 'access_token' && nudge.stage === 'declaration_pending'
+            ? `${config.BASE_URL}/declare?token=${app.access_token}`
             : nudge.link_field === 'access_token'
-            ? `${config.BASE_URL}/video?token=${app.access_token}&src=${nudge.content_key}`
+            ? `${config.BASE_URL}/video?token=${app.access_token}`
             : '';
+          const link     = baseLink ? `${baseLink}&src=${nudge.content_key}_email` : '';
+          const link_sms = baseLink ? `${baseLink}&src=${nudge.content_key}_sms`   : '';
 
           const recipient = {
             first_name: app.first_name,
@@ -188,7 +190,7 @@ serve(async (req) => {
           await sendNotification(
             nudge.content_key,
             recipient,
-            { link, deadline_date: formatDeadline(app.stage_deadline_at), base_url: config.BASE_URL },
+            { link, link_sms, deadline_date: formatDeadline(app.stage_deadline_at), base_url: config.BASE_URL },
             { application_id: app.id },
             { skipSms: !app.sms_consent },
           );

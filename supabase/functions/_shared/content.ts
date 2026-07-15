@@ -199,7 +199,7 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Tomorrow is your last day to commit to your GripTape Challenge. It takes 5 minutes.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Commit</a></p>`,
-    sms: "Hey {{first_name}}, tomorrow is your last day to commit to your GripTape Challenge: {{link}}",
+    sms: "Hey {{first_name}}, tomorrow is your last day to commit to your GripTape Challenge: {{link_sms}}",
   },
 
   nudge_first_drop_1: {
@@ -220,7 +220,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
 <p>Film a 90-second video showing what you accomplished. Real work only. Upload it directly. Remember this will be shared publicly to the GripTape community.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your GripTape First Drop submission link is ready. Upload your video directly — it will be shared publicly with the GripTape community: {{link}}',
+    sms: 'Hey {{first_name}}, your GripTape First Drop submission link is ready. Upload your video directly — it will be shared publicly with the GripTape community: {{link_sms}}',
   },
 
   nudge_first_drop_2: {
@@ -229,7 +229,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
 <p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. This will be shared publicly with the GripTape community — show them what you built.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your First Drop video for GripTape is due tomorrow: {{link}}',
+    sms: 'Hey {{first_name}}, your First Drop video for GripTape is due tomorrow: {{link_sms}}',
   },
 
   nudge_orientation_1: {
