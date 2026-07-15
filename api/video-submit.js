@@ -32,7 +32,8 @@ export default async function handler(req, res) {
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-  if (!supabaseUrl || !supabaseKey) {
+  const githubToken = process.env.GITHUB_WORKFLOW_TOKEN;
+  if (!supabaseUrl || !supabaseKey || !githubToken) {
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
@@ -81,6 +82,47 @@ export default async function handler(req, res) {
   if (!patchRes.ok) {
     return res.status(500).json({ error: 'Failed to save video URL' });
   }
+
+  // Trigger GitHub Actions workflow to download and re-upload to GripTape YouTube
+  const repoOwner = 'thearanelli';
+  const repoName = 'learning_challenge_legacy';
+
+  // Look up youth_id for this application
+  const youthRes = await fetch(
+    `${supabaseUrl}/rest/v1/youth?application_id=eq.${application.id}&select=id,first_name,last_name`,
+    {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+      },
+    }
+  );
+  const youthRows = await youthRes.json();
+  const youth = youthRows[0];
+  const videoTitle = youth
+    ? `GripTape First Drop — ${youth.first_name} ${youth.last_name}`
+    : 'GripTape First Drop';
+
+  await fetch(
+    `https://api.github.com/repos/${repoOwner}/${repoName}/actions/workflows/upload-video.yml/dispatches`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ref: 'main',
+        inputs: {
+          youtube_url: video_url,
+          youth_id: youth?.id ?? '',
+          application_id: application.id,
+          title: videoTitle,
+        }
+      })
+    }
+  );
 
   return res.status(200).json({ success: true });
 }
