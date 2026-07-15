@@ -203,42 +203,137 @@
       line-height: 1.5;
     }
 
-    /* Submission instructions */
-    .instructions-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 0;
-    }
-
-    .instruction-line {
-      color: var(--gray);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    /* URL input */
-    .url-input {
-      width: 100%;
-      background: var(--bg2);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 1rem;
-      color: var(--white);
-      font-size: 1rem;
-      font-family: 'DM Sans', sans-serif;
-      outline: none;
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed rgba(234,83,41,0.4);
+      border-radius: 12px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
       margin-bottom: 16px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--orange);
+      background: rgba(234,83,41,0.04);
+    }
+
+    .drop-zone-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
       display: block;
     }
 
-    .url-input:focus {
-      border-color: var(--orange);
+    .drop-zone-text {
+      color: var(--gray);
+      font-size: 0.95rem;
+      margin: 0 0 14px;
     }
 
-    .url-input::placeholder {
+    .drop-zone-btn {
+      display: inline-block;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 10px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .drop-zone-btn:hover { opacity: 0.9; }
+
+    .drop-zone-formats {
       color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 10px;
+    }
+
+    /* File info */
+    .file-info {
+      display: none;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .file-info.visible { display: flex; align-items: center; gap: 12px; }
+
+    .file-info-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .file-info-details {
+      flex: 1;
+    }
+
+    .file-info-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--white);
+    }
+
+    .file-info-size {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .file-info-remove {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .file-info-remove:hover { color: var(--orange); }
+
+    .file-warning {
+      color: var(--amber);
+      font-size: 0.82rem;
+      margin: -8px 0 16px;
+      display: none;
+    }
+
+    .file-warning.visible { display: block; }
+
+    /* Progress bar */
+    .progress-wrap {
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    .progress-wrap.visible { display: block; }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--orange);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.2s;
+    }
+
+    .progress-text {
+      color: var(--gray);
+      font-size: 0.82rem;
+      margin-top: 6px;
+      text-align: center;
     }
 
     /* Submit button */
@@ -309,6 +404,7 @@
       .journey-badge { width: 34px; height: 34px; font-size: 0.78rem; }
       .journey-connector { margin-top: 16px; }
       .journey-step-label { font-size: 0.6rem; letter-spacing: 0.07em; }
+      .drop-zone { padding: 28px 16px; }
     }
   </style>
 </head>
@@ -334,14 +430,13 @@
   <!-- Form section -->
   <div id="form-section" class="page" style="display:none;">
 
-    <!-- FIX 1: Logo -->
     <img class="page-logo"
       src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
       alt="GripTape" />
 
     <hr class="divider" />
 
-    <!-- FIX 2: Journey bar — Registered (done), Committed (done), First Drop (active) -->
+    <!-- Journey bar -->
     <div class="journey-bar">
       <div class="journey-step done">
         <div class="journey-badge">✓</div>
@@ -359,16 +454,15 @@
       </div>
     </div>
 
-    <!-- FIX 3: Hero -->
+    <!-- Hero -->
     <h1 class="main-heading">This is your final step.</h1>
     <p class="main-sub">Submit a video you're proud of. Real work, real you. Our team will review it — if it's honest, you're officially in.</p>
 
-    <!-- Hidden element preserving JS reference to first-name -->
     <span id="first-name" style="display:none;"></span>
 
     <hr class="divider-slim" />
 
-    <!-- FIX 4: Guidelines -->
+    <!-- Guidelines -->
     <h2 class="section-heading">Before you submit, make sure your video covers this.</h2>
     <div class="guidelines-list">
       <div class="guideline-item">
@@ -399,34 +493,43 @@
 
     <hr class="divider-slim" />
 
-    <!-- FIX 5: Submission instructions -->
-    <h2 class="section-heading">How to submit</h2>
-    <div class="instructions-list">
-      <p class="instruction-line">Post your video on YouTube — public or unlisted.</p>
-      <p class="instruction-line">This video will be shared with the GripTape community. Need privacy? A burner YouTube account is totally fine.</p>
-      <p class="instruction-line">Paste your YouTube link below.</p>
+    <!-- Upload -->
+    <h2 class="section-heading">Upload your video</h2>
+    <p style="color:var(--gray);font-size:0.95rem;margin:0 0 20px;line-height:1.6;">Upload your video file directly — MP4, MOV, or WebM. No YouTube account needed.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <span class="drop-zone-icon">🎬</span>
+      <p class="drop-zone-text">Drop your video here</p>
+      <button type="button" class="drop-zone-btn" id="choose-file-btn">Choose file</button>
+      <p class="drop-zone-formats">MP4, MOV, or WebM</p>
     </div>
 
-    <hr class="divider-slim" />
+    <input type="file" id="file-input" accept="video/mp4,video/quicktime,video/webm" style="display:none;" />
 
-    <!-- FIX 6 + 7: Form -->
-    <form id="video-form">
-      <input
-        type="url"
-        id="video_url"
-        name="video_url"
-        class="url-input"
-        placeholder="https://youtube.com/watch?v=..."
-        required
-      />
-      <button type="submit" id="submit-btn" class="submit-btn">Submit My First Drop</button>
-    </form>
+    <div class="file-info" id="file-info">
+      <span class="file-info-icon">🎥</span>
+      <div class="file-info-details">
+        <div class="file-info-name" id="file-name"></div>
+        <div class="file-info-size" id="file-size"></div>
+      </div>
+      <button type="button" class="file-info-remove" id="file-remove" title="Remove file">✕</button>
+    </div>
 
+    <p class="file-warning" id="file-warning">This file is very large and may take a while to upload.</p>
+
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-text" id="progress-text">Uploading… 0%</div>
+    </div>
+
+    <button type="button" id="submit-btn" class="submit-btn" disabled>Submit My First Drop</button>
     <div id="status"></div>
 
   </div>
 
-  <!-- FIX 8: Success state -->
+  <!-- Success state -->
   <div id="success-section" class="page" style="display:none;">
     <div class="success-wrap">
       <img class="success-logo"
@@ -438,8 +541,9 @@
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get('token');
+    var selectedFile = null;
 
     async function init() {
       document.getElementById('loading').style.display = 'block';
@@ -450,8 +554,8 @@
       }
 
       try {
-        const res = await fetch(`/api/check-token?token=${encodeURIComponent(token)}`);
-        const data = await res.json();
+        var res = await fetch('/api/check-token?token=' + encodeURIComponent(token));
+        var data = await res.json();
 
         if (!data.valid) {
           showInvalid();
@@ -461,7 +565,7 @@
         document.getElementById('first-name').textContent = data.first_name;
         document.getElementById('loading').style.display = 'none';
         document.getElementById('form-section').style.display = 'block';
-      } catch {
+      } catch (err) {
         showInvalid();
       }
     }
@@ -471,53 +575,167 @@
       document.getElementById('invalid-section').style.display = 'block';
     }
 
-    document.getElementById('video-form').addEventListener('submit', async (e) => {
+    function formatFileSize(bytes) {
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    }
+
+    function setFile(file) {
+      if (!file) return;
+      var validTypes = ['video/mp4', 'video/quicktime', 'video/webm'];
+      if (!validTypes.includes(file.type)) {
+        document.getElementById('status').textContent = 'Please select an MP4, MOV, or WebM file.';
+        document.getElementById('status').className = 'error';
+        return;
+      }
+      selectedFile = file;
+      document.getElementById('status').textContent = '';
+      document.getElementById('status').className = '';
+      document.getElementById('file-name').textContent = file.name;
+      document.getElementById('file-size').textContent = formatFileSize(file.size);
+      document.getElementById('file-info').classList.add('visible');
+      document.getElementById('drop-zone').style.display = 'none';
+      document.getElementById('submit-btn').disabled = false;
+
+      // Warn if over 4GB
+      if (file.size > 4 * 1024 * 1024 * 1024) {
+        document.getElementById('file-warning').classList.add('visible');
+      } else {
+        document.getElementById('file-warning').classList.remove('visible');
+      }
+    }
+
+    function clearFile() {
+      selectedFile = null;
+      document.getElementById('file-info').classList.remove('visible');
+      document.getElementById('file-warning').classList.remove('visible');
+      document.getElementById('drop-zone').style.display = '';
+      document.getElementById('submit-btn').disabled = true;
+      document.getElementById('file-input').value = '';
+    }
+
+    // File input
+    var fileInput = document.getElementById('file-input');
+    document.getElementById('choose-file-btn').addEventListener('click', function() {
+      fileInput.click();
+    });
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length) setFile(fileInput.files[0]);
+    });
+
+    // Drop zone click (outside button)
+    document.getElementById('drop-zone').addEventListener('click', function(e) {
+      if (e.target.id !== 'choose-file-btn') fileInput.click();
+    });
+
+    // Drag and drop
+    var dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', function(e) {
       e.preventDefault();
-      const video_url = document.getElementById('video_url').value.trim();
-      const btn = document.getElementById('submit-btn');
-      const status = document.getElementById('status');
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', function() {
+      dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+    });
+
+    // Remove file
+    document.getElementById('file-remove').addEventListener('click', clearFile);
+
+    // Submit
+    document.getElementById('submit-btn').addEventListener('click', async function() {
+      if (!selectedFile) return;
+
+      var btn = document.getElementById('submit-btn');
+      var status = document.getElementById('status');
+      var progressWrap = document.getElementById('progress-wrap');
+      var progressFill = document.getElementById('progress-fill');
+      var progressText = document.getElementById('progress-text');
 
       btn.disabled = true;
       status.textContent = '';
       status.className = '';
 
-      // oEmbed check — copy source: _shared/content.ts forms.video_oembed_error
       try {
-        const oEmbedRes = await fetch(
-          `https://www.youtube.com/oembed?url=${encodeURIComponent(video_url)}&format=json`
-        );
-        if (!oEmbedRes.ok) {
-          status.textContent = "That doesn't appear to be a public YouTube video. Please check the link and try again.";
+        // Step 1 — Get signed URL
+        var urlRes = await fetch('/api/video-upload-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token }),
+        });
+        var urlData = await urlRes.json();
+
+        if (!urlData.success) {
+          status.textContent = 'Something went wrong. Please try again.';
           status.className = 'error';
           btn.disabled = false;
           return;
         }
-      } catch {
-        status.textContent = "That doesn't appear to be a public YouTube video. Please check the link and try again.";
-        status.className = 'error';
-        btn.disabled = false;
-        return;
-      }
 
-      try {
-        const res = await fetch('/api/video-submit', {
+        var signedUrl = urlData.signed_url;
+        var storagePath = urlData.path;
+
+        // Step 2 — Upload file via XHR for progress
+        progressWrap.classList.add('visible');
+        progressFill.style.width = '0%';
+        progressText.textContent = 'Uploading… 0%';
+
+        await new Promise(function(resolve, reject) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('PUT', signedUrl, true);
+          xhr.setRequestHeader('Content-Type', selectedFile.type);
+
+          xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+              var pct = Math.round((e.loaded / e.total) * 100);
+              progressFill.style.width = pct + '%';
+              progressText.textContent = 'Uploading… ' + pct + '%';
+            }
+          });
+
+          xhr.addEventListener('load', function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              progressFill.style.width = '100%';
+              progressText.textContent = 'Upload complete. Processing…';
+              resolve();
+            } else {
+              reject(new Error('Upload failed: ' + xhr.status));
+            }
+          });
+
+          xhr.addEventListener('error', function() {
+            reject(new Error('Upload failed'));
+          });
+
+          xhr.send(selectedFile);
+        });
+
+        // Step 3 — Notify backend
+        var completeRes = await fetch('/api/video-upload-complete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, video_url }),
+          body: JSON.stringify({ token: token, path: storagePath }),
         });
-        const data = await res.json();
+        var completeData = await completeRes.json();
 
-        if (data.success) {
+        if (completeData.success) {
           document.getElementById('form-section').style.display = 'none';
           document.getElementById('success-section').style.display = 'block';
         } else {
           status.textContent = 'Something went wrong. Please try again.';
           status.className = 'error';
+          progressWrap.classList.remove('visible');
           btn.disabled = false;
         }
-      } catch {
+      } catch (err) {
         status.textContent = 'Something went wrong. Please try again.';
         status.className = 'error';
+        progressWrap.classList.remove('visible');
         btn.disabled = false;
       }
     });

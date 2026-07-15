@@ -3,8 +3,8 @@ name: Upload video to GripTape YouTube
 on:
   workflow_dispatch:
     inputs:
-      youtube_url:
-        description: 'Youth YouTube URL to download'
+      supabase_storage_path:
+        description: 'Path in Supabase Storage videos bucket'
         required: true
       youth_id:
         description: 'Youth ID to update first_drop_url on'
@@ -23,42 +23,49 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          pip install yt-dlp google-auth google-auth-httplib2 google-api-python-client requests
+          pip install google-auth google-auth-httplib2 google-api-python-client requests
 
-      - name: Download and upload video
+      - name: Download, upload, and cleanup
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          YOUTUBE_URL: ${{ inputs.youtube_url }}
+          SUPABASE_STORAGE_PATH: ${{ inputs.supabase_storage_path }}
           YOUTH_ID: ${{ inputs.youth_id }}
           APPLICATION_ID: ${{ inputs.application_id }}
           VIDEO_TITLE: ${{ inputs.title }}
         run: |
           python3 - <<'EOF'
-          import yt_dlp, os, requests
+          import os, requests
           from google.oauth2.credentials import Credentials
           from googleapiclient.discovery import build
           from googleapiclient.http import MediaFileUpload
 
-          # Download video
-          youtube_url = os.environ['YOUTUBE_URL']
+          supabase_url = os.environ['SUPABASE_URL']
+          supabase_key = os.environ['SUPABASE_SERVICE_KEY']
+          storage_path = os.environ['SUPABASE_STORAGE_PATH']
           youth_id = os.environ['YOUTH_ID']
           application_id = os.environ['APPLICATION_ID']
           title = os.environ['VIDEO_TITLE']
-          supabase_url = os.environ['SUPABASE_URL']
-          supabase_key = os.environ['SUPABASE_SERVICE_KEY']
 
-          tmp_path = '/tmp/first_drop.mp4'
-          ydl_opts = {
-            'outtmpl': tmp_path,
-            'format': 'mp4/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-            'merge_output_format': 'mp4',
+          sb_headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}'
           }
-          with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([youtube_url])
+
+          # Download file from Supabase Storage
+          tmp_path = '/tmp/first_drop.mp4'
+          print(f'Downloading from Supabase Storage: videos/{storage_path}')
+          response = requests.get(
+            f'{supabase_url}/storage/v1/object/videos/{storage_path}',
+            headers=sb_headers
+          )
+          response.raise_for_status()
+          with open(tmp_path, 'wb') as f:
+            f.write(response.content)
+          print(f'Downloaded {len(response.content)} bytes')
 
           # Auth with YouTube
           creds = Credentials(
@@ -83,36 +90,35 @@ jobs:
             }
           }
           media = MediaFileUpload(tmp_path, mimetype='video/mp4', resumable=True)
-          response = youtube.videos().insert(
+          yt_response = youtube.videos().insert(
             part='snippet,status',
             body=body,
             media_body=media
           ).execute()
 
-          video_id = response['id']
+          video_id = yt_response['id']
           griptape_url = f'https://www.youtube.com/watch?v={video_id}'
-          embed_url = f'https://www.youtube.com/embed/{video_id}'
           print(f'Uploaded: {griptape_url}')
+
+          # Delete temp file from Supabase Storage
+          print(f'Deleting from Supabase Storage: videos/{storage_path}')
+          del_response = requests.delete(
+            f'{supabase_url}/storage/v1/object/videos/{storage_path}',
+            headers=sb_headers
+          )
+          print(f'Delete status: {del_response.status_code}')
 
           # Update youth.first_drop_url with GripTape YouTube URL
           requests.patch(
             f'{supabase_url}/rest/v1/youth?id=eq.{youth_id}',
-            headers={
-              'apikey': supabase_key,
-              'Authorization': f'Bearer {supabase_key}',
-              'Content-Type': 'application/json'
-            },
+            headers={**sb_headers, 'Content-Type': 'application/json'},
             json={'first_drop_url': griptape_url}
           )
 
           # Update applications.video_url too
           requests.patch(
             f'{supabase_url}/rest/v1/applications?id=eq.{application_id}',
-            headers={
-              'apikey': supabase_key,
-              'Authorization': f'Bearer {supabase_key}',
-              'Content-Type': 'application/json'
-            },
+            headers={**sb_headers, 'Content-Type': 'application/json'},
             json={'video_url': griptape_url}
           )
 
