@@ -74,7 +74,7 @@ export default async function handler(req, res) {
 
     // Generate signed upload URL
     const signRes = await fetch(
-      `${supabaseUrl}/storage/v1/upload/sign/first_drops/${path}`,
+      `${supabaseUrl}/storage/v1/object/upload/sign/first_drops/${path}`,
       {
         method: 'POST',
         headers: {
