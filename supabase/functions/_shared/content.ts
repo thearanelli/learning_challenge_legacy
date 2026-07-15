@@ -209,6 +209,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>In 2 days you'll get your First Drop submission link. Start thinking about what you want to show.</p>
 <p>Your video needs to cover three things. Who you are and what your passion is. What you've actually done in the past 10 days. Where you're taking this next.</p>
 <p>Keep it under 90 seconds, shoot vertical, show your work. Real talk only.</p>
+<p>Remember — this will be shared publicly with the GripTape community. Make it something you're proud of.</p>
 <p>— The GripTape Team</p>`,
   },
 
@@ -217,16 +218,16 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>You've had 7 days to work on your project. Now it's time to show us what you built.</p>
 <p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
-<p>Film a 90-second video showing what you accomplished. Real work only. Then submit the YouTube link below.</p>
+<p>Film a 90-second video showing what you accomplished. Real work only. Upload it directly. Remember this will be shared publicly to the GripTape community.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your GripTape First Drop video submission link is ready: {{link}}',
+    sms: 'Hey {{first_name}}, your GripTape First Drop submission link is ready. Upload your video directly — it will be shared publicly with the GripTape community: {{link}}',
   },
 
   nudge_first_drop_2: {
     email_subject: 'Last chance — First Drop due tomorrow',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
-<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. We're so excited to see what you acomplished.</p>
+<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. This will be shared publicly with the GripTape community — show them what you built.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
     sms: 'Hey {{first_name}}, your First Drop video for GripTape is due tomorrow: {{link}}',
   },
