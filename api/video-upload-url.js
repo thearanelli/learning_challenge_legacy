@@ -94,6 +94,8 @@ export default async function handler(req, res) {
     const signData = await signRes.json();
     const signed_url = `${supabaseUrl}/storage/v1${signData.url}`;
 
+    console.log('[video-upload-url] signed_url:', signed_url);
+
     return res.status(200).json({ success: true, signed_url, path });
 
   } catch (err) {
