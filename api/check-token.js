@@ -49,6 +49,8 @@ export default async function handler(req, res) {
   }
 
   const { token } = req.query;
+  const src = req.query.src ?? null;
+  const channel = src?.includes('_email') ? 'email' : src?.includes('_sms') ? 'sms' : null;
   if (!token) {
     return res.status(400).json({ error: 'Missing token' });
   }
@@ -84,16 +86,16 @@ export default async function handler(req, res) {
     const validStatuses = ['video_pending'];
 
     if (!validStatuses.includes(application.screening_status)) {
-      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'invalid_status', src: req.query.src ?? null });
+      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'invalid_status', src, channel, first_name: application.first_name });
       return res.status(200).json({ valid: false });
     }
 
     if (!isTokenValid(application, token)) {
-      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'expired', src: req.query.src ?? null });
+      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'expired', src, channel, first_name: application.first_name });
       return res.status(200).json({ valid: false, expired: true });
     }
 
-    await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'valid', src: req.query.src ?? null });
+    await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'valid', src, channel, first_name: application.first_name });
     return res.status(200).json({ valid: true, first_name: application.first_name });
 
   } catch (err) {
