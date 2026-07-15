@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/champions?champion_token=eq.${encodeURIComponent(token)}&select=id,first_name`,
+      `${supabaseUrl}/rest/v1/champions?champion_token=eq.${encodeURIComponent(token)}&select=id,first_name,champion_token`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     }
 
     const champion = rows[0];
-    return res.status(200).json({ valid: true, champion_id: champion.id, first_name: champion.first_name });
+    return res.status(200).json({ valid: true, champion_id: champion.id, first_name: champion.first_name, champion_token: champion.champion_token });
 
   } catch (err) {
     console.error('[check-champion-token] error:', err);
