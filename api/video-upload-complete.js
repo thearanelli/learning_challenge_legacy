@@ -74,27 +74,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: false, error: 'file_not_found' });
     }
 
-    // Set video_url to storage path temporarily and null out tokens
-    const patchRes = await fetch(
-      `${supabaseUrl}/rest/v1/applications?id=eq.${application.id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          video_url: `storage:first_drops/${path}`,
-          access_token: null,
-          stage_deadline_at: null,
-        }),
-      }
-    );
-
-    if (!patchRes.ok) {
-      return res.status(500).json({ error: 'Failed to update application' });
-    }
-
     // Look up youth_id for this application
     const youthRes = await fetch(
       `${supabaseUrl}/rest/v1/youth?application_id=eq.${application.id}&select=id,first_name,last_name`,
@@ -130,6 +109,27 @@ export default async function handler(req, res) {
         })
       }
     );
+
+    // Only null out token after GitHub trigger succeeds
+    const patchRes = await fetch(
+      `${supabaseUrl}/rest/v1/applications?id=eq.${application.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          video_url: `storage:first_drops/${path}`,
+          access_token: null,
+          stage_deadline_at: null,
+        }),
+      }
+    );
+
+    if (!patchRes.ok) {
+      return res.status(500).json({ error: 'Failed to update application' });
+    }
 
     return res.status(200).json({ success: true });
 
