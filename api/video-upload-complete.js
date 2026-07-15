@@ -66,7 +66,7 @@ export default async function handler(req, res) {
 
     // Confirm file exists in Supabase Storage
     const headRes = await fetch(
-      `${supabaseUrl}/storage/v1/object/info/videos/${path}`,
+      `${supabaseUrl}/storage/v1/object/info/first_drops/${path}`,
       { headers }
     );
 
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          video_url: `storage:videos/${path}`,
+          video_url: `storage:first_drops/${path}`,
           access_token: null,
           stage_deadline_at: null,
         }),

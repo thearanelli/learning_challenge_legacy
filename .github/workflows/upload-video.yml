@@ -59,7 +59,7 @@ jobs:
           tmp_path = '/tmp/first_drop.mp4'
           print(f'Downloading from Supabase Storage: videos/{storage_path}')
           response = requests.get(
-            f'{supabase_url}/storage/v1/object/videos/{storage_path}',
+            f'{supabase_url}/storage/v1/object/first_drops/{storage_path}',
             headers=sb_headers
           )
           response.raise_for_status()
@@ -103,7 +103,7 @@ jobs:
           # Delete temp file from Supabase Storage
           print(f'Deleting from Supabase Storage: videos/{storage_path}')
           del_response = requests.delete(
-            f'{supabase_url}/storage/v1/object/videos/{storage_path}',
+            f'{supabase_url}/storage/v1/object/first_drops/{storage_path}',
             headers=sb_headers
           )
           print(f'Delete status: {del_response.status_code}')
