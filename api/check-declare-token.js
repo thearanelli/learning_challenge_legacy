@@ -13,6 +13,26 @@ function isTokenValid(application, token) {
   return new Date(application.stage_deadline_at) > new Date();
 }
 
+async function logEvent(supabaseUrl, supabaseKey, applicationId, properties) {
+  try {
+    await fetch(`${supabaseUrl}/rest/v1/analytics_events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({
+        event_type: 'page_visit',
+        application_id: applicationId,
+        properties,
+      }),
+    });
+  } catch (err) {
+    console.error('[logEvent] failed:', err.message);
+  }
+}
+
 export default async function handler(req, res) {
   const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://thelearningchallenge.org', 'https://learning-challenge-legacy.vercel.app'];
   const origin = req.headers.origin;
@@ -63,13 +83,16 @@ export default async function handler(req, res) {
     const validStatuses = ['declaration_pending'];
 
     if (!validStatuses.includes(application.screening_status)) {
+      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'declare', check_result: 'invalid_status', src: req.query.src ?? null });
       return res.status(200).json({ valid: false });
     }
 
     if (!isTokenValid(application, token)) {
+      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'declare', check_result: 'expired', src: req.query.src ?? null });
       return res.status(200).json({ valid: false, expired: true });
     }
 
+    await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'declare', check_result: 'valid', src: req.query.src ?? null });
     return res.status(200).json({ valid: true, first_name: application.first_name, passion: application.passion });
 
   } catch (err) {

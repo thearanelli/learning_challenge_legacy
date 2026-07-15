@@ -91,7 +91,7 @@ serve(async (req) => {
               await supabase.from('applications').update(patch).eq('id', app.id);
               console.log(`[daily-scheduler] S1 generated missing fields for app ${app.id} — flagged→manual path`);
             }
-            const declareLink = `${config.BASE_URL}/declare?token=${app.access_token}`;
+            const declareLink = `${config.BASE_URL}/declare?token=${app.access_token}&src=acceptance_email`;
             const profileLink = `${config.BASE_URL}/profile?token=${app.profile_token}`;
             await sendNotification(
               'declaration_pending',
@@ -173,9 +173,9 @@ serve(async (req) => {
           }
 
           const link = nudge.link_field === 'access_token' && nudge.stage === 'declaration_pending'
-            ? `${config.BASE_URL}/declare?token=${app.access_token}`
+            ? `${config.BASE_URL}/declare?token=${app.access_token}&src=${nudge.content_key}`
             : nudge.link_field === 'access_token'
-            ? `${config.BASE_URL}/video?token=${app.access_token}`
+            ? `${config.BASE_URL}/video?token=${app.access_token}&src=${nudge.content_key}`
             : '';
 
           const recipient = {
