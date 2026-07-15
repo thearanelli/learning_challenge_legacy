@@ -31,6 +31,7 @@ export default async function handler(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
   const githubToken = process.env.GITHUB_WORKFLOW_TOKEN;
+  console.log('[video-upload-complete] GitHub token preview:', githubToken ? `${githubToken.slice(0,4)}...${githubToken.slice(-4)} (len:${githubToken.length})` : 'MISSING');
   if (!supabaseUrl || !supabaseKey || !githubToken) {
     return res.status(500).json({ error: 'Server configuration error' });
   }
