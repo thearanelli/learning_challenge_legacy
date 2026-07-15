@@ -61,11 +61,6 @@ export default async function handler(req, res) {
 
     const youth = rows[0];
 
-    const validStatuses = ['grant_approved', 'active'];
-    if (!validStatuses.includes(youth.status)) {
-      return res.status(200).json({ valid: false });
-    }
-
     if (!isTokenValid(youth, token)) {
       return res.status(200).json({ valid: false, expired: true });
     }
