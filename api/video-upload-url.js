@@ -9,6 +9,14 @@ function isTokenValid(application, token) {
 }
 
 export default async function handler(req, res) {
+  console.log('[video-upload-url] env check:', {
+    hasSupabaseUrl: !!process.env.SUPABASE_URL,
+    hasSupabaseKey: !!process.env.SUPABASE_SERVICE_KEY,
+    hasGithubToken: !!process.env.GITHUB_WORKFLOW_TOKEN,
+    method: req.method,
+    body: req.body,
+  });
+
   const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://thelearningchallenge.org', 'https://learning-challenge-legacy.vercel.app'];
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.includes(origin)) {
