@@ -717,6 +717,74 @@
         state: data.state || '',
         challenger_number: data.challenger_number || null,
       };
+      fetch('/api/community')
+        .then(function(r) { return r.json(); })
+        .then(function(challengers) {
+          var carousel = document.getElementById('community-carousel');
+          if (!carousel || !challengers.length) return;
+
+          var vd = window._viewerData || {};
+          var ghostCard = document.createElement('div');
+          ghostCard.className = 'c-card ghost';
+          var vInitials = ((vd.first_name || '').charAt(0) + (vd.last_initial || '')).toUpperCase();
+          var vLocation = [vd.city, vd.state].filter(Boolean).join(', ');
+          var ghostVideoHtml = '<div class="c-ghost-video">';
+          ghostVideoHtml += '<div class="c-chip">C01</div>';
+          ghostVideoHtml += '<div class="c-ghost-inner">';
+          ghostVideoHtml += '<div class="c-ghost-initials">' + escHtml(vInitials) + '</div>';
+          ghostVideoHtml += '<div class="c-ghost-you">You</div>';
+          ghostVideoHtml += '</div></div>';
+          var ghostBodyHtml = '<div class="c-body">';
+          ghostBodyHtml += '<div class="c-name">' + escHtml(vd.first_name) + (vd.last_initial ? ' ' + escHtml(vd.last_initial) + '.' : '') + '</div>';
+          if (vd.passion) ghostBodyHtml += '<div class="c-passion">' + escHtml(vd.passion) + '</div>';
+          if (vLocation) ghostBodyHtml += '<div class="c-location">📍 ' + escHtml(vLocation) + '</div>';
+          if (vd.challenger_number) ghostBodyHtml += '<div class="c-num">No. ' + vd.challenger_number + '</div>';
+          ghostBodyHtml += '</div>';
+          ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
+          carousel.insertBefore(ghostCard, carousel.firstChild);
+
+          challengers.forEach(function(c, idx) {
+            var videoId = extractVideoId(c.first_drop_url);
+            var card = document.createElement('div');
+            card.className = 'c-card';
+
+            var videoHtml = '<div class="c-video">';
+            videoHtml += '<div class="c-chip">C01</div>';
+            if (videoId) {
+              videoHtml += '<img class="c-thumb" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + escHtml(c.first_name) + '" loading="lazy">';
+              videoHtml += '<div class="c-play"></div>';
+            } else {
+              var initials = ((c.first_name || '').charAt(0) + (c.last_initial || '')).toUpperCase();
+              videoHtml += '<div class="c-initials">' + escHtml(initials) + '</div>';
+            }
+            videoHtml += '</div>';
+
+            var locationParts = [];
+            if (c.city) locationParts.push(c.city);
+            if (c.state) locationParts.push(c.state);
+            var locationStr = locationParts.join(', ');
+
+            var cardNum = (vd.challenger_number ? vd.challenger_number + idx : idx + 1);
+            var bodyHtml = '<div class="c-body">';
+            bodyHtml += '<div class="c-name">' + escHtml(c.first_name) + (c.last_initial ? ' ' + escHtml(c.last_initial) + '.' : '') + '</div>';
+            if (c.passion) bodyHtml += '<div class="c-passion">' + escHtml(c.passion) + '</div>';
+            if (locationStr) bodyHtml += '<div class="c-location">📍 ' + escHtml(locationStr) + '</div>';
+            bodyHtml += '<div class="c-num">No. ' + cardNum + '</div>';
+            bodyHtml += '</div>';
+
+            card.innerHTML = videoHtml + bodyHtml;
+
+            if (videoId) {
+              card.style.cursor = 'pointer';
+              card.addEventListener('click', function() {
+                window.open(c.first_drop_url, '_blank');
+              });
+            }
+
+            carousel.appendChild(card);
+          });
+        })
+        .catch(function() {});
       showState('state-declaration');
     } catch (e) {
       showState('state-invalid');
@@ -783,75 +851,6 @@
     d.textContent = s;
     return d.innerHTML;
   }
-
-  fetch('/api/community')
-    .then(function(r) { return r.json(); })
-    .then(function(challengers) {
-      var carousel = document.getElementById('community-carousel');
-      if (!carousel || !challengers.length) return;
-
-      var vd = window._viewerData || {};
-      var ghostCard = document.createElement('div');
-      ghostCard.className = 'c-card ghost';
-      var vInitials = ((vd.first_name || '').charAt(0) + (vd.last_initial || '')).toUpperCase();
-      var vLocation = [vd.city, vd.state].filter(Boolean).join(', ');
-      var ghostVideoHtml = '<div class="c-ghost-video">';
-      ghostVideoHtml += '<div class="c-chip">C01</div>';
-      ghostVideoHtml += '<div class="c-ghost-inner">';
-      ghostVideoHtml += '<div class="c-ghost-initials">' + escHtml(vInitials) + '</div>';
-      ghostVideoHtml += '<div class="c-ghost-you">You</div>';
-      ghostVideoHtml += '</div></div>';
-      var ghostBodyHtml = '<div class="c-body">';
-      ghostBodyHtml += '<div class="c-name">' + escHtml(vd.first_name) + (vd.last_initial ? ' ' + escHtml(vd.last_initial) + '.' : '') + '</div>';
-      if (vd.passion) ghostBodyHtml += '<div class="c-passion">' + escHtml(vd.passion) + '</div>';
-      if (vLocation) ghostBodyHtml += '<div class="c-location">📍 ' + escHtml(vLocation) + '</div>';
-      if (vd.challenger_number) ghostBodyHtml += '<div class="c-num">No. ' + vd.challenger_number + '</div>';
-      ghostBodyHtml += '</div>';
-      ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
-      carousel.insertBefore(ghostCard, carousel.firstChild);
-
-      challengers.forEach(function(c, idx) {
-        var videoId = extractVideoId(c.first_drop_url);
-        var card = document.createElement('div');
-        card.className = 'c-card';
-
-        var videoHtml = '<div class="c-video">';
-        videoHtml += '<div class="c-chip">C01</div>';
-        if (videoId) {
-          videoHtml += '<img class="c-thumb" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + escHtml(c.first_name) + '" loading="lazy">';
-          videoHtml += '<div class="c-play"></div>';
-        } else {
-          var initials = ((c.first_name || '').charAt(0) + (c.last_initial || '')).toUpperCase();
-          videoHtml += '<div class="c-initials">' + escHtml(initials) + '</div>';
-        }
-        videoHtml += '</div>';
-
-        var locationParts = [];
-        if (c.city) locationParts.push(c.city);
-        if (c.state) locationParts.push(c.state);
-        var locationStr = locationParts.join(', ');
-
-        var cardNum = (vd.challenger_number ? vd.challenger_number + idx : idx + 1);
-        var bodyHtml = '<div class="c-body">';
-        bodyHtml += '<div class="c-name">' + escHtml(c.first_name) + (c.last_initial ? ' ' + escHtml(c.last_initial) + '.' : '') + '</div>';
-        if (c.passion) bodyHtml += '<div class="c-passion">' + escHtml(c.passion) + '</div>';
-        if (locationStr) bodyHtml += '<div class="c-location">📍 ' + escHtml(locationStr) + '</div>';
-        bodyHtml += '<div class="c-num">No. ' + cardNum + '</div>';
-        bodyHtml += '</div>';
-
-        card.innerHTML = videoHtml + bodyHtml;
-
-        if (videoId) {
-          card.style.cursor = 'pointer';
-          card.addEventListener('click', function() {
-            window.open(c.first_drop_url, '_blank');
-          });
-        }
-
-        carousel.appendChild(card);
-      });
-    })
-    .catch(function() {});
 
   init();
 </script>
