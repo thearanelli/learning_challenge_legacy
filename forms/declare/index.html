@@ -592,7 +592,8 @@
     }
 
     try {
-      var res = await fetch('/api/check-declare-token?token=' + encodeURIComponent(token));
+      var src = params.get('src') || '';
+      var res = await fetch('/api/check-declare-token?token=' + encodeURIComponent(token) + '&src=' + encodeURIComponent(src));
       var data = await res.json();
 
       if (data.valid === false && data.expired === true) {
