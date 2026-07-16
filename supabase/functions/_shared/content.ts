@@ -3,11 +3,11 @@ export const content = {
     email_subject: 'Step 1 done. You\'re invited to Step 2.',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your passion for {{passion}} stood out. We think you should commit to it and make it a real project.</p>
-<p>Here's what happens next: set a 10-day goal, work on it, then film a short video showing what you built. That's your First Drop — and it's how you earn your spot at GripTape.</p>
+<p>Here's what happens next: set a 10-day goal, work on it, then film a short video showing what you built. That's your First Drop — and it's how you earn your spot in the NYC Learning Challenge.</p>
 <p><a href="{{link}}" style="display:block;background:#EA5329;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;text-align:center;margin:20px 0;font-family:Arial,Helvetica,sans-serif">Start Step 2 →</a></p>
 <p>You have until {{deadline_date}} to commit to this.</p>
-<p>— The GripTape Team</p>`,
-    sms: 'Hi {{first_name}}, your GripTape app made it through. Read what\'s next: {{link_sms}}',
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: 'Hi {{first_name}}, your NYC Learning Challenge app made it through. Read what\'s next: {{link_sms}}',
   },
   declaration_confirmed: {
     email_subject: 'Your 10 days start now.',
@@ -15,13 +15,13 @@ export const content = {
 <p>You've committed. Your 10 days have started.</p>
 <p>Starting is sometimes the hardest part. Don't overthink it. Pick something small, make it happen, and build from there.</p>
 <p>Head down. No excuses. We'll send you your First Drop submission link in 7 days. Until then, just go build something.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
   rejected: {
-    email_subject: 'Your GripTape Learning Challenge registration',
+    email_subject: 'Your NYC Learning Challenge registration',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Thank you for registering for the GripTape Learning Challenge. Unfortunately you are ineligible. If you think this is a mistake or would like more information reply here.</p>
-<p>— The GripTape Team</p>`,
+<p>Thank you for registering for the NYC Learning Challenge. Unfortunately you are ineligible. If you think this is a mistake or would like more information reply here.</p>
+<p>— The NYC Learning Challenge Team</p>`,
   },
   flagged: {
     staff_sms: '[NEW APP] {{first_name}} {{last_name}} submitted. AI rec: {{ai_decision}}. {{reasoning}}',
@@ -58,21 +58,21 @@ export const content = {
   mentor_pending: {
     email_subject: "You're in. Meet your Champion.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>You made it. Your First Drop video was impressive. You're officially a GripTape Challenger.</p>
+<p>You made it. Your First Drop video was impressive. You're officially a NYC Learning Challenger.</p>
 <p>This is real — you've earned up to $150 to invest in your passion project, and someone in your corner the whole way.</p>
 <p>That someone is {{champion_first_name}} — your Champion.</p>
 <p>{{champion_bio}}</p>
-<p>To kick off your GripTape Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps. That includes accessing your funding and joining the GripTape community.</p>
+<p>To kick off your NYC Learning Challenge, you and {{champion_first_name}} will have a 1-hour orientation call. You'll map out your goals, plan your project, and go over next steps. That includes accessing your funding and joining the NYC Learning Challenge community.</p>
 <p>Reach out to {{champion_first_name}} to schedule that call as soon as possible. Their number is {{champion_phone}} and their email is {{champion_email}}.</p>
 <p>You have 7 days to complete your orientation. After that we have to give your spot to someone else.</p>
-<p>— The GripTape Team</p>`,
-    sms: "Congrats {{first_name}}, you're officially a GripTape Challenger! Check your email for next steps ASAP.",
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: "Congrats {{first_name}}, you're officially a NYC Learning Challenger! Check your email for next steps ASAP.",
   },
 
   champion_intro: {
     email_subject: 'You have a new Challenger — {{youth_name}}',
     email_body: `<p>Hey {{first_name}},</p>
-<p>You have been matched with a new GripTape Challenger. Here is everything you need to get started.</p>
+<p>You have been matched with a new NYC Learning Challenger. Here is everything you need to get started.</p>
 <p><strong>Your Challenger:</strong> {{youth_name}}<br>
 <strong>Their passion:</strong> {{passion}}<br>
 <strong>Their email:</strong> {{youth_email}}<br>
@@ -83,23 +83,23 @@ export const content = {
 <p>Fill out the orientation form below DURING your call together. That is what unlocks their funding. You have 7 days from today to complete the call and submit the form.</p>
 <p><a href="{{orientation_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit orientation form</a></p>
 <p>Questions? Reply to this email.</p>
-<p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, you have a new GripTape Challenger — {{youth_name}}. Check your email for their First Drop video and next steps.',
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: 'Hey {{first_name}}, you have a new NYC Learning Challenger — {{youth_name}}. Check your email for their First Drop video and next steps.',
   },
 
   grant_pending: {
-    email_subject: "You've unlocked your GripTape funding — action required",
+    email_subject: "You've unlocked your NYC Learning Challenge funding — action required",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Big congrats {{first_name}}. You just completed your orientation call with {{champion_first_name}}. GripTape alumni consistently say their Champion was the most valuable part of the whole experience. We think you'll see why.</p>
+<p>Big congrats {{first_name}}. You just completed your orientation call with {{champion_first_name}}. NYC Learning Challenge alumni consistently say their Champion was the most valuable part of the whole experience. We think you'll see why.</p>
 <p>You can now officially unlock your funding.</p>
-<p>To release your GripTape Learning Challenge funding, you need to sign two documents:</p>
-<p><strong>Your W-9 form</strong> — this is a standard IRS tax form that nonprofits are required to collect before sending any payment. GripTape is a registered 501(c)(3) nonprofit, which means we're legally required to have this on file before we can send you money. It takes 2 minutes to complete.<br>
+<p>To release your NYC Learning Challenge funding, you need to sign two documents:</p>
+<p><strong>Your W-9 form</strong> — this is a standard IRS tax form that nonprofits are required to collect before sending any payment. NYC Learning Challenge is a registered 501(c)(3) nonprofit, which means we're legally required to have this on file before we can send you money. It takes 2 minutes to complete.<br>
 <a href="{{w9_link}}">Sign your W-9 →</a></p>
-<p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a GripTape Challenger.<br>
+<p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a NYC Learning Challenger.<br>
 <a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
 <p>You have 10 days to sign both documents. After that the funding window closes. Your spot in the program is safe either way.</p>
-<p>— The GripTape Team</p>`,
-    sms: `Congrats on completing your GripTape orientation call! Now check your email to unlock your funding.`,
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: `Congrats on completing your NYC Learning Challenge orientation call! Now check your email to unlock your funding.`,
   },
 
   grant_review: {
@@ -118,19 +118,19 @@ Approve: {{base_url}}/api/grant-approve?youth_id={{youth_id}}
 Reject: {{base_url}}/api/grant-reject?youth_id={{youth_id}}
 
 Note: approve/reject routes not built yet — coming next session.`,
-    staff_sms: `GripTape: Grant docs ready for {{first_name}} {{last_name}}. Check email to approve.`,
+    staff_sms: `NYC Learning Challenge: Grant docs ready for {{first_name}} {{last_name}}. Check email to approve.`,
   },
 
   grant_approved: {
-    email_subject: 'Your GripTape funding is approved — claim it now',
+    email_subject: 'Your NYC Learning Challenge funding is approved — claim it now',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your \${{grant_amount}} GripTape funding is approved and ready to claim. This money is yours — use it to build something real.</p>
+<p>Your \${{grant_amount}} NYC Learning Challenge funding is approved and ready to claim. This money is yours — use it to build something real.</p>
 <p>Click below to claim your funding. You'll choose how you want to receive it on the next screen.</p>
 <p><a href="{{redemption_link}}">Claim your \${{grant_amount}} →</a></p>
 <p><strong>Important: keep your receipts and upload them as you spend!</strong><br>
 <a href="{{receipt_link}}">Upload your receipts here →</a></p>
-<p>— The GripTape Team</p>`,
-    sms: `GripTape: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: `NYC Learning Challenge: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
   },
 
   tremendous_error: {
@@ -155,9 +155,9 @@ Note: approve/reject routes not built yet — coming next session.`,
   full_send_received: {
     email_subject: 'Your Full Send is in.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>We got your video. The GripTape team will review it and be in touch.</p>
+<p>We got your video. The NYC Learning Challenge team will review it and be in touch.</p>
 <p>If you have not already had your End of Challenge call with {{champion_name}} — reach out to them now. That is the last step to completing your Challenge: {{champion_phone}}.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   first_drop_review: {
@@ -181,15 +181,15 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   full_send_submitted: {
-    email_subject: "You did it. Welcome to the GripTape Alumni family.",
+    email_subject: "You did it. Welcome to the NYC Learning Challenge Alumni family.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your Full Send is approved. You are officially a GripTape Alum.</p>
+<p>Your Full Send is approved. You are officially a NYC Learning Challenge Alum.</p>
 <p>Six weeks ago you made a commitment. You showed up, did the work, and finished something real. That is not nothing. Most people never do.</p>
 <p>Now pay it forward.</p>
-<p>Know someone who has a passion and the drive to do something with it? Send them to GripTape. One registration could change everything for them the way this Challenge changed things for you.</p>
+<p>Know someone who has a passion and the drive to do something with it? Send them to the NYC Learning Challenge. One registration could change everything for them the way this Challenge changed things for you.</p>
 <p>Share this link with them: <a href="{{base_url}}">{{base_url}}</a></p>
 <p>Welcome to the community. We are proud of you.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   // ── Nudges ────────────────────────────────────────────────────────────────
@@ -197,9 +197,9 @@ Note: approve/reject routes not built yet — coming next session.`,
   nudge_declaration: {
     email_subject: "Your spot expires tomorrow",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Tomorrow is your last day to commit to your GripTape Challenge. It takes 5 minutes.</p>
+<p>Tomorrow is your last day to commit to your NYC Learning Challenge. It takes 5 minutes.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Commit</a></p>`,
-    sms: "Hey {{first_name}}, tomorrow is your last day to commit to your GripTape Challenge: {{link_sms}}",
+    sms: "Hey {{first_name}}, tomorrow is your last day to commit to your NYC Learning Challenge: {{link_sms}}",
   },
 
   nudge_first_drop_1: {
@@ -209,8 +209,8 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>In 2 days you'll get your First Drop submission link. Start thinking about what you want to show.</p>
 <p>Your video needs to cover three things. Who you are and what your passion is. What you've actually done in the past 10 days. Where you're taking this next.</p>
 <p>Keep it under 90 seconds, shoot vertical, show your work. Real talk only.</p>
-<p>Remember — this will be shared publicly with the GripTape community. Make it something you're proud of.</p>
-<p>— The GripTape Team</p>`,
+<p>Remember — this will be shared publicly with the NYC Learning Challenge community. Make it something you're proud of.</p>
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   nudge_first_drop_mid: {
@@ -218,18 +218,18 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>You've had 7 days to work on your project. Now it's time to show us what you built.</p>
 <p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
-<p>Film a 90-second video showing what you accomplished. Real work only. Upload it directly. Remember this will be shared publicly to the GripTape community.</p>
+<p>Film a 90-second video showing what you accomplished. Real work only. Upload it directly. Remember this will be shared publicly to the NYC Learning Challenge community.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your GripTape First Drop submission link is ready. Upload your video directly — it will be shared publicly with the GripTape community: {{link_sms}}',
+    sms: 'Hey {{first_name}}, your NYC Learning Challenge First Drop submission link is ready. Upload your video directly — it will be shared publicly with the NYC Learning Challenge community: {{link_sms}}',
   },
 
   nudge_first_drop_2: {
     email_subject: 'Last chance — First Drop due tomorrow',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
-<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. This will be shared publicly with the GripTape community — show them what you built.</p>
+<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. This will be shared publicly with the NYC Learning Challenge community — show them what you built.</p>
 <p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your First Drop video for GripTape is due tomorrow: {{link_sms}}',
+    sms: 'Hey {{first_name}}, your First Drop video for the NYC Learning Challenge is due tomorrow: {{link_sms}}',
   },
 
   nudge_orientation_1: {
@@ -251,14 +251,14 @@ Note: approve/reject routes not built yet — coming next session.`,
   nudge_orientation_champion: {
     email_subject: '{{youth_name}} is waiting to hear from you',
     email_body: `<p>Hey {{first_name}},</p>
-<p>{{youth_name}} has been matched with you as their GripTape Champion and is still waiting to schedule their orientation call.</p>
+<p>{{youth_name}} has been matched with you as their NYC Learning Challenge Champion and is still waiting to schedule their orientation call.</p>
 <p>They have until {{deadline_date}} to complete the call. Reach out to them directly and get it on the calendar.</p>
 <p><strong>{{youth_name}}'s cell:</strong> {{youth_phone}}</p>
 <p>Use the orientation form below to guide your call.</p>
 <p><a href="{{orientation_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit orientation form</a></p>
 <p>Questions? Reply to this email.</p>
-<p>— The GripTape Team</p>`,
-    sms: 'Hey {{first_name}}, your GripTape Challenger {{youth_name}} is still waiting to schedule their orientation call. Their number: {{youth_phone}}',
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: 'Hey {{first_name}}, your NYC Learning Challenger {{youth_name}} is still waiting to schedule their orientation call. Their number: {{youth_phone}}',
   },
 
   nudge_grant_final: {
@@ -270,13 +270,13 @@ Note: approve/reject routes not built yet — coming next session.`,
   nudge_grant: {
     email_subject: "Your funding is waiting — don't let it expire",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your GripTape funding is sitting there waiting for you. But it won't wait forever.</p>
+<p>Your NYC Learning Challenge funding is sitting there waiting for you. But it won't wait forever.</p>
 <p>You have until {{deadline_date}} to sign both documents. After that the funding window closes. Your spot in the program stays safe but the money doesn't.</p>
 <p><strong>Your W-9 form</strong> — takes 2 minutes. Required before we can send payment.<br>
 <a href="{{w9_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;margin-top:8px;">Sign your W-9</a></p>
-<p><strong>Your Participation Agreement</strong> — outlines your commitment as a GripTape Challenger.<br>
+<p><strong>Your Participation Agreement</strong> — outlines your commitment as a NYC Learning Challenger.<br>
 <a href="{{agreement_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;margin-top:8px;">Sign your Agreement</a></p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: "Hey {{first_name}}, your grant documents are waiting. Check your email to sign your W-9 and Participation Agreement before {{deadline_date}}.",
   },
 
@@ -287,8 +287,8 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Submit your Full Send video — your 90-second video showing what you built, what you learned, and where you are headed next.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
 <p>Schedule your End of Challenge call with {{champion_name}}. Reach out today: {{champion_phone}}.</p>
-<p>Both need to happen to become a GripTape Alum.</p>
-<p>— The GripTape Team</p>`,
+<p>Both need to happen to become a NYC Learning Challenge Alum.</p>
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, two things left before {{deadline_date}}: your Full Send {{link}} and your EOC call with {{champion_name}} ({{champion_phone}}).',
   },
 
@@ -300,7 +300,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
 <p>And reach out to {{champion_name}} today to schedule your call: {{champion_phone}}.</p>
 <p>Both need to happen by {{deadline_date}}. Do not let this slip.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, last chance — two things due {{deadline_date}}: Full Send {{link}} and EOC call with {{champion_name}} ({{champion_phone}}).',
   },
 
@@ -308,19 +308,19 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_subject: 'Your EOC call is done. One thing left.',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your End of Challenge call is complete. Nice work.</p>
-<p>One thing left — submit your Full Send video before {{deadline_date}}. That is what officially makes you a GripTape Alum.</p>
+<p>One thing left — submit your Full Send video before {{deadline_date}}. That is what officially makes you a NYC Learning Challenge Alum.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, EOC call done. One thing left — submit your Full Send before {{deadline_date}}: {{link}}',
   },
 
   nudge_full_send_no_video_final: {
     email_subject: 'Last chance. Submit your Full Send today.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your End of Challenge call is done. The only thing standing between you and becoming a GripTape Alum is your Full Send video.</p>
+<p>Your End of Challenge call is done. The only thing standing between you and becoming a NYC Learning Challenge Alum is your Full Send video.</p>
 <p>Submit it before {{deadline_date}}. You are this close.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, last chance — submit your Full Send before {{deadline_date}}: {{link}}',
   },
 
@@ -329,8 +329,8 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your Full Send is in. One thing left before you officially complete your Challenge.</p>
 <p>Schedule your End of Challenge call with {{champion_name}}. Reach out today: {{champion_phone}}.</p>
-<p>That call is the last step to becoming a GripTape Alum.</p>
-<p>— The GripTape Team</p>`,
+<p>That call is the last step to becoming a NYC Learning Challenge Alum.</p>
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, Full Send received. One thing left — schedule your EOC call with {{champion_name}}: {{champion_phone}}',
   },
 
@@ -340,7 +340,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Your Full Send is submitted. You are almost done.</p>
 <p>Reach out to {{champion_name}} right now to schedule your End of Challenge call: {{champion_phone}}.</p>
 <p>This needs to happen by {{deadline_date}}. It is the last step.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, last chance — schedule your EOC call with {{champion_name}} ({{champion_phone}}) by {{deadline_date}}.',
   },
 
@@ -350,7 +350,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>{{youth_name}} has not completed their End of Challenge call yet. Their deadline is {{deadline_date}}.</p>
 <p>Reach out to them and get it scheduled. Use the form below to guide the call.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, {{youth_name}} still needs their EOC call. Reach out and submit the form: {{eoc_link}}',
   },
 
@@ -361,43 +361,43 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>Reach out today: {{youth_phone}}.</p>
 <p>Submit the form during or after your call.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, last chance — {{youth_name}} EOC call due {{deadline_date}}. Form: {{eoc_link}}',
   },
 
   // ── Removals ──────────────────────────────────────────────────────────────
 
   removed_declaration: {
-    email_subject: 'Your GripTape spot has been released',
+    email_subject: 'Your NYC Learning Challenge spot has been released',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your deadline to complete Step 2 passed on {{deadline_date}} and your spot has been released.</p>
 <p>Whatever is going on, don't stop. The work you care about is still worth doing.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   removed_first_drop: {
-    email_subject: 'Your GripTape spot has been released',
+    email_subject: 'Your NYC Learning Challenge spot has been released',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your deadline to submit your First Drop passed on {{deadline_date}} and your spot has been released.</p>
 <p>Life gets in the way — we get it. Don't let it stop you from the thing you were building.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   removed_orientation: {
-    email_subject: 'Your GripTape spot has been released',
+    email_subject: 'Your NYC Learning Challenge spot has been released',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Your deadline to complete your orientation call passed on {{deadline_date}} and your spot has been released.</p>
 <p>We hope you keep going. Whatever brought you here in the first place is still real.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   removed_full_send: {
-    email_subject: 'Your GripTape Challenge has ended',
+    email_subject: 'Your NYC Learning Challenge has ended',
     email_body: `<p>Hey {{first_name}},</p>
-<p>We never received your Full Send video by {{deadline_date}} so you won't be joining the official GripTape Alumni community — but that doesn't take away from what you did.</p>
+<p>We never received your Full Send video by {{deadline_date}} so you won't be joining the official NYC Learning Challenge Alumni community — but that doesn't take away from what you did.</p>
 <p>You showed up. You committed. You spent weeks working on something you care about. That's real — and most people never do it.</p>
 <p>We hope you keep going. Whatever you built, keep building it.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
   },
 
   // ── Full Send link dispatch ───────────────────────────────────────────────
@@ -412,7 +412,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
 <p>Both need to happen by {{deadline_date}}.</p>
 <p>Pro tip: try to have a draft of your Full Send ready before your End of Challenge call. Showing your Champion what you built makes for a better conversation — and their feedback will make your video better.</p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, your Challenge is almost complete. Two things left: your End of Challenge call with {{champion_name}} and your Full Send submission. Submit here: {{link}}',
   },
 
@@ -426,7 +426,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p>{{youth_name}}'s cell: {{youth_phone}}</p>
 <p>Use the form below to guide your conversation and record their reflections during the call. It takes 30-45 minutes.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
-<p>— The GripTape Team</p>`,
+<p>— The NYC Learning Challenge Team</p>`,
     sms: "Hey {{first_name}}, time to schedule {{youth_name}}'s End of Challenge call. Their number: {{youth_phone}}. Open the form: {{eoc_link}}",
   },
 

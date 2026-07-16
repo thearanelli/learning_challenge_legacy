@@ -2,7 +2,7 @@
 export const config = {
   PROGRAM_ID: 'nyc-2026',
   BASE_URL: 'https://thelearningchallenge.org',
-  EMAIL_FROM: 'GripTape <team@griptape.org>',
+  EMAIL_FROM: 'NYC Learning Challenge <team@griptape.org>',
   AGE_MIN: 15,
   AGE_MAX: 19,
   ELIGIBLE_LOCATIONS: ['NYC', 'NJ'],

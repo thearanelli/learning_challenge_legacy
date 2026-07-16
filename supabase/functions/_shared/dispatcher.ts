@@ -62,7 +62,7 @@ export async function sendNotification(
       console.error(`[dispatcher] blocked ${stageKey} email to ${recipient.email} — missing vars: ${missing}`);
       const staffPhone = Deno.env.get('STAFF_PHONE') || '';
       if (staffPhone) {
-        await sendSMS({ to: staffPhone, body: `GripTape alert: blocked ${stageKey} email to ${recipient.email} — missing vars: ${missing}` });
+        await sendSMS({ to: staffPhone, body: `NYC Learning Challenge alert: blocked ${stageKey} email to ${recipient.email} — missing vars: ${missing}` });
       }
     } else {
       await sendEmail({
@@ -81,7 +81,7 @@ export async function sendNotification(
       console.error(`[dispatcher] blocked ${stageKey} SMS to ${recipient.phone} — missing vars: ${missing}`);
       const staffPhone = Deno.env.get('STAFF_PHONE') || '';
       if (staffPhone) {
-        await sendSMS({ to: staffPhone, body: `GripTape alert: blocked ${stageKey} SMS to ${recipient.email} — missing vars: ${missing}` });
+        await sendSMS({ to: staffPhone, body: `NYC Learning Challenge alert: blocked ${stageKey} SMS to ${recipient.email} — missing vars: ${missing}` });
       }
     } else {
       await sendSMS({

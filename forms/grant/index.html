@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="/favicon.png">
-  <title>Sign Your Documents — GripTape Learning Challenge</title>
+  <title>Sign Your Documents — NYC Learning Challenge</title>
   <style>
     body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 0 20px; color: #222; }
     h1 { font-size: 1.4rem; margin-bottom: 8px; }
@@ -41,7 +41,7 @@
       <div id="agreement-action"><p class="inline-msg">Loading your signing link…</p></div>
     </div>
 
-    <p class="note">Once both documents are signed, the GripTape team will review and confirm your stipend. Questions? Email <a href="mailto:team@griptape.org">team@griptape.org</a></p>
+    <p class="note">Once both documents are signed, the NYC Learning Challenge team will review and confirm your stipend. Questions? Email <a href="mailto:team@griptape.org">team@griptape.org</a></p>
   </div>
 
   <script>
@@ -95,7 +95,7 @@
         }
 
         if (!data.valid) {
-          const errMsg = 'Your signing links have expired. Please contact GripTape at <a href="mailto:team@griptape.org">team@griptape.org</a> for help.';
+          const errMsg = 'Your signing links have expired. Please contact the NYC Learning Challenge team at <a href="mailto:team@griptape.org">team@griptape.org</a> for help.';
           document.getElementById('w9-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
           document.getElementById('agreement-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
           return;
@@ -124,7 +124,7 @@
         agreementAction.appendChild(agreementAnchor);
 
       } catch {
-        const errMsg = 'Your signing links have expired. Please contact GripTape at <a href="mailto:team@griptape.org">team@griptape.org</a> for help.';
+        const errMsg = 'Your signing links have expired. Please contact the NYC Learning Challenge team at <a href="mailto:team@griptape.org">team@griptape.org</a> for help.';
         document.getElementById('w9-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
         document.getElementById('agreement-action').innerHTML = `<p class="inline-msg">${errMsg}</p>`;
       }

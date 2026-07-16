@@ -797,7 +797,7 @@ serve(async (req) => {
           const names = atRiskYouth
             .map((y: { first_name: string; current_stage: string }) => `${y.first_name} (${y.current_stage})`)
             .join(', ');
-          const smsBody = `GripTape alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
+          const smsBody = `NYC Learning Challenge alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
           await sendSMS({ to: staffPhone, body: smsBody });
           const { error: logErr } = await supabase.from('comms_log').insert({
             stage_key: 'staff_at_risk_alert',

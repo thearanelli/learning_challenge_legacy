@@ -21,7 +21,7 @@ export function wrapEmailHtml(body: string, helpUrl: string): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>GripTape</title>
+<title>NYC Learning Challenge</title>
 <style type="text/css">
   body { margin: 0 !important; padding: 0 !important; background-color: #ffffff !important; }
   table { border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -46,7 +46,7 @@ export function wrapEmailHtml(body: string, helpUrl: string): string {
 
   <tr>
     <td class="email-header" style="background:#001722;padding:28px 40px 22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
-      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="GripTape" width="160" style="height:32px;width:auto;display:block;margin:0 auto">
+      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="NYC Learning Challenge" width="160" style="height:32px;width:auto;display:block;margin:0 auto">
     </td>
   </tr>
 
