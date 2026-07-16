@@ -364,6 +364,127 @@
       margin: 0 auto;
     }
 
+    .community-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--white);
+      margin: 0 0 4px;
+    }
+    .community-sublabel {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+    .carousel {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+      margin-bottom: 32px;
+    }
+    .carousel::-webkit-scrollbar { display: none; }
+    .c-card {
+      flex: 0 0 150px;
+      background: #161616;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(234,83,41,0.35);
+      scroll-snap-align: start;
+    }
+    .c-video {
+      position: relative;
+      width: 100%;
+      padding-top: 177.78%;
+      background: #0a1a24;
+    }
+    .c-thumb {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .c-chip {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #EA5329;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+    .c-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .c-play::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 6px 0 6px 11px;
+      border-color: transparent transparent transparent #001722;
+      margin-left: 2px;
+    }
+    .c-body { padding: 9px 11px 11px; }
+    .c-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #F5F5F0;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .c-passion {
+      font-size: 11px;
+      color: #EA5329;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .c-location {
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .c-num { font-size: 10px; color: rgba(255,255,255,0.3); }
+    .c-initials {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.08);
+    }
+
     @media (max-width: 480px) {
       .main-heading { font-size: 1.4rem; }
       .journey-badge { width: 34px; height: 34px; font-size: 0.78rem; }
@@ -456,18 +577,9 @@
     </div>
 
     <hr class="divider-slim" />
-
-    <!-- FIX 4: First Drop video — inline iframe, 16/9 -->
-    <h2 class="video-heading">Watch a First Drop example.</h2>
-
-    <div class="video-wrap">
-      <iframe
-        src="https://www.youtube.com/embed/INiJY4cnXM0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        allowfullscreen
-      ></iframe>
-    </div>
-    <p class="video-caption">Every NYC Learning Challenger submits one. Watch before you commit.</p>
+    <p class="community-label">Your cohort</p>
+    <p class="community-sublabel">Watch their First Drops for inspiration</p>
+    <div class="carousel" id="community-carousel"></div>
 
     <hr class="divider-slim" />
 
@@ -585,6 +697,65 @@
       errEl.style.display = 'block';
     }
   });
+
+  function extractVideoId(url) {
+    if (!url) return null;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  fetch('/api/community')
+    .then(function(r) { return r.json(); })
+    .then(function(challengers) {
+      var carousel = document.getElementById('community-carousel');
+      if (!carousel || !challengers.length) return;
+      challengers.forEach(function(c, idx) {
+        var videoId = extractVideoId(c.first_drop_url);
+        var card = document.createElement('div');
+        card.className = 'c-card';
+
+        var videoHtml = '<div class="c-video">';
+        videoHtml += '<div class="c-chip">C01</div>';
+        if (videoId) {
+          videoHtml += '<img class="c-thumb" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + escHtml(c.first_name) + '" loading="lazy">';
+          videoHtml += '<div class="c-play"></div>';
+        } else {
+          var initials = ((c.first_name || '').charAt(0) + (c.last_initial || '')).toUpperCase();
+          videoHtml += '<div class="c-initials">' + escHtml(initials) + '</div>';
+        }
+        videoHtml += '</div>';
+
+        var locationParts = [];
+        if (c.city) locationParts.push(c.city);
+        if (c.state) locationParts.push(c.state);
+        var locationStr = locationParts.join(', ');
+
+        var bodyHtml = '<div class="c-body">';
+        bodyHtml += '<div class="c-name">' + escHtml(c.first_name) + (c.last_initial ? ' ' + escHtml(c.last_initial) + '.' : '') + '</div>';
+        if (c.passion) bodyHtml += '<div class="c-passion">' + escHtml(c.passion) + '</div>';
+        if (locationStr) bodyHtml += '<div class="c-location">📍 ' + escHtml(locationStr) + '</div>';
+        bodyHtml += '<div class="c-num">No. ' + (idx + 1) + '</div>';
+        bodyHtml += '</div>';
+
+        card.innerHTML = videoHtml + bodyHtml;
+
+        if (videoId) {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', function() {
+            window.open(c.first_drop_url, '_blank');
+          });
+        }
+
+        carousel.appendChild(card);
+      });
+    })
+    .catch(function() {});
 
   init();
 </script>
