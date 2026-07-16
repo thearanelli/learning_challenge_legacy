@@ -19,6 +19,7 @@
     { "src": "/og-community.png", "dest": "/og-community.png" },
     { "src": "/og-invite.png", "dest": "/og-invite.png" },
     { "src": "/champion", "dest": "/champion/index.html" },
+    { "src": "/og-declare.png", "dest": "/og-declare.png" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
