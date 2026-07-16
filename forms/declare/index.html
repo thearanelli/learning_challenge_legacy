@@ -104,72 +104,6 @@
       margin: 28px 0;
     }
 
-    /* Journey bar — bold progress track */
-    .journey-bar {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 36px;
-      padding: 20px 0 4px;
-    }
-
-    .journey-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .journey-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Anton', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .journey-step.done   .journey-badge {
-      background: var(--amber);
-      color: #001722;
-    }
-
-    .journey-step.active .journey-badge {
-      background: var(--orange);
-      color: #fff;
-      box-shadow: 0 0 0 4px rgba(234,83,41,0.2), 0 0 20px rgba(234,83,41,0.45);
-    }
-
-    .journey-step.locked .journey-badge {
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .journey-step-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .journey-step.done   .journey-step-label { color: var(--amber); }
-    .journey-step.active .journey-step-label { color: var(--orange); }
-    .journey-step.locked .journey-step-label { color: rgba(255,255,255,0.18); }
-
-    .journey-connector {
-      flex: 1;
-      height: 2px;
-      margin: 19px 6px 0;
-    }
-
-    .journey-connector.done    { background: var(--amber); }
-    .journey-connector.pending { background: rgba(255,255,255,0.08); }
-
     /* Greeting / headings */
     .greeting {
       font-family: 'Anton', sans-serif;
@@ -233,13 +167,6 @@
       line-height: 1.55;
       margin: 0;
     }
-    .step-connector {
-      width: 1px;
-      height: 20px;
-      background: rgba(234,83,41,0.2);
-      margin: -14px 0 -14px 22px;
-    }
-
     /* Section label */
     .section-label {
       font-size: 9px;
@@ -540,9 +467,6 @@
 
     @media (max-width: 480px) {
       .main-heading { font-size: 1.4rem; }
-      .journey-badge { width: 34px; height: 34px; font-size: 0.78rem; }
-      .journey-connector { margin-top: 16px; }
-      .journey-step-label { font-size: 0.6rem; letter-spacing: 0.07em; }
     }
   </style>
 </head>
@@ -586,25 +510,7 @@
 
     <hr class="divider" />
 
-    <!-- FIX 1: Journey bar -->
-    <div class="journey-bar">
-      <div class="journey-step done">
-        <div class="journey-badge">✓</div>
-        <span class="journey-step-label">Registered</span>
-      </div>
-      <div class="journey-connector done"></div>
-      <div class="journey-step active">
-        <div class="journey-badge">2</div>
-        <span class="journey-step-label">Commit</span>
-      </div>
-      <div class="journey-connector pending"></div>
-      <div class="journey-step locked">
-        <div class="journey-badge">3</div>
-        <span class="journey-step-label">First Drop</span>
-      </div>
-    </div>
-
-    <!-- FIX 2: Hero copy -->
+    <!-- Hero copy -->
     <p class="greeting" id="greeting"></p>
     <p class="main-sub">You're Challenger No. <span id="challenger-number">—</span> in Cohort 01 — part of a community of NYC teens building something real. Here's what your first 10 days look like.</p>
 
@@ -616,7 +522,7 @@
           <p class="step-desc">Set your 10-day goal. Write something specific you can build, make, or finish. Your mentor will see it.</p>
         </div>
       </div>
-      <div class="step-connector"></div>
+
       <div class="step">
         <div class="step-icon">🔨</div>
         <div class="step-content">
@@ -624,7 +530,7 @@
           <p class="step-desc">Work on your passion project. No distractions. Just you and your work.</p>
         </div>
       </div>
-      <div class="step-connector"></div>
+
       <div class="step">
         <div class="step-icon">🎬</div>
         <div class="step-content">
@@ -632,7 +538,7 @@
           <p class="step-desc">Film a 90-second video showing what you built. That's your First Drop. You'll see every other Challenger's and they'll see yours.</p>
         </div>
       </div>
-      <div class="step-connector"></div>
+
       <div class="step">
         <div class="step-icon">🏆</div>
         <div class="step-content">
