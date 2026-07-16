@@ -94,8 +94,28 @@ export default async function handler(req, res) {
       return res.status(200).json({ valid: false, expired: true });
     }
 
+    // Count existing challengers for challenger number
+    let challengerNumber = null;
+    try {
+      const countRes = await fetch(
+        `${supabaseUrl}/rest/v1/youth?select=*&head=true`,
+        {
+          method: 'HEAD',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Prefer': 'count=exact',
+          },
+        }
+      );
+      const count = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0', 10);
+      challengerNumber = count + 1;
+    } catch (err) {
+      console.error('[check-declare-token] challenger count error:', err.message);
+    }
+
     await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'declare', check_result: 'valid', src, channel, first_name: application.first_name });
-    return res.status(200).json({ valid: true, first_name: application.first_name, passion: application.passion });
+    return res.status(200).json({ valid: true, first_name: application.first_name, passion: application.passion, challenger_number: challengerNumber });
 
   } catch (err) {
     console.error('[check-token] error:', err);

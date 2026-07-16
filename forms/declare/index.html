@@ -327,14 +327,6 @@
       cursor: not-allowed;
     }
 
-    .declare-disclaimer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.75rem;
-      margin: 10px 0 0;
-      line-height: 1.5;
-    }
-
     .declare-error {
       color: var(--orange);
       font-size: 0.85rem;
@@ -440,11 +432,28 @@
 
     <!-- FIX 2: Hero copy -->
     <p class="greeting" id="greeting"></p>
-    <h1 class="main-heading">This is where your Learning Challenge begins.</h1>
-    <p class="main-sub">You told us about your passion for <span id="passion-display">your project</span>. Now it's time to take the first real step.</p>
-    <p class="main-sub">Set a specific goal you can accomplish in the next 10 days — something concrete you can build, make, or finish. Write three chapters. Record a song. Build a prototype. Design a collection. Something you can show.</p>
-    <p class="main-sub">This isn't your whole Learning Challenge. It's your starting point. Prove you can get moving and the rest unlocks.</p>
-    <p class="main-sub">At the end of 10 days, film a 90-second video showing what you accomplished. We call that your First Drop. If it's real and honest, you're in — officially an NYC Learning Challenger. Backed with a mentor, a community, and funding.</p>
+    <h1 class="main-heading">Your NYC Learning Challenge starts here.</h1>
+    <p class="main-sub">You're Challenger No. <span id="challenger-number">—</span> in Cohort 01 — part of a community of NYC teens building something real. Here's what your first 10 days look like.</p>
+
+    <div class="program-block">
+      <div class="block-label">Today</div>
+      <div class="block-desc">Set your 10-day goal. Write something specific you can build, make, or finish. Your mentor will see it.</div>
+    </div>
+
+    <div class="program-block">
+      <div class="block-label">For the next 10 days</div>
+      <div class="block-desc">Work on your passion project. No distractions. Just you and your work.</div>
+    </div>
+
+    <div class="program-block">
+      <div class="block-label">On day 10</div>
+      <div class="block-desc">Film a 90-second video showing what you built. That's your First Drop. You'll see every other Challenger's and they'll see yours.</div>
+    </div>
+
+    <div class="program-block">
+      <div class="block-label">After that</div>
+      <div class="block-desc">You get matched with a personal mentor and your grant funding is released. Yours to spend on your passion.</div>
+    </div>
 
     <hr class="divider-slim" />
 
@@ -462,17 +471,21 @@
 
     <hr class="divider-slim" />
 
-    <!-- FIX 4: Goal textarea -->
-    <label class="goal-label" for="goal-input">What will you accomplish in the next 10 days?</label>
+    <label class="goal-label" for="goal-input">What's your 10-day goal?</label>
     <textarea
       id="goal-input"
       class="goal-textarea"
-      placeholder="e.g. I'm going to write the first three chapters of my novel. I've had the story in my head for two years — this is the 10 days I actually start. By my First Drop I'll have 3,000 words and a reading I filmed myself."
+      placeholder="e.g. I'm going to record and produce my first original song. By day 10 I'll have a finished track I filmed myself performing."
     ></textarea>
 
-    <!-- FIX 5: Button + disclaimer -->
+    <p class="section-label">Other Challengers have committed to things like</p>
+    <ul style="color:rgba(255,255,255,0.5);font-size:0.88rem;line-height:1.8;padding-left:1.2rem;margin:0 0 24px;">
+      <li>Finishing the first three chapters of my novel</li>
+      <li>Recording and producing my first original song</li>
+      <li>Building a working prototype of my app</li>
+    </ul>
+
     <button class="declare-btn" id="declare-btn" disabled>I'm in. Start my 10 days.</button>
-    <p class="declare-disclaimer">By clicking, you're committing to 10 days of real work. No backing out.</p>
     <p class="declare-error" id="declare-error" style="display:none;"></p>
 
   </div>
@@ -512,8 +525,11 @@
       if (data.first_name) {
         document.getElementById('greeting').textContent = 'Hey ' + data.first_name + '.';
       }
-      if (data.passion) {
+      if (data.passion && document.getElementById('passion-display')) {
         document.getElementById('passion-display').textContent = data.passion;
+      }
+      if (data.challenger_number) {
+        document.getElementById('challenger-number').textContent = data.challenger_number;
       }
       showState('state-declaration');
     } catch (e) {
@@ -553,19 +569,19 @@
         document.getElementById('app').innerHTML =
           '<div class="page"><div class="success-wrap">' +
           '<img class="success-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="NYC Learning Challenge" />' +
-          '<h1 class="success-heading">You\'re locked in,<br>get to work!</h1>' +
-          '<p class="success-sub">We\'ll send you the submission link in a few days.</p>' +
+          '<h1 class="success-heading">You\'re in. Go build something.</h1>' +
+          '<p class="success-sub">Your goal has been received. Your 10 days start now. We\'ll send your First Drop submission link on day 5 — until then, get to work.</p>' +
           '</div></div>';
       } else {
         declareBtn.disabled = false;
         declareBtn.textContent = 'I\'m in. Start my 10 days.';
-        errEl.textContent = 'Something went wrong — please try again or email griptape@griptape.org';
+        errEl.textContent = 'Something went wrong — please try again or email hello@griptape.org';
         errEl.style.display = 'block';
       }
     } catch (e) {
       declareBtn.disabled = false;
       declareBtn.textContent = 'I\'m in. Start my 10 days.';
-      errEl.textContent = 'Something went wrong — please try again or email griptape@griptape.org';
+      errEl.textContent = 'Something went wrong — please try again or email hello@griptape.org';
       errEl.style.display = 'block';
     }
   });
