@@ -10,11 +10,11 @@ export const content = {
     sms_link: '{{link_sms}}',
   },
   declaration_confirmed: {
-    email_subject: 'Your 10 days start now.',
+    email_subject: 'Your 10 days start now, {{first_name}}.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>You've committed. Your 10 days have started.</p>
-<p>Starting is sometimes the hardest part. Don't overthink it. Pick something small, make it happen, and build from there.</p>
-<p>Head down. No excuses. We'll send you your First Drop submission link in 7 days. Until then, just go build something.</p>
+<p>You're in. Your first 10 days have started — now go work on your goal.</p>
+<p>We'll send you your First Drop submission link in 5 days. Until then, head down and build.</p>
+<p>We're so excited to have you in Cohort 01. You're building alongside a group of NYC teens who earned their spot just like you did. We can't wait to see what you make.</p>
 <p>— The NYC Learning Challenge Team</p>`,
   },
   rejected: {
@@ -205,33 +205,29 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   nudge_first_drop_1: {
-    email_subject: "You're doing it, {{first_name}}.",
+    email_subject: 'Time to film your First Drop, {{first_name}} — here\'s your link.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>5 days in. You made a commitment and you're showing up for it. That already puts you ahead of most people.</p>
-<p>In 2 days you'll get your First Drop submission link. Start thinking about what you want to show.</p>
-<p>Your video needs to cover three things. Who you are and what your passion is. What you've actually done in the past 10 days. Where you're taking this next.</p>
-<p>Keep it under 90 seconds, shoot vertical, show your work. Real talk only.</p>
-<p>Remember — this will be shared publicly with the NYC Learning Challenge community. Make it something you're proud of.</p>
+<p>Five days in. Time to show what you've been building.</p>
+<p>Your First Drop is a 90-second video. Keep it real, keep it simple. Cover three things:</p>
+<p>Who you are and what your passion is.<br>
+What you've accomplished so far.<br>
+Where you're taking it next.</p>
+<p>Shoot vertical. Show your work. No script needed — just be honest.</p>
+<p><a class="cta" href="{{link}}">Submit your First Drop →</a></p>
+<p>You have until {{deadline_date}}.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-  },
-
-  nudge_first_drop_mid: {
-    email_subject: "Your First Drop link is ready, {{first_name}}.",
-    email_body: `<p>Hey {{first_name}},</p>
-<p>You've had 7 days to work on your project. Now it's time to show us what you built.</p>
-<p>Your First Drop submission link is below. You have until {{deadline_date}} to submit — that's 3 days from now.</p>
-<p>Film a 90-second video showing what you accomplished. Real work only. Upload it directly. Remember this will be shared publicly to the NYC Learning Challenge community.</p>
-<p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your NYC Learning Challenge First Drop submission link is ready. Upload your video directly — it will be shared publicly with the NYC Learning Challenge community: {{link_sms}}',
+    sms: 'Hey {{first_name}}, time to film your NYC Learning Challenge First Drop. Show us what you\'ve built so far and submit before {{deadline_date}}.',
+    sms_link: '{{link_sms}}',
   },
 
   nudge_first_drop_2: {
-    email_subject: 'Last chance — First Drop due tomorrow',
+    email_subject: 'Last chance, {{first_name}}. First Drop due tomorrow.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your First Drop deadline is tomorrow — {{deadline_date}}.</p>
-<p>If you haven't submitted yet, do it now. Don't let 10 days of work go to waste. This will be shared publicly with the NYC Learning Challenge community — show them what you built.</p>
-<p><a href="{{link}}">Submit your First Drop →</a></p>`,
-    sms: 'Hey {{first_name}}, your First Drop video for the NYC Learning Challenge is due tomorrow: {{link_sms}}',
+<p>Your First Drop deadline is tomorrow — {{deadline_date}}. Don't let 10 days of work go to waste. Submit your video now.</p>
+<p><a class="cta" href="{{link}}">Submit your First Drop →</a></p>
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: 'Hey {{first_name}}, your First Drop is due tomorrow. Submit now before your spot is released.',
+    sms_link: '{{link_sms}}',
   },
 
   nudge_orientation_1: {
