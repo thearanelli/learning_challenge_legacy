@@ -781,6 +781,34 @@
         body.appendChild(obBox);
       }
 
+      var eocBox = document.createElement('div');
+      eocBox.className = 'orientation-link-row';
+      eocBox.style.marginBottom = '16px';
+
+      var eocLabel = document.createElement('span');
+      eocLabel.className = 'link-label';
+      eocLabel.textContent = 'End of Challenge form';
+      eocBox.appendChild(eocLabel);
+
+      var eocUrl = 'thelearningchallenge.org/forms/end-of-challenge?token=' + encodeURIComponent(TOKEN);
+      var eocUrlSpan = document.createElement('span');
+      eocUrlSpan.className = 'link-url';
+      eocUrlSpan.textContent = eocUrl;
+      eocBox.appendChild(eocUrlSpan);
+
+      var eocCopyBtn = document.createElement('button');
+      eocCopyBtn.className = 'copy-btn';
+      eocCopyBtn.textContent = 'Copy';
+      eocCopyBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText('https://' + eocUrl).then(function() {
+          eocCopyBtn.textContent = 'Copied!';
+          setTimeout(function() { eocCopyBtn.textContent = 'Copy'; }, 1500);
+        });
+      });
+      eocBox.appendChild(eocCopyBtn);
+
+      body.appendChild(eocBox);
+
       // Unresponsive
       body.appendChild(buildUnresponsiveRow(y, fullName, unresponsiveCheckin));
 
