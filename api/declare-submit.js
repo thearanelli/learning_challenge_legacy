@@ -108,5 +108,5 @@ export default async function handler(req, res) {
     // Staff alert to be added in V2.
   }
 
-  return res.status(200).json({ success: true });
+  return res.status(200).json({ success: true, application_id: application.id });
 }

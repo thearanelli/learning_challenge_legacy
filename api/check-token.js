@@ -14,21 +14,60 @@ function isTokenValid(application, token) {
   return new Date(application.stage_deadline_at).getTime() + 86400000 > Date.now();
 }
 
-async function logEvent(supabaseUrl, supabaseKey, applicationId, properties) {
+async function logEvent(supabaseUrl, supabaseKey, applicationId, firstName, properties, userAgent) {
   try {
-    await fetch(`${supabaseUrl}/rest/v1/analytics_events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-      },
-      body: JSON.stringify({
-        event_type: 'page_visit',
-        application_id: applicationId,
-        properties,
-      }),
-    });
+    const device = /mobile|android|iphone|ipad|ipod/i.test(userAgent || '') ? 'mobile' : 'desktop';
+    const entry = {
+      ...properties,
+      device,
+      completed: false,
+      ts: new Date().toISOString(),
+    };
+
+    // Try to append to existing row
+    const checkRes = await fetch(
+      `${supabaseUrl}/rest/v1/analytics_events?application_id=eq.${applicationId}&select=id,activity`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+      }
+    );
+    const rows = await checkRes.json();
+
+    if (rows.length > 0) {
+      await fetch(
+        `${supabaseUrl}/rest/v1/analytics_events?application_id=eq.${applicationId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            activity: [...(rows[0].activity || []), entry],
+            updated_at: new Date().toISOString(),
+          }),
+        }
+      );
+    } else {
+      await fetch(`${supabaseUrl}/rest/v1/analytics_events`, {
+        method: 'POST',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          application_id: applicationId,
+          first_name: firstName,
+          activity: [entry],
+        }),
+      });
+    }
   } catch (err) {
     console.error('[logEvent] failed:', err.message);
   }
@@ -85,18 +124,20 @@ export default async function handler(req, res) {
     const application = rows[0];
     const validStatuses = ['video_pending'];
 
+    const userAgent = req.headers['user-agent'] || '';
+
     if (!validStatuses.includes(application.screening_status)) {
-      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'invalid_status', src, channel, first_name: application.first_name });
+      await logEvent(supabaseUrl, supabaseKey, application.id, application.first_name, { page: 'video', check_result: 'invalid_status', src, channel }, userAgent);
       return res.status(200).json({ valid: false });
     }
 
     if (!isTokenValid(application, token)) {
-      await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'expired', src, channel, first_name: application.first_name });
+      await logEvent(supabaseUrl, supabaseKey, application.id, application.first_name, { page: 'video', check_result: 'expired', src, channel }, userAgent);
       return res.status(200).json({ valid: false, expired: true });
     }
 
-    await logEvent(supabaseUrl, supabaseKey, application.id, { page: 'video', check_result: 'valid', src, channel, first_name: application.first_name });
-    return res.status(200).json({ valid: true, first_name: application.first_name });
+    await logEvent(supabaseUrl, supabaseKey, application.id, application.first_name, { page: 'video', check_result: 'valid', src, channel }, userAgent);
+    return res.status(200).json({ valid: true, first_name: application.first_name, application_id: application.id });
 
   } catch (err) {
     console.error('[check-token] error:', err);

@@ -438,6 +438,7 @@
         }
 
         document.getElementById('first-name').textContent = data.first_name;
+        window._applicationId = data.application_id || null;
         document.getElementById('loading').style.display = 'none';
         document.getElementById('form-section').style.display = 'block';
       } catch {
@@ -487,6 +488,13 @@
         const data = await res.json();
 
         if (data.success) {
+          if (data.application_id || window._applicationId) {
+            fetch('/api/log-completion', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ application_id: data.application_id || window._applicationId, page: 'video' }),
+            }).catch(function() {});
+          }
           document.getElementById('form-section').style.display = 'none';
           document.getElementById('success-section').style.display = 'block';
         } else {

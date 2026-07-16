@@ -615,6 +615,7 @@
       if (data.challenger_number) {
         document.getElementById('challenger-number').textContent = data.challenger_number;
       }
+      window._applicationId = data.application_id || null;
       window._viewerData = {
         first_name: data.first_name || '',
         last_initial: data.last_initial || '',
@@ -723,7 +724,13 @@
       var data = await res.json();
 
       if (data.success) {
-        // FIX 7: Success copy
+        if (data.application_id || window._applicationId) {
+          fetch('/api/log-completion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ application_id: data.application_id || window._applicationId, page: 'declare' }),
+          }).catch(function() {});
+        }
         document.getElementById('app').innerHTML =
           '<div class="page"><div class="success-wrap">' +
           '<img class="success-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="NYC Learning Challenge" />' +
