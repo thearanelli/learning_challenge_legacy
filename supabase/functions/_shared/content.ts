@@ -1,13 +1,13 @@
 export const content = {
   declaration_pending: {
-    email_subject: 'Step 1 done. You\'re invited to Step 2.',
+    email_subject: 'Congratulations, {{first_name}}. You\'re in.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your passion for {{passion}} stood out. We think you should commit to it and make it a real project.</p>
-<p>Here's what happens next: set a 10-day goal, work on it, then film a short video showing what you built. That's your First Drop — and it's how you earn your spot in the NYC Learning Challenge.</p>
-<p><a href="{{link}}" style="display:block;background:#EA5329;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;text-align:center;margin:20px 0;font-family:Arial,Helvetica,sans-serif">Start Step 2 →</a></p>
-<p>You have until {{deadline_date}} to commit to this.</p>
+<p>Congratulations! Your NYC Learning Challenge application made it through. Your passion for {{passion}} stood out.</p>
+<p>You have until {{deadline_date}} to begin.</p>
+<p><a class="cta" href="{{link}}">Begin your Challenge →</a></p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hi {{first_name}}, your NYC Learning Challenge app made it through. Read what\'s next: {{link_sms}}',
+    sms: 'Congrats {{first_name}} — your application for the NYC Learning Challenge made it through. Tap below to begin.',
+    sms_link: '{{link_sms}}',
   },
   declaration_confirmed: {
     email_subject: 'Your 10 days start now.',

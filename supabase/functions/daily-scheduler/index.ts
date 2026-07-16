@@ -14,6 +14,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
 import { sendNotification } from '../_shared/dispatcher.ts';
+import { content, renderContent } from '../_shared/content.ts';
 import { sendEmail } from '../_shared/email.ts';
 import { sendSMS } from '../_shared/sms.ts';
 import { generateToken } from '../_shared/tokens.ts';
@@ -66,7 +67,7 @@ serve(async (req) => {
           }
 
           const recipient = {
-            first_name: app.first_name,
+            first_name: app.first_name || 'there',
             last_name: app.last_name,
             email: app.email,
             phone: app.phone,
@@ -97,10 +98,25 @@ serve(async (req) => {
             await sendNotification(
               'declaration_pending',
               recipient,
-              { link: declareLink, link_sms: declareLinkSms, profile_link: profileLink, deadline_date: formatDeadline(app.stage_deadline_at), passion: app.passion ?? '', base_url: config.BASE_URL },
+              {
+                link: declareLink,
+                link_sms: declareLinkSms,
+                profile_link: profileLink,
+                deadline_date: formatDeadline(app.stage_deadline_at),
+                passion: app.passion || 'what you shared',
+                base_url: config.BASE_URL,
+              },
               { application_id: app.id },
-              { skipSms: !app.sms_consent },
+              { skipSms: true },
             );
+
+            if (app.sms_consent) {
+              const smsText = renderContent(content.declaration_pending.sms, {
+                first_name: app.first_name || 'there',
+              });
+              await sendSMS({ to: app.phone, body: smsText });
+              await sendSMS({ to: app.phone, body: declareLinkSms });
+            }
             await supabase.from('applications').update({ notify_after: null }).eq('id', app.id);
             console.log(`[daily-scheduler] S1 sent declaration_pending to app ${app.id}`);
           } else if (app.screening_status === 'rejected') {
