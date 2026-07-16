@@ -13,7 +13,7 @@
   <meta name="twitter:description" content="Unlock your mentor and funding." />
   <meta name="twitter:image" content="https://thelearningchallenge.org/og-firstdrop.png" />
   <link rel="icon" type="image/png" href="/favicon.png">
-  <title>Submit Your First Drop — GripTape Learning Challenge</title>
+  <title>Submit Your First Drop — NYC Learning Challenge</title>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -97,64 +97,6 @@
       margin: 28px 0;
     }
 
-    /* Journey bar */
-    .journey-bar {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 36px;
-      padding: 20px 0 4px;
-    }
-
-    .journey-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .journey-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Anton', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .journey-step.done .journey-badge {
-      background: var(--amber);
-      color: #001722;
-    }
-
-    .journey-step.active .journey-badge {
-      background: var(--orange);
-      color: #fff;
-      box-shadow: 0 0 0 4px rgba(234,83,41,0.2), 0 0 20px rgba(234,83,41,0.45);
-    }
-
-    .journey-step-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .journey-step.done .journey-step-label { color: var(--amber); }
-    .journey-step.active .journey-step-label { color: var(--orange); }
-
-    .journey-connector {
-      flex: 1;
-      height: 2px;
-      margin: 19px 6px 0;
-    }
-
-    .journey-connector.done { background: var(--amber); }
-
     /* Hero */
     .main-heading {
       font-family: 'Anton', sans-serif;
@@ -166,65 +108,126 @@
     }
 
     .main-sub {
-      color: var(--white);
+      color: rgba(245,245,240,0.75);
       font-size: 1.05rem;
       line-height: 1.6;
       margin: 0 0 28px;
-      border-left: 3px solid var(--orange);
-      padding-left: 1rem;
     }
-
-    /* Section headings */
-    .section-heading {
+    .carousel-label {
       font-family: 'Anton', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--orange);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #EA5329;
+      line-height: 1.1;
       margin: 0 0 16px;
     }
-
-    /* Guidelines list */
-    .guidelines-list {
+    .carousel {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 0;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+      margin-bottom: 32px;
     }
-
-    .guideline-item {
+    .carousel::-webkit-scrollbar { display: none; }
+    .c-card {
+      flex: 0 0 150px;
+      background: #161616;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(234,83,41,0.35);
+      scroll-snap-align: start;
+    }
+    .c-video {
+      position: relative;
+      width: 100%;
+      padding-top: 177.78%;
+      background: #0a1a24;
+    }
+    .c-thumb {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .c-chip {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #EA5329;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+    .c-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
       display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      background: var(--bg2);
-      border-radius: 10px;
-      padding: 14px 16px;
+      align-items: center;
+      justify-content: center;
     }
-
-    .guideline-emoji {
-      font-size: 1.3rem;
-      flex-shrink: 0;
-      line-height: 1.4;
+    .c-play::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 6px 0 6px 11px;
+      border-color: transparent transparent transparent #001722;
+      margin-left: 2px;
     }
-
-    .guideline-text {
-      color: var(--white);
-      font-size: 0.95rem;
-      line-height: 1.5;
+    .c-body { padding: 9px 11px 11px; }
+    .c-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #F5F5F0;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    /* Submission instructions */
-    .instructions-list {
+    .c-passion {
+      font-size: 11px;
+      color: #EA5329;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .c-location {
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .c-initials {
+      position: absolute;
+      inset: 0;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 0;
-    }
-
-    .instruction-line {
-      color: var(--gray);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin: 0;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.08);
     }
 
     /* URL input */
@@ -315,9 +318,6 @@
 
     @media (max-width: 480px) {
       .main-heading { font-size: 1.4rem; }
-      .journey-badge { width: 34px; height: 34px; font-size: 0.78rem; }
-      .journey-connector { margin-top: 16px; }
-      .journey-step-label { font-size: 0.6rem; letter-spacing: 0.07em; }
     }
   </style>
 </head>
@@ -337,7 +337,7 @@
       src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
       alt="GripTape" />
     <p class="state-heading">This link is invalid or has already been used.</p>
-    <p class="state-sub">If you think this is an error, contact GripTape.</p>
+    <p class="state-sub">If you think this is an error contact the NYC Learning Challenge team.</p>
   </div>
 
   <!-- Form section -->
@@ -350,75 +350,12 @@
 
     <hr class="divider" />
 
-    <!-- FIX 2: Journey bar — Registered (done), Committed (done), First Drop (active) -->
-    <div class="journey-bar">
-      <div class="journey-step done">
-        <div class="journey-badge">✓</div>
-        <span class="journey-step-label">Registered</span>
-      </div>
-      <div class="journey-connector done"></div>
-      <div class="journey-step done">
-        <div class="journey-badge">✓</div>
-        <span class="journey-step-label">Committed</span>
-      </div>
-      <div class="journey-connector done"></div>
-      <div class="journey-step active">
-        <div class="journey-badge">3</div>
-        <span class="journey-step-label">First Drop</span>
-      </div>
-    </div>
-
-    <!-- FIX 3: Hero -->
-    <h1 class="main-heading">This is your final step.</h1>
-    <p class="main-sub">Submit a video you're proud of. Real work, real you. Our team will review it — if it's honest, you're officially in.</p>
+    <h1 class="main-heading">Your First Drop.</h1>
+    <p class="main-sub">No script needed. No perfection required. Just show what you've been working on — your mentor and funding are waiting on the other side.</p>
 
     <!-- Hidden element preserving JS reference to first-name -->
     <span id="first-name" style="display:none;"></span>
 
-    <hr class="divider-slim" />
-
-    <!-- FIX 4: Guidelines -->
-    <h2 class="section-heading">Before you submit, make sure your video covers this.</h2>
-    <div class="guidelines-list">
-      <div class="guideline-item">
-        <span class="guideline-emoji">⏱️</span>
-        <span class="guideline-text">90 seconds max. Keep it short, clear, real.</span>
-      </div>
-      <div class="guideline-item">
-        <span class="guideline-emoji">📱</span>
-        <span class="guideline-text">Shoot vertical.</span>
-      </div>
-      <div class="guideline-item">
-        <span class="guideline-emoji">🎯</span>
-        <span class="guideline-text">Who are you and what's your passion?</span>
-      </div>
-      <div class="guideline-item">
-        <span class="guideline-emoji">🎯</span>
-        <span class="guideline-text">What did you accomplish in the last 10 days? Show us.</span>
-      </div>
-      <div class="guideline-item">
-        <span class="guideline-emoji">🎯</span>
-        <span class="guideline-text">Where are you headed next?</span>
-      </div>
-      <div class="guideline-item">
-        <span class="guideline-emoji">💡</span>
-        <span class="guideline-text">Good lighting, clear audio, show your work.</span>
-      </div>
-    </div>
-
-    <hr class="divider-slim" />
-
-    <!-- FIX 5: Submission instructions -->
-    <h2 class="section-heading">How to submit</h2>
-    <div class="instructions-list">
-      <p class="instruction-line">Post your video on YouTube — public or unlisted.</p>
-      <p class="instruction-line">This video will be shared with the GripTape community. Need privacy? A burner YouTube account is totally fine.</p>
-      <p class="instruction-line">Paste your YouTube link below.</p>
-    </div>
-
-    <hr class="divider-slim" />
-
-    <!-- FIX 6 + 7: Form -->
     <form id="video-form">
       <input
         type="url"
@@ -433,6 +370,10 @@
 
     <div id="status"></div>
 
+    <hr class="divider-slim" />
+    <p class="carousel-label">Watch your cohort's First Drops.</p>
+    <div class="carousel" id="community-carousel"></div>
+
   </div>
 
   <!-- FIX 8: Success state -->
@@ -442,7 +383,7 @@
         src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png"
         alt="GripTape" />
       <h1 class="success-heading">First Drop submitted.</h1>
-      <p class="success-sub">We'll review it and be in touch soon.</p>
+      <p class="success-sub">Your mentor match is coming. Keep working on your passion — we'll be in touch soon.</p>
     </div>
   </div>
 
@@ -530,6 +471,58 @@
         btn.disabled = false;
       }
     });
+
+    function extractVideoId(url) {
+      if (!url) return null;
+      var m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    function escHtml(s) {
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    fetch('/api/community')
+      .then(function(r) { return r.json(); })
+      .then(function(challengers) {
+        var carousel = document.getElementById('community-carousel');
+        if (!carousel || !challengers.length) return;
+        challengers.forEach(function(c) {
+          var videoId = extractVideoId(c.first_drop_url);
+          var card = document.createElement('div');
+          card.className = 'c-card';
+          var videoHtml = '<div class="c-video">';
+          videoHtml += '<div class="c-chip">C01</div>';
+          if (videoId) {
+            videoHtml += '<img class="c-thumb" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + escHtml(c.first_name) + '" loading="lazy">';
+            videoHtml += '<div class="c-play"></div>';
+          } else {
+            var initials = ((c.first_name || '').charAt(0) + (c.last_initial || '')).toUpperCase();
+            videoHtml += '<div class="c-initials">' + escHtml(initials) + '</div>';
+          }
+          videoHtml += '</div>';
+          var locationParts = [];
+          if (c.city) locationParts.push(c.city);
+          if (c.state) locationParts.push(c.state);
+          var locationStr = locationParts.join(', ');
+          var bodyHtml = '<div class="c-body">';
+          bodyHtml += '<div class="c-name">' + escHtml(c.first_name) + (c.last_initial ? ' ' + escHtml(c.last_initial) + '.' : '') + '</div>';
+          if (c.passion) bodyHtml += '<div class="c-passion">' + escHtml(c.passion) + '</div>';
+          if (locationStr) bodyHtml += '<div class="c-location">📍 ' + escHtml(locationStr) + '</div>';
+          bodyHtml += '</div>';
+          card.innerHTML = videoHtml + bodyHtml;
+          if (videoId) {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function() {
+              window.open(c.first_drop_url, '_blank');
+            });
+          }
+          carousel.appendChild(card);
+        });
+      })
+      .catch(function() {});
 
     init();
   </script>
