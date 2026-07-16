@@ -204,13 +204,22 @@ serve(async (req) => {
             phone: app.phone,
           };
 
+          const skipSmsForNudge = nudge.content_key === 'nudge_declaration' ? true : !app.sms_consent;
           await sendNotification(
             nudge.content_key,
             recipient,
             { link, link_sms, deadline_date: formatDeadline(app.stage_deadline_at), base_url: config.BASE_URL },
             { application_id: app.id },
-            { skipSms: !app.sms_consent },
+            { skipSms: skipSmsForNudge },
           );
+
+          if (nudge.content_key === 'nudge_declaration' && app.sms_consent) {
+            const smsText = renderContent(content.nudge_declaration.sms, {
+              first_name: app.first_name || 'there',
+            });
+            await sendSMS({ to: app.phone, body: smsText });
+            await sendSMS({ to: app.phone, body: link_sms });
+          }
 
           console.log(`[daily-scheduler] S2 sent ${nudge.content_key} to app ${app.id}`);
         } catch (err) {
