@@ -365,10 +365,12 @@
     }
 
     .community-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--white);
-      margin: 0 0 4px;
+      font-family: 'Anton', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #EA5329;
+      line-height: 1.1;
+      margin: 0 0 6px;
     }
     .community-sublabel {
       font-size: 0.78rem;
@@ -483,6 +485,39 @@
       font-size: 28px;
       font-weight: 800;
       color: rgba(255,255,255,0.08);
+    }
+
+    .c-card.ghost {
+      border: 2px solid #EA5329;
+      background: transparent;
+    }
+    .c-ghost-video {
+      position: relative;
+      width: 100%;
+      padding-top: 177.78%;
+      background: rgba(234,83,41,0.06);
+    }
+    .c-ghost-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .c-ghost-you {
+      font-family: 'Anton', sans-serif;
+      font-size: 13px;
+      color: #EA5329;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .c-ghost-initials {
+      font-size: 32px;
+      font-weight: 800;
+      color: rgba(234,83,41,0.25);
+      font-family: 'Anton', sans-serif;
     }
 
     @media (max-width: 480px) {
@@ -754,6 +789,30 @@
 
         carousel.appendChild(card);
       });
+
+      // Ghost card for the viewer
+      var ghostCard = document.createElement('div');
+      ghostCard.className = 'c-card ghost';
+      var viewerFirst = document.getElementById('greeting')
+        ? document.getElementById('greeting').textContent.replace('Hey ', '').replace('.', '').trim()
+        : '';
+      var viewerPassion = document.getElementById('passion-display')
+        ? document.getElementById('passion-display').textContent
+        : '';
+      var viewerInitials = viewerFirst ? viewerFirst.charAt(0).toUpperCase() : '?';
+      var ghostVideoHtml = '<div class="c-ghost-video">';
+      ghostVideoHtml += '<div class="c-chip">C01</div>';
+      ghostVideoHtml += '<div class="c-ghost-inner">';
+      ghostVideoHtml += '<div class="c-ghost-initials">' + escHtml(viewerInitials) + '</div>';
+      ghostVideoHtml += '<div class="c-ghost-you">You</div>';
+      ghostVideoHtml += '</div></div>';
+      var ghostBodyHtml = '<div class="c-body">';
+      ghostBodyHtml += '<div class="c-name">' + escHtml(viewerFirst) + '</div>';
+      if (viewerPassion) ghostBodyHtml += '<div class="c-passion">' + escHtml(viewerPassion) + '</div>';
+      ghostBodyHtml += '<div class="c-num">No. ' + (challengers.length + 1) + '</div>';
+      ghostBodyHtml += '</div>';
+      ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
+      carousel.appendChild(ghostCard);
     })
     .catch(function() {});
 
