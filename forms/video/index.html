@@ -230,6 +230,26 @@
       color: rgba(255,255,255,0.08);
     }
 
+    .section-heading {
+      font-family: 'Anton', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--orange);
+      margin: 0 0 16px;
+    }
+    .instructions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .instruction-line {
+      color: var(--gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
     /* URL input */
     .url-input {
       width: 100%;
@@ -355,6 +375,14 @@
 
     <!-- Hidden element preserving JS reference to first-name -->
     <span id="first-name" style="display:none;"></span>
+
+    <h2 class="section-heading">How to submit</h2>
+    <div class="instructions-list">
+      <p class="instruction-line">Post your video on YouTube — public or unlisted.</p>
+      <p class="instruction-line">This video will be shared with the NYC Learning Challenge community. Need privacy? A burner YouTube account is totally fine.</p>
+      <p class="instruction-line">Paste your YouTube link below.</p>
+    </div>
+    <hr class="divider-slim" />
 
     <form id="video-form">
       <input
