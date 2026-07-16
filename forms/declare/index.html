@@ -173,9 +173,10 @@
     /* Greeting / headings */
     .greeting {
       font-family: 'Anton', sans-serif;
-      font-size: 1.2rem;
-      color: var(--gray);
-      margin: 0 0 4px;
+      font-size: 2.4rem;
+      color: #EA5329;
+      line-height: 1.1;
+      margin: 0 0 16px;
     }
 
     .main-heading {
@@ -588,7 +589,6 @@
 
     <!-- FIX 2: Hero copy -->
     <p class="greeting" id="greeting"></p>
-    <h1 class="main-heading">Your NYC Learning Challenge starts here.</h1>
     <p class="main-sub">You're Challenger No. <span id="challenger-number">—</span> in Cohort 01 — part of a community of NYC teens building something real. Here's what your first 10 days look like.</p>
 
     <div class="program-block">
@@ -670,7 +670,7 @@
       }
 
       if (data.first_name) {
-        document.getElementById('greeting').textContent = 'Hey ' + data.first_name + '.';
+        document.getElementById('greeting').textContent = 'Welcome, ' + data.first_name + '.';
       }
       if (data.passion && document.getElementById('passion-display')) {
         document.getElementById('passion-display').textContent = data.passion;
@@ -678,6 +678,14 @@
       if (data.challenger_number) {
         document.getElementById('challenger-number').textContent = data.challenger_number;
       }
+      window._viewerData = {
+        first_name: data.first_name || '',
+        last_initial: data.last_initial || '',
+        passion: data.passion || '',
+        city: data.city || '',
+        state: data.state || '',
+        challenger_number: data.challenger_number || null,
+      };
       showState('state-declaration');
     } catch (e) {
       showState('state-invalid');
@@ -750,6 +758,27 @@
     .then(function(challengers) {
       var carousel = document.getElementById('community-carousel');
       if (!carousel || !challengers.length) return;
+
+      var vd = window._viewerData || {};
+      var ghostCard = document.createElement('div');
+      ghostCard.className = 'c-card ghost';
+      var vInitials = ((vd.first_name || '').charAt(0) + (vd.last_initial || '')).toUpperCase();
+      var vLocation = [vd.city, vd.state].filter(Boolean).join(', ');
+      var ghostVideoHtml = '<div class="c-ghost-video">';
+      ghostVideoHtml += '<div class="c-chip">C01</div>';
+      ghostVideoHtml += '<div class="c-ghost-inner">';
+      ghostVideoHtml += '<div class="c-ghost-initials">' + escHtml(vInitials) + '</div>';
+      ghostVideoHtml += '<div class="c-ghost-you">You</div>';
+      ghostVideoHtml += '</div></div>';
+      var ghostBodyHtml = '<div class="c-body">';
+      ghostBodyHtml += '<div class="c-name">' + escHtml(vd.first_name) + (vd.last_initial ? ' ' + escHtml(vd.last_initial) + '.' : '') + '</div>';
+      if (vd.passion) ghostBodyHtml += '<div class="c-passion">' + escHtml(vd.passion) + '</div>';
+      if (vLocation) ghostBodyHtml += '<div class="c-location">📍 ' + escHtml(vLocation) + '</div>';
+      if (vd.challenger_number) ghostBodyHtml += '<div class="c-num">No. ' + vd.challenger_number + '</div>';
+      ghostBodyHtml += '</div>';
+      ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
+      carousel.insertBefore(ghostCard, carousel.firstChild);
+
       challengers.forEach(function(c, idx) {
         var videoId = extractVideoId(c.first_drop_url);
         var card = document.createElement('div');
@@ -771,11 +800,12 @@
         if (c.state) locationParts.push(c.state);
         var locationStr = locationParts.join(', ');
 
+        var cardNum = (vd.challenger_number ? vd.challenger_number + idx : idx + 1);
         var bodyHtml = '<div class="c-body">';
         bodyHtml += '<div class="c-name">' + escHtml(c.first_name) + (c.last_initial ? ' ' + escHtml(c.last_initial) + '.' : '') + '</div>';
         if (c.passion) bodyHtml += '<div class="c-passion">' + escHtml(c.passion) + '</div>';
         if (locationStr) bodyHtml += '<div class="c-location">📍 ' + escHtml(locationStr) + '</div>';
-        bodyHtml += '<div class="c-num">No. ' + (idx + 1) + '</div>';
+        bodyHtml += '<div class="c-num">No. ' + cardNum + '</div>';
         bodyHtml += '</div>';
 
         card.innerHTML = videoHtml + bodyHtml;
@@ -789,30 +819,6 @@
 
         carousel.appendChild(card);
       });
-
-      // Ghost card for the viewer
-      var ghostCard = document.createElement('div');
-      ghostCard.className = 'c-card ghost';
-      var viewerFirst = document.getElementById('greeting')
-        ? document.getElementById('greeting').textContent.replace('Hey ', '').replace('.', '').trim()
-        : '';
-      var viewerPassion = document.getElementById('passion-display')
-        ? document.getElementById('passion-display').textContent
-        : '';
-      var viewerInitials = viewerFirst ? viewerFirst.charAt(0).toUpperCase() : '?';
-      var ghostVideoHtml = '<div class="c-ghost-video">';
-      ghostVideoHtml += '<div class="c-chip">C01</div>';
-      ghostVideoHtml += '<div class="c-ghost-inner">';
-      ghostVideoHtml += '<div class="c-ghost-initials">' + escHtml(viewerInitials) + '</div>';
-      ghostVideoHtml += '<div class="c-ghost-you">You</div>';
-      ghostVideoHtml += '</div></div>';
-      var ghostBodyHtml = '<div class="c-body">';
-      ghostBodyHtml += '<div class="c-name">' + escHtml(viewerFirst) + '</div>';
-      if (viewerPassion) ghostBodyHtml += '<div class="c-passion">' + escHtml(viewerPassion) + '</div>';
-      ghostBodyHtml += '<div class="c-num">No. ' + (challengers.length + 1) + '</div>';
-      ghostBodyHtml += '</div>';
-      ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
-      carousel.appendChild(ghostCard);
     })
     .catch(function() {});
 
