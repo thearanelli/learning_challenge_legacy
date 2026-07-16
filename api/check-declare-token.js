@@ -94,22 +94,23 @@ export default async function handler(req, res) {
       return res.status(200).json({ valid: false, expired: true });
     }
 
-    // Count existing challengers for challenger number
     let challengerNumber = null;
     try {
       const countRes = await fetch(
-        `${supabaseUrl}/rest/v1/youth?select=*&head=true`,
+        `${supabaseUrl}/rest/v1/youth?select=id`,
         {
-          method: 'HEAD',
           headers: {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`,
             'Prefer': 'count=exact',
+            'Range-Unit': 'items',
+            'Range': '0-0',
           },
         }
       );
-      const count = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0', 10);
-      challengerNumber = count + 1;
+      const contentRange = countRes.headers.get('content-range');
+      const total = contentRange ? parseInt(contentRange.split('/')[1], 10) : null;
+      challengerNumber = total !== null && !isNaN(total) ? total + 1 : null;
     } catch (err) {
       console.error('[check-declare-token] challenger count error:', err.message);
     }
