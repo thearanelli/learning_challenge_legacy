@@ -420,7 +420,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .c-num { font-size: 10px; color: rgba(255,255,255,0.3); }
     .c-initials {
       position: absolute;
       inset: 0;
@@ -644,7 +643,6 @@
           ghostBodyHtml += '<div class="c-name">' + escHtml(vd.first_name) + (vd.last_initial ? ' ' + escHtml(vd.last_initial) + '.' : '') + '</div>';
           if (vd.passion) ghostBodyHtml += '<div class="c-passion">' + escHtml(vd.passion) + '</div>';
           if (vLocation) ghostBodyHtml += '<div class="c-location">📍 ' + escHtml(vLocation) + '</div>';
-          if (vd.challenger_number) ghostBodyHtml += '<div class="c-num">No. ' + vd.challenger_number + '</div>';
           ghostBodyHtml += '</div>';
           ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
           carousel.insertBefore(ghostCard, carousel.firstChild);
@@ -675,7 +673,6 @@
             bodyHtml += '<div class="c-name">' + escHtml(c.first_name) + (c.last_initial ? ' ' + escHtml(c.last_initial) + '.' : '') + '</div>';
             if (c.passion) bodyHtml += '<div class="c-passion">' + escHtml(c.passion) + '</div>';
             if (locationStr) bodyHtml += '<div class="c-location">📍 ' + escHtml(locationStr) + '</div>';
-            bodyHtml += '<div class="c-num">No. ' + cardNum + '</div>';
             bodyHtml += '</div>';
 
             card.innerHTML = videoHtml + bodyHtml;
