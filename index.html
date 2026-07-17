@@ -1403,56 +1403,7 @@ function startApp() {
   const counts = [14, 19, 23, 27, 31, 17, 22, 28];
   const n = counts[Math.floor(Math.random() * counts.length)];
   document.getElementById('today-counter').textContent = `\uD83D\uDFE2 ${n} teenagers started their Challenge today`;
-  setTimeout(() => showCommitmentGate(), 700);
-}
-
-async function showCommitmentGate() {
-  setEnabled(false);
-  showTyping();
-  await new Promise(r => setTimeout(r, 900));
-  hideTyping();
-  var refParam = new URLSearchParams(window.location.search).get('ref');
-  var welcomeMsg = refParam
-    ? 'Welcome. ' + refParam.split('-').map(function(p){ return p.charAt(0).toUpperCase()+p.slice(1); })[0] + ' vouched for you. We\u2019re glad you\u2019re here.'
-    : 'Hey, welcome. We\u2019re glad you\u2019re here.';
-  await addAiMsg(welcomeMsg, null);
-  showTyping();
-  await new Promise(r => setTimeout(r, 700));
-  hideTyping();
-  await addAiMsg("Just so you know \u2014 the Learning Challenge is currently only open to teens in New York and New Jersey.", null);
-  showTyping();
-  await new Promise(r => setTimeout(r, 800));
-  hideTyping();
-  await addAiMsg("Before you dive in \u2014 the Learning Challenge is for teenagers who have something they genuinely care about and are ready to put real effort into it. No experience needed. No perfect plan.", null);
-  showTyping();
-  await new Promise(r => setTimeout(r, 800));
-  hideTyping();
-  await addAiMsg("Just you and whatever you\u2019re into.\n\nThat you?", null);
-  const chat = document.getElementById('chat');
-  const el = document.createElement('div');
-  el.id = 'commitment-gate';
-  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);display:flex;gap:10px;flex-wrap:wrap;';
-  el.innerHTML = `
-    <button onclick="commitmentYes()" style="padding:14px 24px;background:#EA5329;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;transition:opacity 0.2s;">Yes, that\u2019s me \u2192</button>
-    <button onclick="commitmentNotSure()" style="padding:14px 24px;background:none;border:1px solid rgba(255,255,255,0.15);color:#777;border-radius:12px;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:all 0.2s;">Not sure yet</button>
-  `;
-  chat.appendChild(el);
-  // Enhancement 3 — heartbeat pulse on Yes button
-  const yesBtn = el.querySelector('button');
-  if (yesBtn) yesBtn.style.animation = 'heartbeat 2s ease-in-out infinite';
-  scrollBottom();
-}
-
-function commitmentYes() {
-  haptic();
-  const el = document.getElementById('commitment-gate');
-  if (el) el.remove();
-  addUserMsg("Yes, that's me \u2192");
-  setTimeout(() => showIntroMessages(), 400);
-}
-
-function commitmentNotSure() {
-  window.open('#', '_blank');
+  setTimeout(() => showIntroMessages(), 700);
 }
 
 async function showIntroMessages() {
