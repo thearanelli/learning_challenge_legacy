@@ -5,6 +5,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendStaffNotification } from '../_shared/dispatcher.ts';
+import { sendSMS } from '../_shared/sms.ts';
+import { sendEmail } from '../_shared/email.ts';
+import { content, renderContent } from '../_shared/content.ts';
 import { config } from '../_shared/config.ts';
 import {
   screenApplicationSystemPrompt,
@@ -37,6 +40,24 @@ serve(async (req) => {
     if (application.screening_status !== config.STATUS.SUBMITTED) {
       console.log(`[SKIP] ${application.id} is ${application.screening_status}`);
       return new Response('Not submitted status', { status: 200 });
+    }
+
+    // Immediate confirmation — send before screening so applicant knows we received it
+    try {
+      const firstName = application.first_name || 'there';
+      if (application.sms_consent && application.phone) {
+        const smsText = renderContent(content.application_received.sms, { first_name: firstName });
+        await sendSMS({ to: application.phone, body: smsText });
+        await sendSMS({ to: application.phone, body: content.application_received.sms_link });
+        console.log(`[screen-application] confirmation SMS sent to ${application.phone}`);
+      } else if (application.email) {
+        const subject = renderContent(content.application_received.email_subject, { first_name: firstName });
+        const html = renderContent(content.application_received.email_body, { first_name: firstName });
+        await sendEmail({ to: application.email, subject, html });
+        console.log(`[screen-application] confirmation email sent to ${application.email}`);
+      }
+    } catch (confirmErr) {
+      console.error('[screen-application] confirmation send failed (non-blocking):', confirmErr);
     }
 
     const supabase = createClient(

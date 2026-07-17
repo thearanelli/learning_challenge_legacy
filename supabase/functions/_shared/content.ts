@@ -1,4 +1,14 @@
 export const content = {
+  application_received: {
+    email_subject: 'We got your application, {{first_name}}!',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>We got your NYC Learning Challenge application! You'll hear back from us within 2 days.</p>
+<p>Check us out in the meantime: <a href="https://www.instagram.com/griptapeorg/">@griptapeorg on Instagram</a></p>
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: 'Hey {{first_name}}, we got your NYC Learning Challenge application! You\'ll hear back within 2 days. Check us out in the meantime:',
+    sms_link: 'https://www.instagram.com/griptapeorg/',
+  },
+
   declaration_pending: {
     email_subject: 'Congratulations, {{first_name}}. You\'re in.',
     email_body: `<p>Hey {{first_name}},</p>
