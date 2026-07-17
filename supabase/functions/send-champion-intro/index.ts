@@ -97,7 +97,7 @@ serve(async (req) => {
       champion_phone:      champion.phone ?? '',
       champion_email:      champion.email ?? '',
       deadline_date:       deadlineDate,
-      program_name:        'GripTape Learning Challenge',
+      program_name:        'NYC Learning Challenge',
       base_url:            config.BASE_URL,
     };
 

@@ -228,7 +228,7 @@ serve(async (req) => {
       console.error(`[on-grant-approved] redemption URL missing for youth ${youth.id} — not sending youth email`);
       await sendNotification(
         'tremendous_error',
-        { first_name: 'GripTape', last_name: 'Staff', email: Deno.env.get('STAFF_EMAIL')!, phone: '' },
+        { first_name: 'NYC Learning Challenge', last_name: 'Staff', email: Deno.env.get('STAFF_EMAIL')!, phone: '' },
         {
           first_name: youth.first_name,
           last_name: youth.last_name,
