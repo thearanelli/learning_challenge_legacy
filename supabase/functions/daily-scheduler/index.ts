@@ -809,7 +809,7 @@ serve(async (req) => {
   try {
     const { data: atRiskYouth, error: atRiskErr } = await supabase
       .from('youth_comms_checklist')
-      .select('first_name, current_stage')
+      .select('first_name, last_name, current_stage, days_in_stage, missing_comms')
       .eq('at_risk', true);
 
     if (atRiskErr) {
@@ -830,10 +830,12 @@ serve(async (req) => {
         if (!staffPhone) {
           console.error('[daily-scheduler] S5 STAFF_PHONE not set');
         } else {
-          const names = atRiskYouth
-            .map((y: { first_name: string; current_stage: string }) => `${y.first_name} (${y.current_stage})`)
-            .join(', ');
-          const smsBody = `NYC Learning Challenge alert: ${atRiskYouth.length} youth flagged at-risk — ${names}`;
+          const lines = atRiskYouth
+            .map((y: { first_name: string; last_name: string; current_stage: string; days_in_stage: number; missing_comms: string[] }) =>
+              `• ${y.first_name} ${y.last_name} (${y.current_stage}, day ${y.days_in_stage}) — missing: ${y.missing_comms.join(', ')}`
+            )
+            .join('\n');
+          const smsBody = `NLC comms alert: ${atRiskYouth.length} youth missing expected comms\n${lines}`;
           await sendSMS({ to: staffPhone, body: smsBody });
           const { error: logErr } = await supabase.from('comms_log').insert({
             stage_key: 'staff_at_risk_alert',
