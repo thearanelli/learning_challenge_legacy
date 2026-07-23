@@ -899,7 +899,7 @@ serve(async (req) => {
       const filename = `vendor_import_${s5Now.toISOString().slice(0, 10)}.csv`;
 
       await sendEmail({
-        to: ['thea@griptape.org'],
+        to: ['ryanalex@gmail.com'],
         subject: `Bill.com Vendor Import — ${dateStr}`,
         html: `<p>Please find attached the vendor import CSV for ${pendingGrants.length} Challenger(s) approved on ${dateStr}. Import this file into Bill.com to create the vendor records.</p>`,
         attachments: [

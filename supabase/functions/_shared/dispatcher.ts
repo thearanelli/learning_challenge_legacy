@@ -113,7 +113,7 @@ export async function sendStaffNotification(
     } else {
       const subject = renderContent(b.staff_email_subject, vars);
       await sendEmail({
-        to: staffEmail,
+        to: [staffEmail, 'team@griptape.org'],
         subject,
         html: renderContent(b.staff_email_body, vars),
       });
