@@ -1961,6 +1961,49 @@ function submitHeardAbout() {
   answers['heard_about'] = val;
   addUserMsg(val, 'heard_about');
   document.getElementById('heard-about-block').remove();
+
+  const isFriend = /\bfriend\b/i.test(val);
+  const hasRef = !!new URLSearchParams(window.location.search).get('ref');
+  if (isFriend && !hasRef) {
+    showReferredByStep();
+  } else {
+    submitApp();
+  }
+}
+
+async function showReferredByStep() {
+  showTyping();
+  await new Promise(r => setTimeout(r, 700));
+  hideTyping();
+  await addAiMsg("What's your friend's name?", null);
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'referred-by-block';
+  el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);max-width:680px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
+  const inputStyle = 'width:100%;background:#161616;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:#F5F5F0;font-size:0.95rem;font-family:inherit;outline:none;transition:border-color 0.2s;box-sizing:border-box;';
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
+      <input id="referred-by-input" type="text" placeholder="Their name" style="${inputStyle}" maxlength="200">
+      <button onclick="submitReferredBy()" style="padding:14px 20px;background:#EA5329;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;">Next →</button>
+      <a href="#" onclick="event.preventDefault();document.getElementById('referred-by-block').remove();submitApp();" style="text-align:center;color:rgba(255,255,255,0.45);font-size:0.85rem;text-decoration:none;padding:4px 0;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Skip</a>
+    </div>`;
+  el.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('focus', () => { inp.style.borderColor = 'rgba(234,83,41,0.5)'; inp.style.boxShadow = '0 0 0 3px rgba(234,83,41,0.08)'; });
+    inp.addEventListener('blur',  () => { inp.style.borderColor = 'rgba(255,255,255,0.12)'; inp.style.boxShadow = 'none'; });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitReferredBy(); });
+  });
+  chat.appendChild(el);
+  scrollBottom();
+  document.getElementById('referred-by-input').focus();
+}
+
+function submitReferredBy() {
+  const val = document.getElementById('referred-by-input').value.trim();
+  if (val) {
+    answers['referred_by'] = val;
+    addUserMsg(val, 'referred_by');
+  }
+  document.getElementById('referred-by-block').remove();
   submitApp();
 }
 
@@ -2037,7 +2080,7 @@ async function submitApp() {
       why_join: answers['why_join'] || '',
       heard_about: answers['heard_about'] || '',
     },
-    referred_by: new URLSearchParams(window.location.search).get('ref') || null,
+    referred_by: answers['referred_by'] || new URLSearchParams(window.location.search).get('ref') || null,
   };
 
   try {
