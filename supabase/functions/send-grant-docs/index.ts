@@ -33,7 +33,7 @@ serve(async (req) => {
     // Load youth record
     const { data: youth, error: fetchError } = await supabase
       .from('youth')
-      .select('id, first_name, last_name, email, phone, program_id, status, champion_id')
+      .select('id, first_name, last_name, email, phone, program_id, status, champion_id, birthdate')
       .eq('id', youth_id)
       .single();
 
@@ -63,6 +63,14 @@ serve(async (req) => {
         status: 200,
       });
     }
+
+    const ageAtSend = youth.birthdate
+      ? Math.floor((Date.now() - new Date(youth.birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+      : null;
+
+    const agreementTemplateId = (ageAtSend !== null && ageAtSend < 18)
+      ? Deno.env.get('BOLDSIGN_AGREEMENT_MINOR_TEMPLATE_ID')!
+      : Deno.env.get('BOLDSIGN_AGREEMENT_TEMPLATE_ID')!;
 
     const boldSignApiKey = Deno.env.get('BOLDSIGN_API_KEY')!;
     const signerName = `${youth.first_name} ${youth.last_name}`;
@@ -107,7 +115,7 @@ serve(async (req) => {
 
     // Call BoldSign API — Participation Agreement
     const agreementRes = await fetch(
-      `https://api.boldsign.com/v1/template/send?templateId=${encodeURIComponent(Deno.env.get('BOLDSIGN_AGREEMENT_TEMPLATE_ID')!)}`,
+      `https://api.boldsign.com/v1/template/send?templateId=${encodeURIComponent(agreementTemplateId)}`,
       {
         method: 'POST',
         headers: {
