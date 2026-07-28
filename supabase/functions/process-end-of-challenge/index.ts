@@ -40,6 +40,22 @@ serve(async (req) => {
 
     console.log(`[process-end-of-challenge] completed for youth ${youth_id}`);
 
+    // Decrement champion's active_youth_count on EOC completion
+    if (youth.champion_id) {
+      const { data: champion } = await supabase
+        .from('champions')
+        .select('active_youth_count')
+        .eq('id', youth.champion_id)
+        .single();
+
+      if (champion) {
+        await supabase
+          .from('champions')
+          .update({ active_youth_count: Math.max(0, champion.active_youth_count - 1) })
+          .eq('id', youth.champion_id);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true }),
       { headers: { 'Content-Type': 'application/json' }, status: 200 },
