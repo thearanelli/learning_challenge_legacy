@@ -2000,7 +2000,8 @@ async function showReferredByStep() {
 function submitReferredBy() {
   const val = document.getElementById('referred-by-input').value.trim();
   if (val) {
-    answers['referred_by'] = val;
+    const base = answers['heard_about'] || 'A friend';
+    answers['heard_about'] = base + ' (' + val + ')';
     addUserMsg(val, 'referred_by');
   }
   document.getElementById('referred-by-block').remove();
