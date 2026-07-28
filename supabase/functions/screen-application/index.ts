@@ -65,6 +65,60 @@ serve(async (req) => {
       Deno.env.get('DB_SERVICE_KEY')!,
     );
 
+    // Check Airtable for past GripTape participants
+    let isPastParticipant = false;
+    try {
+      const airtableKey = Deno.env.get('AIRTABLE_API_KEY')!;
+      const formula = encodeURIComponent(
+        `AND({First Name}="${application.first_name}", {Last Name}="${application.last_name}")`
+      );
+      const airtableRes = await fetch(
+        `https://api.airtable.com/v0/appWr5RX4a31cI1uF/tblrf4mxGXXkVlIrq?filterByFormula=${formula}&maxRecords=1`,
+        { headers: { Authorization: `Bearer ${airtableKey}` } }
+      );
+      if (airtableRes.ok) {
+        const airtableData = await airtableRes.json();
+        isPastParticipant = airtableData.records?.length > 0;
+        if (isPastParticipant) {
+          console.log(`[screen-application] ${application.id}: past participant match found in Airtable`);
+        }
+      } else {
+        console.error(`[screen-application] Airtable check failed: ${airtableRes.status}`);
+      }
+    } catch (airtableErr) {
+      console.error('[screen-application] Airtable check error (non-blocking):', airtableErr);
+    }
+
+    // If past participant, flag immediately and skip Claude
+    if (isPastParticipant) {
+      await supabase.rpc('advance_status', {
+        record_id: application.id,
+        table_name: 'applications',
+        expected_current_status: config.STATUS.SUBMITTED,
+        next_status: config.STATUS.FLAGGED,
+        additional_fields: {
+          ai_decision: 'flagged',
+          ai_reasoning: 'Applicant name matched a past GripTape participant in Airtable. Manual review required.',
+          notify_after: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+          stage_entered_at: new Date().toISOString(),
+        },
+      });
+      await sendStaffNotification(
+        'application_flagged',
+        {
+          first_name: application.first_name as string,
+          last_name: application.last_name as string,
+          email: application.email as string,
+          reasoning: 'Past GripTape participant — matched by name in Airtable.',
+        },
+        { application_id: application.id },
+      );
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
     // Call Claude for recommendation only — does not affect routing
     const claudeRes = await retryWithBackoff(() => fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
