@@ -1088,7 +1088,7 @@
           });
 
           document.getElementById('eoc-link-row').style.display = '';
-          var eocUrl = 'thelearningchallenge.org/forms/end-of-challenge?token=' + encodeURIComponent(TOKEN);
+          var eocUrl = 'thelearningchallenge.org/end-of-challenge?token=' + encodeURIComponent(TOKEN);
           document.getElementById('eoc-url').textContent = eocUrl;
           document.getElementById('copy-eoc-btn').addEventListener('click', function() {
             navigator.clipboard.writeText('https://' + eocUrl).then(function() {
