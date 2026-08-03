@@ -40,6 +40,12 @@ serve(async (req) => {
 
     console.log(`[process-end-of-challenge] completed for youth ${youth_id}`);
 
+    // Mark EOC as completed on youth record
+    await supabase
+      .from('youth')
+      .update({ end_of_challenge_completed_at: new Date().toISOString() })
+      .eq('id', youth_id);
+
     // Decrement champion's active_youth_count on EOC completion
     if (youth.champion_id) {
       const { data: champion } = await supabase
