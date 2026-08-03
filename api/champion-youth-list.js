@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
     // Load active youth for this champion — excluding terminal statuses
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(removed,completed)&select=id,first_name,last_name,status,stage_entered_at,accepted_at,first_drop_url,application_id`,
+      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(removed,completed)&end_of_challenge_completed_at=is.null&select=id,first_name,last_name,status,stage_entered_at,accepted_at,first_drop_url,application_id`,
       { headers }
     );
 
