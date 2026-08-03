@@ -514,11 +514,9 @@ serve(async (req) => {
 
           console.log(`[daily-scheduler] smart nudge ${youthKey} → youth ${youth.id}`);
 
-          // Send champion nudge if EOC missing
-          if (!hasEoc && championRecord) {
-            const champKey = isFinal
-              ? 'nudge_full_send_champion_no_eoc_final'
-              : 'nudge_full_send_champion_no_eoc';
+          // Send champion nudge if EOC missing (final only — day 40)
+          if (!hasEoc && championRecord && isFinal) {
+            const champKey = 'nudge_full_send_champion_no_eoc_final';
 
             const { data: champExisting } = await supabase
               .from('comms_log')
@@ -551,6 +549,70 @@ serve(async (req) => {
     }
   } catch (err) {
     console.error('[daily-scheduler] smart nudges fatal:', err);
+  }
+
+  // ── EOC champion notification — day 6 of final_video_pending (day 34 overall) ──
+  try {
+    const eocCutoff = new Date(Date.now() - 6 * dayMs).toISOString();
+    const eocNow = new Date().toISOString();
+
+    const { data: eocYouths, error: eocErr } = await supabase
+      .from('youth')
+      .select('*')
+      .eq('status', 'final_video_pending')
+      .lte('stage_entered_at', eocCutoff)
+      .gt('token_expires_at', eocNow);
+
+    if (eocErr) {
+      console.error('[daily-scheduler] EOC champion notify query error:', eocErr.message);
+    } else {
+      for (const youth of (eocYouths ?? [])) {
+        try {
+          // Skip if EOC already completed
+          if (youth.end_of_challenge_completed_at) continue;
+
+          // Idempotency — skip if already sent
+          const { data: alreadySent } = await supabase
+            .from('comms_log')
+            .select('id')
+            .eq('youth_id', youth.id)
+            .eq('stage_key', 'end_of_challenge_champion')
+            .limit(1);
+
+          if (alreadySent && alreadySent.length > 0) continue;
+
+          if (!youth.champion_id) continue;
+
+          const { data: champ } = await supabase
+            .from('champions')
+            .select('id, first_name, last_name, email, phone, champion_token')
+            .eq('id', youth.champion_id)
+            .single();
+
+          if (!champ) continue;
+
+          const eocLink = `${config.BASE_URL}/end-of-challenge?token=${champ.champion_token}`;
+
+          await sendNotification(
+            'end_of_challenge_champion',
+            { first_name: champ.first_name, last_name: champ.last_name, email: champ.email, phone: champ.phone },
+            {
+              youth_name:  `${youth.first_name} ${youth.last_name}`,
+              youth_phone: youth.phone ?? '',
+              eoc_link:    eocLink,
+              base_url:    config.BASE_URL,
+            },
+            { champion_id: champ.id, youth_id: youth.id },
+          );
+
+          console.log(`[daily-scheduler] EOC champion notify sent → champion ${champ.id} for youth ${youth.id}`);
+        } catch (err) {
+          console.error(`[daily-scheduler] EOC champion notify error (youth ${youth.id}):`, err);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[daily-scheduler] EOC champion notify fatal:', err);
   }
 
   // ── Section 3 — Deadline removals ──────────────────────────────────────────
@@ -630,7 +692,7 @@ serve(async (req) => {
   }> = [
     { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed'       },
     { stage: 'grant_pending',       deadline_days: 11,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
-    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days!, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed'       },
+    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days! + 1, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed'       },
   ];
 
   try {
@@ -733,7 +795,7 @@ serve(async (req) => {
             continue;
           }
 
-          const tokenData = generateToken(config.STAGES.final_video_pending.deadline_days);
+          const tokenData = generateToken(config.STAGES.final_video_pending.deadline_days + 10);
 
           const { error: advanceError } = await supabase.rpc('advance_status', {
             record_id:               youth.id,
@@ -779,21 +841,6 @@ serve(async (req) => {
 
           await sendNotification('full_send_link', recipient, { link: fullSendLink, deadline_date: formatDeadline(tokenData.stage_deadline_at), base_url: config.BASE_URL, champion_name: championName, champion_phone: championPhone }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
-
-          if (eocChampion) {
-            const eocLink = `${config.BASE_URL}/end-of-challenge?token=${eocChampion.champion_token}`;
-            await sendNotification(
-              'end_of_challenge_champion',
-              { first_name: eocChampion.first_name, last_name: eocChampion.last_name, email: eocChampion.email, phone: eocChampion.phone },
-              {
-                youth_name:  `${youth.first_name} ${youth.last_name}`,
-                youth_phone: youth.phone ?? '',
-                eoc_link:    eocLink,
-                base_url:    config.BASE_URL,
-              },
-              { champion_id: eocChampion.id, youth_id: youth.id },
-            );
-          }
 
           console.log(`[daily-scheduler] S4 sent full_send_link to youth ${youth.id}, advanced to final_video_pending`);
         } catch (err) {
