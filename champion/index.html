@@ -842,7 +842,7 @@
       var cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.checked = !!existing;
-      cb.disabled = !!existing;
+      cb.disabled = false;
 
       var textWrap = document.createElement('div');
       var label = document.createElement('div');
@@ -858,10 +858,10 @@
       row.appendChild(cb);
       row.appendChild(textWrap);
 
-      if (!existing) {
-        cb.addEventListener('change', function() {
-          if (!cb.checked) return;
-          cb.disabled = true;
+      cb.addEventListener('change', function() {
+        cb.disabled = true;
+
+        if (cb.checked) {
           fetch('/api/champion-flag-unresponsive', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -882,15 +882,42 @@
               note.textContent = 'The NYC Learning Challenge team has been notified';
             } else {
               cb.checked = false;
-              cb.disabled = false;
             }
+            cb.disabled = false;
           })
           .catch(function() {
             cb.checked = false;
             cb.disabled = false;
           });
-        });
-      }
+
+        } else {
+          fetch('/api/champion-unflag-unresponsive', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token: TOKEN,
+              youth_id: y.id,
+            }),
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.success) {
+              row.classList.remove('flagged');
+              label.classList.remove('flagged');
+              label.textContent = 'Mark as unresponsive';
+              note.classList.remove('flagged');
+              note.textContent = 'The NYC Learning Challenge team will be notified';
+            } else {
+              cb.checked = true;
+            }
+            cb.disabled = false;
+          })
+          .catch(function() {
+            cb.checked = true;
+            cb.disabled = false;
+          });
+        }
+      });
 
       return row;
     }
