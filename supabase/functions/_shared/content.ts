@@ -139,8 +139,14 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p><a href="{{redemption_link}}">Claim your \${{grant_amount}} →</a></p>
 <p><strong>Important: keep your receipts and upload them as you spend!</strong><br>
 <a href="{{receipt_link}}">Upload your receipts here →</a></p>
+<p>You also get to invite two friends into Cohort 01. Because you're a Challenger, anyone you refer gets guaranteed acceptance. They get everything you got: their own Champion, their own funding, their own project.</p>
+<p>Here's your unique referral link: <a href="{{referral_link}}">{{referral_link}}</a></p>
 <p>— The NYC Learning Challenge Team</p>`,
     sms: `NYC Learning Challenge: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
+  },
+
+  referral_sms: {
+    sms: `Hey {{first_name}}, as a Cohort 01 Challenger you can invite two friends and they get guaranteed acceptance. Here's your unique referral link: {{referral_link}}`,
   },
 
   tremendous_error: {

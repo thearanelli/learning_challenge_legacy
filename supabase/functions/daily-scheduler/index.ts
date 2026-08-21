@@ -256,6 +256,7 @@ serve(async (req) => {
     { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: false, has_deadline: true  },
     { stage: 'grant_pending',       nudge_day: 5,  content_key: 'nudge_grant',          notify_champion: false, has_deadline: false },
     { stage: 'grant_pending',       nudge_day: 9,  content_key: 'nudge_grant_final',   notify_champion: false, has_deadline: false },
+    { stage: 'grant_approved',      nudge_day: 3,  content_key: 'referral_sms',        notify_champion: false, has_deadline: false },
   ];
 
   try {
@@ -335,6 +336,10 @@ serve(async (req) => {
               vars.champion_name = `${champData.first_name} ${champData.last_name}`;
               vars.champion_phone = champData.phone ?? '';
             }
+          }
+
+          if (nudge.stage === 'grant_approved') {
+            vars.referral_link = `${config.BASE_URL}/?ref=${youth.first_name.toLowerCase()}-${youth.last_name.toLowerCase()}`;
           }
 
           if (nudge.stage === 'final_video_pending' && youth.champion_id) {

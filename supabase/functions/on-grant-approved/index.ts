@@ -307,12 +307,14 @@ serve(async (req) => {
       .eq('id', youth.id);
 
     const receiptLink = `${config.BASE_URL}/receipts?token=${access_token}`;
+    const referralLink = `${config.BASE_URL}/?ref=${youth.first_name.toLowerCase()}-${youth.last_name.toLowerCase()}`;
 
-    // Send grant_approved email + SMS to youth with redemption link and receipt upload link
+    // Send grant_approved email + SMS to youth with redemption link, receipt upload link, and referral link
     await sendNotification('grant_approved', youth, {
       redemption_link: redemptionLink,
       grant_amount:    String(grantRequest.grant_amount),
       receipt_link:    receiptLink,
+      referral_link:   referralLink,
       base_url:        config.BASE_URL,
     }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
 
