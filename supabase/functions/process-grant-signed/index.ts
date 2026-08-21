@@ -80,7 +80,7 @@ serve(async (req) => {
     await sendEmail({
       to: ['catherine@griptape.org', 'team@griptape.org'],
       subject: `Grant docs ready for review — ${youth.first_name} ${youth.last_name}`,
-      html: `<p>Grant paperwork has been submitted and signed by <strong>${youth.first_name} ${youth.last_name}</strong>.</p><p>Please review in Supabase and toggle <code>catherine_approved</code> when ready. Download the signed PDFs from BoldSign on the same day and save to <a href="https://drive.google.com/drive/folders/13Lu0W7Dn3ltv2r5KYPmYvnKsI9qugJPI">Google Drive</a>.</p>`,
+      html: `<p>Grant paperwork has been submitted and signed by <strong>${youth.first_name} ${youth.last_name}</strong>.</p><p>Please review in Supabase and toggle <code>staff_approved</code> on the grant_requests row when ready. Download the signed PDFs from BoldSign on the same day and save to <a href="https://drive.google.com/drive/folders/13Lu0W7Dn3ltv2r5KYPmYvnKsI9qugJPI">Google Drive</a>.</p>`,
     });
 
     // Notify staff via dispatcher (email + SMS)

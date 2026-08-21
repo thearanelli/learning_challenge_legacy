@@ -923,7 +923,7 @@ serve(async (req) => {
           zip
         )
       `)
-      .eq('catherine_approved', true)
+      .eq('staff_approved', true)
       .is('vendor_import_sent_at', null);
 
     if (pendingGrants && pendingGrants.length > 0) {
