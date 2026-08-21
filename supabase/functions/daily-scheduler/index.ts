@@ -974,9 +974,9 @@ serve(async (req) => {
     }
   }
 
-  // ── S6 — Airtable sync (runs every 30 min) ─────────────────────────────────
+  // ── S6 — Airtable sync (fires when orientation call completed) ──────────────
   const s6Now = new Date();
-  if (true) { // TODO: restore s6Now.getUTCMinutes() % 30 === 0 after testing
+  if (true) {
 
     const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
     const baseId = 'apprXwArE9tAzGFnp';
@@ -986,121 +986,104 @@ serve(async (req) => {
       console.error('[S6] AIRTABLE_API_KEY not set — skipping');
     } else {
 
-      // Query 1: get pending grant_requests
-      const { data: pendingGrants, error: grantsError } = await supabase
-        .from('grant_requests')
-        .select('id, youth_id, challenge_topic')
-        .eq('catherine_approved', true)
+      const { data: pendingYouth, error: youthError } = await supabase
+        .from('youth')
+        .select('id, first_name, last_name, email, phone, street_address, city, state, zip, birthdate, accepted_at, pronouns, first_drop_url, orientation_responses')
+        .not('orientation_call_completed_at', 'is', null)
         .is('airtable_synced_at', null);
 
-      if (grantsError) {
-        console.error('[S6] Error fetching pending grants:', grantsError.message);
-      } else if (pendingGrants && pendingGrants.length > 0) {
+      if (youthError) {
+        console.error('[S6] Error fetching pending youth:', youthError.message);
+      } else if (pendingYouth && pendingYouth.length > 0) {
 
-        // Query 2: get youth records for those IDs
-        const youthIds = pendingGrants.map(g => g.youth_id);
-        const { data: youthRecords, error: youthError } = await supabase
-          .from('youth')
-          .select('id, first_name, last_name, email, phone, street_address, city, state, zip, birthdate, accepted_at, pronouns, first_drop_url')
-          .in('id', youthIds);
+        const STATE_MAP: Record<string, string> = {
+          AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
+          CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
+          HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
+          KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+          MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri',
+          MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey',
+          NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio',
+          OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
+          SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
+          VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+          DC: 'District of Columbia',
+        };
 
-        if (youthError) {
-          console.error('[S6] Error fetching youth records:', youthError.message);
-        } else {
-          const youthMap = Object.fromEntries((youthRecords ?? []).map(y => [y.id, y]));
-          const STATE_MAP: Record<string, string> = {
-            AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
-            CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
-            HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
-            KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
-            MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri',
-            MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey',
-            NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio',
-            OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
-            SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
-            VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
-            DC: 'District of Columbia',
-          };
-          const synced: string[] = [];
+        const synced: string[] = [];
 
-          for (const grant of pendingGrants) {
-            const y = youthMap[grant.youth_id];
-            if (!y) {
-              console.error(`[S6] No youth record found for youth_id ${grant.youth_id}`);
+        for (const y of pendingYouth) {
+          const challengeTopic = (y.orientation_responses as Record<string, string>)?.challenge_topic ?? '';
+
+          try {
+            const searchRes = await fetch(
+              `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${encodeURIComponent(`{Youth ID}="${y.id}"`)}`,
+              { headers: { Authorization: `Bearer ${airtableApiKey}` } }
+            );
+            const searchData = await searchRes.json();
+
+            if (searchData.records && searchData.records.length > 0) {
+              console.log(`[S6] Airtable record already exists for youth ${y.id} — marking synced`);
+              synced.push(y.id);
               continue;
             }
 
-            try {
-              // Check for existing record to prevent duplicates
-              const searchRes = await fetch(
-                `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${encodeURIComponent(`{Youth ID}="${y.id}"`)}`,
-                { headers: { Authorization: `Bearer ${airtableApiKey}` } }
-              );
-              const searchData = await searchRes.json();
-
-              if (searchData.records && searchData.records.length > 0) {
-                console.log(`[S6] Airtable record already exists for youth ${y.id} — marking synced`);
-                synced.push(grant.id);
-                continue;
-              }
-
-              const airtableRes = await fetch(
-                `https://api.airtable.com/v0/${baseId}/${tableId}`,
-                {
-                  method: 'POST',
-                  headers: {
-                    Authorization: `Bearer ${airtableApiKey}`,
-                    'Content-Type': 'application/json',
+            const airtableRes = await fetch(
+              `https://api.airtable.com/v0/${baseId}/${tableId}`,
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${airtableApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  fields: {
+                    'Youth ID':        y.id,
+                    'First Name':      y.first_name ?? '',
+                    'Last Name':       y.last_name ?? '',
+                    'Email':           y.email ?? '',
+                    'Cell':            y.phone ?? '',
+                    'Street Address':  y.street_address ?? '',
+                    'City':            y.city ?? '',
+                    'State':           STATE_MAP[y.state?.toUpperCase() ?? ''] ?? y.state ?? '',
+                    'Zip Code':        y.zip ?? '',
+                    'Date of Birth':   y.birthdate ?? '',
+                    'Accepted Date':   y.accepted_at ? y.accepted_at.slice(0, 10) : '',
+                    'Gender/Pronouns': y.pronouns ?? '',
+                    'First Drop URL':  y.first_drop_url ?? '',
+                    'LC Topic':        challengeTopic,
+                    'Status':          'Launched',
                   },
-                  body: JSON.stringify({
-                    fields: {
-                      'Youth ID':        y.id,
-                      'First Name':      y.first_name ?? '',
-                      'Last Name':       y.last_name ?? '',
-                      'Email':           y.email ?? '',
-                      'Cell':            y.phone ?? '',
-                      'Street Address':  y.street_address ?? '',
-                      'City':            y.city ?? '',
-                      'State':           STATE_MAP[y.state?.toUpperCase() ?? ''] ?? y.state ?? '',
-                      'Zip Code':        y.zip ?? '',
-                      'Date of Birth':   y.birthdate ?? '',
-                      'Accepted Date':   y.accepted_at ? y.accepted_at.slice(0, 10) : '',
-                      'Gender/Pronouns': y.pronouns ?? '',
-                      'First Drop URL':  y.first_drop_url ?? '',
-                      'LC Topic':        grant.challenge_topic ?? '',
-                      'Status':          'Launched',
-                    },
-                  }),
-                }
-              );
-
-              if (!airtableRes.ok) {
-                const errText = await airtableRes.text();
-                console.error(`[S6] Airtable create failed for youth ${y.id}: ${errText}`);
-                const staffEmail = Deno.env.get('STAFF_EMAIL');
-                if (staffEmail) {
-                  await sendEmail({
-                    to: [staffEmail],
-                    subject: `Airtable sync failed — ${y.first_name} ${y.last_name}`,
-                    html: `<p>Airtable record creation failed for <strong>${y.first_name} ${y.last_name}</strong> (youth_id: ${y.id}).</p><p>Error: ${errText}</p><p>The record will retry on the next 30-minute cycle.</p>`,
-                  });
-                }
-              } else {
-                console.log(`[S6] Airtable record created for youth ${y.id}`);
-                synced.push(grant.id);
+                }),
               }
-            } catch (err) {
-              console.error(`[S6] Airtable error for youth ${y.id}:`, err);
-            }
-          }
+            );
 
-          if (synced.length > 0) {
-            await supabase
-              .from('grant_requests')
-              .update({ airtable_synced_at: s6Now.toISOString() })
-              .in('id', synced);
-            console.log(`[S6] Airtable sync complete for ${synced.length} record(s)`);
+            if (!airtableRes.ok) {
+              const errText = await airtableRes.text();
+              console.error(`[S6] Airtable create failed for youth ${y.id}: ${errText}`);
+              const staffEmail = Deno.env.get('STAFF_EMAIL');
+              if (staffEmail) {
+                await sendEmail({
+                  to: [staffEmail],
+                  subject: `Airtable sync failed — ${y.first_name} ${y.last_name}`,
+                  html: `<p>Airtable record creation failed for <strong>${y.first_name} ${y.last_name}</strong> (youth_id: ${y.id}).</p><p>Error: ${errText}</p><p>The record will retry on the next 30-minute cycle.</p>`,
+                });
+              }
+            } else {
+              console.log(`[S6] Airtable record created for youth ${y.id}`);
+              synced.push(y.id);
+            }
+          } catch (err) {
+            console.error(`[S6] Airtable error for youth ${y.id}:`, err);
           }
+        }
+
+        if (synced.length > 0) {
+          await supabase
+            .from('youth')
+            .update({ airtable_synced_at: s6Now.toISOString() })
+            .in('id', synced);
+          console.log(`[S6] Airtable sync complete for ${synced.length} record(s)`);
         }
       } else {
         console.log('[S6] No pending Airtable syncs');
