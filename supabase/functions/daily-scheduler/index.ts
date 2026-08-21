@@ -697,7 +697,7 @@ serve(async (req) => {
   }> = [
     { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed'       },
     { stage: 'grant_pending',       deadline_days: 11,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
-    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days! + 1, content_key: null,                  decrement_champion: false, next_status: 'removed'       },
+    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days! + 4, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed'       },
   ];
 
   try {

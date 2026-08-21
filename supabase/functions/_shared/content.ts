@@ -411,6 +411,7 @@ Where you're taking it next.</p>
 <p>We never received your Full Send video by {{deadline_date}} so you won't be joining the official NYC Learning Challenge Alumni community — but that doesn't take away from what you did.</p>
 <p>You showed up. You committed. You spent weeks working on something you care about. That's real — and most people never do it.</p>
 <p>We hope you keep going. Whatever you built, keep building it.</p>
+<p>If you think we missed something, email <a href="mailto:thea@griptape.org">thea@griptape.org</a>.</p>
 <p>— The NYC Learning Challenge Team</p>`,
   },
 
