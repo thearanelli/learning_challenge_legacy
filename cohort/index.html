@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/favicon.png">
+<title>Meet the 2026 Cohort — The Learning Challenge</title>
+<meta property="og:title" content="Meet the 2026 Cohort — NYC Learning Challenge">
+<meta name="twitter:title" content="Meet the 2026 Cohort — NYC Learning Challenge">
+<meta property="og:description" content="These NYC teenagers took on a passion project, a champion, and a $150 grant. This is what they built.">
+<meta name="twitter:description" content="These NYC teenagers took on a passion project, a champion, and a $150 grant. This is what they built.">
+<meta property="og:image" content="https://thelearningchallenge.org/og-community.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://thelearningchallenge.org/og-community.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #EA5329;
+  --bg: #001722;
+  --bg2: #161616;
+  --white: #F5F5F0;
+  --gray: #777;
+  --border: rgba(255,255,255,0.08);
+  --pill-bg: #fff3ee;
+  --pill-text: #c44e17;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(0,23,34,0.92);
+}
+.logo a { text-decoration: none; }
+.nav-links { display: flex; gap: 1.25rem; align-items: center; }
+.nav-links a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--white); }
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 2.5rem;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(234,83,41,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--orange);
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--orange);
+}
+.hero .subtitle {
+  font-size: 1.05rem;
+  color: var(--gray);
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto 0.75rem;
+}
+.hero .count-line {
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+.hero .count-line .count { color: var(--orange); font-weight: 600; }
+
+/* FILTER BAR */
+.filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 1.5rem 1.5rem 0.5rem;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--gray);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+.filter-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+/* GRID */
+.grid-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 5rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 190px));
+  justify-content: center;
+  gap: 16px;
+}
+
+/* CARD */
+.card {
+  background: var(--bg2);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid rgba(234,83,41,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+  border-color: rgba(234,83,41,0.55);
+}
+
+/* VIDEO THUMBNAIL */
+.card-video {
+  position: relative;
+  width: 100%;
+  padding-top: 177.78%; /* 9:16 */
+  background: #0d0d0d;
+  overflow: hidden;
+}
+.card-video img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.card-video .no-thumb {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #1a1a1a, #0a0a0a);
+}
+.card-video .no-thumb-initial {
+  font-family: 'Anton', sans-serif;
+  font-size: 48px;
+  color: rgba(255,255,255,0.08);
+}
+.card-video .play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.card-video .play-btn::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 13px;
+  border-color: transparent transparent transparent var(--bg);
+  margin-left: 2px;
+}
+.cohort-chip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--orange);
+  color: #fff;
+  font-family: 'Anton', sans-serif;
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.06em;
+  z-index: 2;
+}
+
+/* CARD BODY */
+.card-body { padding: 10px 12px 12px; }
+.card-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-passion {
+  font-size: 12px;
+  color: var(--orange);
+  font-weight: 500;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+.card-location {
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
+.card-location::before { content: '📍'; margin-right: 3px; font-size: 10px; }
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.card-champion {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--pill-text);
+  background: var(--pill-bg);
+  padding: 3px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.card-number {
+  font-size: 10px;
+  color: var(--gray);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* EMPTY / ERROR */
+.msg-center {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  color: var(--gray);
+  font-size: 1rem;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 2;
+}
+.modal-header {
+  background: var(--orange);
+  padding: 20px 20px 16px;
+  text-align: center;
+}
+.modal-header .modal-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.6rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+.modal-header .modal-passion {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  font-style: italic;
+}
+.modal-body { padding: 20px; }
+.modal-location {
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+.modal-location::before { content: '📍'; margin-right: 4px; }
+.modal-section-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.modal-video-btn {
+  display: block;
+  width: 100%;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.modal-video-btn:hover { opacity: 0.88; }
+.modal-video-btn.secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--gray);
+  font-size: 13px;
+}
+.modal-champion {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--gray);
+}
+.modal-champion span { color: var(--white); font-weight: 500; }
+
+@media (max-width: 500px) {
+  nav { padding: 1rem 1.25rem; }
+  .hero { padding: 3rem 1.25rem 1.5rem; }
+  .grid-wrap { padding: 1rem 1rem 3rem; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Profile modal -->
+<div id="profile-modal" class="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-passion" id="modal-passion"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-location" id="modal-location" style="display:none;"></div>
+      <div id="modal-videos"></div>
+      <div class="modal-champion" id="modal-champion" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div class="logo">
+    <a href="/">
+      <img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="NYC Learning Challenge" style="height:28px;">
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/cohort" class="active">2026 Cohort</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <p class="eyebrow">NYC Learning Challenge &middot; Summer 2026</p>
+  <h1>Meet the<br><em>2026 Cohort</em></h1>
+  <p class="subtitle">These NYC teenagers took on a passion project, a champion, and a grant — and went all in. This is what they built.</p>
+  <p class="count-line" id="count-line"></p>
+</section>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <div class="msg-center" id="msg" style="display:none;"></div>
+</div>
+
+<script>
+var allChallengers = [];
+
+(function () {
+  fetch('/api/cohort')
+    .then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    })
+    .then(function (challengers) {
+      allChallengers = challengers;
+
+      if (!challengers.length) {
+        showMsg('Completed challengers will appear here once the cohort wraps up. Check back soon!');
+        return;
+      }
+
+      document.getElementById('count-line').innerHTML =
+        '<span class="count">' + challengers.length + '</span> Challenger' + (challengers.length !== 1 ? 's' : '') + ' &middot; 2026';
+
+      renderGrid(challengers);
+    })
+    .catch(function () {
+      showMsg("Couldn’t load the cohort right now. Try refreshing.");
+    });
+
+  function renderGrid(list) {
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    list.forEach(function (c, idx) {
+      grid.appendChild(buildCard(c, idx));
+    });
+  }
+
+  function buildCard(c, idx) {
+    var card = document.createElement('div');
+    card.className = 'card';
+
+    var videoId = extractVideoId(c.video_url);
+    var hasVideo = !!videoId;
+
+    var initial = (c.first_name || '?')[0].toUpperCase();
+    var name = c.first_name + (c.last_initial ? ' ' + c.last_initial + '.' : '');
+
+    var videoHtml = '<div class="card-video">';
+    videoHtml += '<div class="cohort-chip">2026</div>';
+    if (hasVideo) {
+      videoHtml += '<img src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + esc(name) + '" loading="lazy">';
+      videoHtml += '<div class="play-btn"></div>';
+    } else {
+      videoHtml += '<div class="no-thumb"><div class="no-thumb-initial">' + esc(initial) + '</div></div>';
+    }
+    videoHtml += '</div>';
+
+    var locationParts = [c.city, c.state].filter(Boolean);
+    var bodyHtml = '<div class="card-body">';
+    bodyHtml += '<div class="card-name">' + esc(name) + '</div>';
+    if (c.passion) bodyHtml += '<div class="card-passion">' + esc(c.passion) + '</div>';
+    if (locationParts.length) bodyHtml += '<div class="card-location">' + esc(locationParts.join(', ')) + '</div>';
+    bodyHtml += '<div class="card-bottom">';
+    if (c.champion_first_name) {
+      bodyHtml += '<span class="card-champion">w/ ' + esc(c.champion_first_name) + '</span>';
+    }
+    bodyHtml += '<span class="card-number">No. ' + (idx + 1) + '</span>';
+    bodyHtml += '</div></div>';
+
+    card.innerHTML = videoHtml + bodyHtml;
+    card.addEventListener('click', function () { openModal(c, idx); });
+    return card;
+  }
+
+  window.openModal = function (c, idx) {
+    var name = c.first_name + (c.last_initial ? ' ' + c.last_initial + '.' : '');
+    document.getElementById('modal-name').textContent = name.toUpperCase();
+    document.getElementById('modal-passion').textContent = c.passion || '';
+
+    var locEl = document.getElementById('modal-location');
+    var locationParts = [c.city, c.state].filter(Boolean);
+    if (locationParts.length) {
+      locEl.textContent = locationParts.join(', ');
+      locEl.style.display = 'block';
+    } else {
+      locEl.style.display = 'none';
+    }
+
+    var videosEl = document.getElementById('modal-videos');
+    videosEl.innerHTML = '';
+
+    if (c.video_url) {
+      var label = document.createElement('div');
+      label.className = 'modal-section-label';
+      label.textContent = c.video_url === c.first_drop_url ? 'First Drop Video' : 'Full Send Video';
+      videosEl.appendChild(label);
+
+      var btn = document.createElement('a');
+      btn.className = 'modal-video-btn';
+      btn.href = c.video_url;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.textContent = 'Watch ' + (c.video_url === c.first_drop_url ? 'their intro video' : 'their final project') + ' →';
+      videosEl.appendChild(btn);
+    }
+
+    if (c.first_drop_url && c.video_url && c.video_url !== c.first_drop_url) {
+      var label2 = document.createElement('div');
+      label2.className = 'modal-section-label';
+      label2.style.marginTop = '12px';
+      label2.textContent = 'First Drop Video';
+      videosEl.appendChild(label2);
+
+      var btn2 = document.createElement('a');
+      btn2.className = 'modal-video-btn secondary';
+      btn2.href = c.first_drop_url;
+      btn2.target = '_blank';
+      btn2.rel = 'noopener';
+      btn2.textContent = 'Watch their intro video →';
+      videosEl.appendChild(btn2);
+    }
+
+    var champEl = document.getElementById('modal-champion');
+    if (c.champion_first_name) {
+      champEl.innerHTML = 'Champion: <span>' + esc(c.champion_first_name) + '</span>';
+      champEl.style.display = 'block';
+    } else {
+      champEl.style.display = 'none';
+    }
+
+    document.getElementById('profile-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function (e) {
+    if (e && e.target !== document.getElementById('profile-modal')) return;
+    document.getElementById('profile-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // Also close on ✕ button (called with no argument)
+  var origClose = window.closeModal;
+  window.closeModal = function (e) {
+    if (!e || e.target === document.getElementById('profile-modal')) {
+      document.getElementById('profile-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') window.closeModal();
+  });
+
+  function extractVideoId(url) {
+    if (!url) return null;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function showMsg(text) {
+    document.getElementById('msg').textContent = text;
+    document.getElementById('msg').style.display = 'block';
+  }
+})();
+</script>
+
+</body>
+</html>
