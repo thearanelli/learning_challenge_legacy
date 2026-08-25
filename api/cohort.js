@@ -1,7 +1,6 @@
 // api/cohort.js
 // Public Vercel serverless function — returns completed 2026 challengers for the cohort showcase.
-// "Completed" = youth who have submitted their full-send video (full_send_url is set)
-// OR who have completed the end-of-challenge form.
+// "Completed" = youth whose status is 'completed' (terminal state, set via advance_status()).
 
 export default async function handler(req, res) {
   const ALLOWED_ORIGINS = [
@@ -42,12 +41,11 @@ async function fetchCohort() {
     'Authorization': `Bearer ${supabaseKey}`,
   };
 
-  // Fetch youth who have completed the challenge (end-of-challenge form submitted)
-  // Falls back to showing anyone with a full_send_url if end_of_challenge_completed_at isn't set.
+  // Fetch only youth whose program status is 'completed'
   const youthQuery = [
     'select=id,first_name,last_name,city,state,passion,first_drop_url,full_send_url,champion_id,end_of_challenge_completed_at,accepted_at',
-    'end_of_challenge_completed_at=not.is.null',
-    'order=end_of_challenge_completed_at.asc',
+    'status=eq.completed',
+    'order=end_of_challenge_completed_at.asc.nullslast',
   ].join('&');
 
   const youthRes = await fetch(`${supabaseUrl}/rest/v1/youth?${youthQuery}`, { headers });
