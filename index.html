@@ -317,39 +317,238 @@ h1 {
 }
 .shorts-inner::-webkit-scrollbar { display: none; }
 
-.short-card {
+/* COHORT PROFILE STRIP — flips on hover to reveal the bio; same footprint as the old video cards */
+.shorts-card {
   position: relative;
-  display: block;
   width: 140px;
   flex-shrink: 0;
   aspect-ratio: 9/16;
+  perspective: 1200px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.shorts-card:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+.shorts-card .card-inner {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.4, 0.15, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.shorts-card:hover .card-inner,
+.shorts-card:focus-visible .card-inner { transform: rotateY(180deg); }
+.shorts-card.no-flip:hover .card-inner,
+.shorts-card.no-flip:focus-visible .card-inner { transform: none; }
+.shorts-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: 12px;
   overflow: hidden;
-  text-decoration: none;
 }
-
-.short-card img {
+.shorts-front { background: #0d0d0d; }
+.shorts-front img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
-
-.short-play {
+.shorts-front .no-thumb {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
-  background: rgba(0,0,0,0.7);
-  border-radius: 50%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 16px;
+  background: linear-gradient(160deg, #1a1a1a, #0a0a0a);
 }
+.shorts-front .no-thumb-initial {
+  font-family: 'Anton', sans-serif;
+  font-size: 40px;
+  color: rgba(255,255,255,0.08);
+}
+.shorts-chip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--lime);
+  color: #fff;
+  font-family: 'Anton', sans-serif;
+  font-size: 9px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  letter-spacing: 0.04em;
+  z-index: 2;
+}
+.shorts-caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 2;
+  padding: 22px 9px 9px;
+  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, transparent 100%);
+}
+.shorts-caption .topic {
+  font-family: 'Anton', sans-serif;
+  font-size: 12.5px;
+  line-height: 1.15;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.shorts-caption .place {
+  font-size: 9.5px;
+  color: rgba(245,245,240,0.75);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.shorts-caption .place::before { content: '📍'; font-size: 8px; }
+.shorts-caption .identity { font-size: 9px; color: rgba(245,245,240,0.55); }
+.shorts-caption .identity .age::before { content: '· '; }
+.shorts-back {
+  transform: rotateY(180deg);
+  background: var(--bg2);
+  border: 1.5px solid rgba(234,83,41,0.4);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px;
+}
+.shorts-back-eyebrow {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+.shorts-back-eyebrow em { font-style: normal; color: var(--lime); }
+.shorts-back-bio {
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: rgba(245,245,240,0.9);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+}
+.shorts-back-hint {
+  margin-top: auto;
+  font-size: 8.5px;
+  color: var(--gray);
+  text-align: center;
+  padding-top: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shorts-card .card-inner { transition: none; }
+}
+
+/* PROFILE MODAL (shared with /cohort) */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 2;
+}
+.modal-header {
+  background: var(--lime);
+  padding: 20px 20px 16px;
+  text-align: center;
+}
+.modal-header .modal-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.6rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+.modal-header .modal-passion {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  font-style: italic;
+}
+.modal-body { padding: 20px; }
+.modal-location {
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+.modal-location::before { content: '📍'; margin-right: 4px; }
+.modal-section-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.modal-bio {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.88);
+  margin-bottom: 18px;
+}
+.modal-video-btn {
+  display: block;
+  width: 100%;
+  background: var(--lime);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.modal-video-btn:hover { opacity: 0.88; }
+.modal-video-btn.secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--gray);
+  font-size: 13px;
+}
+.modal-champion {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--gray);
+}
+.modal-champion span { color: var(--white); font-weight: 500; }
 
 /* PERKS GRID */
 .perks-grid {
@@ -864,12 +1063,12 @@ h1 {
     padding: 0;
   }
   .hero-shorts { overflow: hidden; }
-  .short-card {
+  .shorts-card {
     width: auto;
     flex-shrink: 1;
     display: none;
   }
-  .short-card.carousel-visible {
+  .shorts-card.carousel-visible {
     display: block;
   }
 
@@ -952,6 +1151,26 @@ h1 {
 </head>
 <body>
 
+<!-- Cohort profile modal -->
+<div id="profile-modal" class="modal-overlay" onclick="closeProfileModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeProfileModal()">✕</button>
+    <div class="modal-header">
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-passion" id="modal-passion"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-location" id="modal-location" style="display:none;"></div>
+      <div id="modal-bio-wrap" style="display:none;">
+        <div class="modal-section-label">About</div>
+        <p class="modal-bio" id="modal-bio"></p>
+      </div>
+      <div id="modal-videos"></div>
+      <div class="modal-champion" id="modal-champion" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
 <!-- INVITE MODAL -->
 <div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
   <div style="background:#111827;border:0.5px solid #EA5329;border-radius:16px;width:100%;max-width:380px;overflow:hidden;font-family:'Instrument Sans',sans-serif;">
@@ -1016,40 +1235,7 @@ h1 {
       </div>
       <div class="hero-shorts">
         <div class="hero-shorts-label">Hear from challengers</div>
-        <div class="shorts-inner">
-          <a href="https://youtube.com/shorts/gj3diKJiPIs" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/gj3diKJiPIs/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://youtube.com/shorts/cqZimmYNlLg" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/cqZimmYNlLg/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://youtube.com/shorts/qKBjqL-8hRk" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/qKBjqL-8hRk/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://youtube.com/shorts/k_a6-73ub2k" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/k_a6-73ub2k/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://youtube.com/shorts/PD_cZs0KyEs" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/PD_cZs0KyEs/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://youtube.com/shorts/O4ATypbCDew" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/O4ATypbCDew/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://www.youtube.com/shorts/Lh60mQbKTdY" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/Lh60mQbKTdY/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-          <a href="https://www.youtube.com/shorts/yVxwU8hlWpA" target="_blank" class="short-card">
-            <img src="https://img.youtube.com/vi/yVxwU8hlWpA/0.jpg" alt="NYC Learning Challenger">
-            <div class="short-play">▶</div>
-          </a>
-        </div>
+        <div class="shorts-inner" id="shorts-inner"></div>
       </div>
     </div>
   </section>
@@ -2168,10 +2354,160 @@ window.addEventListener('load', () => {
 </script>
 <script>
 (function() {
+  // Loads live "completed" cohort profiles into the home page hero strip,
+  // in place of the old hardcoded YouTube shorts links. Same card footprint
+  // as before; see /cohort for the fuller grid version of this card.
+  fetch('/api/cohort')
+    .then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    })
+    .then(function (challengers) {
+      var stripEl = document.getElementById('shorts-inner');
+      var heroShortsEl = stripEl ? stripEl.closest('.hero-shorts') : null;
+
+      if (!challengers.length) {
+        // Nothing to show yet — hide the whole strip rather than show an empty box.
+        if (heroShortsEl) heroShortsEl.style.display = 'none';
+        return;
+      }
+
+      challengers.forEach(function (c, idx) {
+        stripEl.appendChild(buildShortsCard(c, idx));
+      });
+
+      initShortsCarousel();
+    })
+    .catch(function (err) {
+      console.error('[home] cohort fetch failed:', err);
+      var stripEl = document.getElementById('shorts-inner');
+      var heroShortsEl = stripEl ? stripEl.closest('.hero-shorts') : null;
+      if (heroShortsEl) heroShortsEl.style.display = 'none';
+    });
+
+  function buildShortsCard(c, idx) {
+    var wrap = document.createElement('div');
+    var hasBio = !!(c.bio && c.bio.trim());
+    wrap.className = 'shorts-card' + (hasBio ? '' : ' no-flip');
+    wrap.tabIndex = 0;
+
+    var videoId = extractVideoId(c.video_url);
+    var hasVideo = !!videoId;
+    var initial = (c.first_name || '?')[0].toUpperCase();
+    var name = c.first_name + (c.last_initial ? ' ' + c.last_initial + '.' : '');
+    var locationParts = [c.city, c.state].filter(Boolean);
+
+    var frontHtml = '<div class="shorts-face shorts-front">';
+    if (hasVideo) {
+      frontHtml += '<img src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="' + esc(name) + '" loading="lazy">';
+    } else {
+      frontHtml += '<div class="no-thumb"><div class="no-thumb-initial">' + esc(initial) + '</div></div>';
+    }
+    frontHtml += '<div class="shorts-chip">COHORT 01</div>';
+    frontHtml += '<div class="shorts-caption">';
+    if (c.passion) frontHtml += '<div class="topic">' + esc(c.passion) + '</div>';
+    if (locationParts.length) frontHtml += '<div class="place">' + esc(locationParts.join(', ')) + '</div>';
+    frontHtml += '<div class="identity">' + esc(name);
+    if (c.age) frontHtml += '<span class="age">' + esc(String(c.age)) + '</span>';
+    frontHtml += '</div></div></div>';
+
+    var backHtml = '<div class="shorts-face shorts-back">';
+    backHtml += '<div class="shorts-back-eyebrow">' + esc(name) + (c.age ? ' <em>&middot; ' + esc(String(c.age)) + '</em>' : '') + '</div>';
+    backHtml += '<div class="shorts-back-bio">' + esc(hasBio ? c.bio : '') + '</div>';
+    backHtml += '<div class="shorts-back-hint">Tap for full profile</div>';
+    backHtml += '</div>';
+
+    wrap.innerHTML = '<div class="card-inner">' + frontHtml + (hasBio ? backHtml : '') + '</div>';
+    wrap.addEventListener('click', function () { openProfileModal(c); });
+    wrap.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProfileModal(c); }
+    });
+    return wrap;
+  }
+
+  window.openProfileModal = function (c) {
+    var name = c.first_name + (c.last_initial ? ' ' + c.last_initial + '.' : '');
+    document.getElementById('modal-name').textContent = name.toUpperCase();
+    document.getElementById('modal-passion').textContent = c.passion || '';
+
+    var locEl = document.getElementById('modal-location');
+    var locationParts = [c.city, c.state].filter(Boolean);
+    if (c.age) locationParts.push('Age ' + c.age);
+    if (locationParts.length) {
+      locEl.textContent = locationParts.join(' · ');
+      locEl.style.display = 'block';
+    } else {
+      locEl.style.display = 'none';
+    }
+
+    var bioWrapEl = document.getElementById('modal-bio-wrap');
+    if (c.bio && c.bio.trim()) {
+      document.getElementById('modal-bio').textContent = c.bio;
+      bioWrapEl.style.display = 'block';
+    } else {
+      bioWrapEl.style.display = 'none';
+    }
+
+    var videosEl = document.getElementById('modal-videos');
+    videosEl.innerHTML = '';
+
+    if (c.video_url) {
+      var label = document.createElement('div');
+      label.className = 'modal-section-label';
+      label.textContent = c.video_url === c.first_drop_url ? 'First Drop Video' : 'Full Send Video';
+      videosEl.appendChild(label);
+
+      var btn = document.createElement('a');
+      btn.className = 'modal-video-btn';
+      btn.href = c.video_url;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.textContent = 'Watch ' + (c.video_url === c.first_drop_url ? 'their intro video' : 'their final project') + ' →';
+      videosEl.appendChild(btn);
+    }
+
+    if (c.first_drop_url && c.video_url && c.video_url !== c.first_drop_url) {
+      var label2 = document.createElement('div');
+      label2.className = 'modal-section-label';
+      label2.style.marginTop = '12px';
+      label2.textContent = 'First Drop Video';
+      videosEl.appendChild(label2);
+
+      var btn2 = document.createElement('a');
+      btn2.className = 'modal-video-btn secondary';
+      btn2.href = c.first_drop_url;
+      btn2.target = '_blank';
+      btn2.rel = 'noopener';
+      btn2.textContent = 'Watch their intro video →';
+      videosEl.appendChild(btn2);
+    }
+
+    var champEl = document.getElementById('modal-champion');
+    if (c.champion_first_name) {
+      champEl.innerHTML = 'Champion: <span>' + esc(c.champion_first_name) + '</span>';
+      champEl.style.display = 'block';
+    } else {
+      champEl.style.display = 'none';
+    }
+
+    document.getElementById('profile-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeProfileModal = function (e) {
+    if (e && e.target !== document.getElementById('profile-modal')) return;
+    document.getElementById('profile-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') window.closeProfileModal();
+  });
+
   function initShortsCarousel() {
     if (window.innerWidth < 768) return;
 
-    var cards = Array.from(document.querySelectorAll('.shorts-inner .short-card'));
+    var cards = Array.from(document.querySelectorAll('.shorts-inner .shorts-card'));
     if (cards.length < 2) return;
 
     var current = 0;
@@ -2190,10 +2526,16 @@ window.addEventListener('load', () => {
     }, 3500);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initShortsCarousel);
-  } else {
-    initShortsCarousel();
+  function extractVideoId(url) {
+    if (!url) return null;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
   }
 })();
 </script>
