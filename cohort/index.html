@@ -148,19 +148,74 @@ nav {
   gap: 16px;
 }
 
-/* CARD */
-.card {
-  background: var(--bg2);
+/* CARD — flips on hover to reveal the bio on its back face */
+.card-flip {
+  position: relative;
+  aspect-ratio: 0.44;
+  perspective: 1200px;
   border-radius: 12px;
-  overflow: hidden;
-  border: 1.5px solid rgba(234,83,41,0.25);
-  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-  border-color: rgba(234,83,41,0.55);
+.card-flip:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+.card-flip .card-inner {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.4, 0.15, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.card-flip:hover .card-inner,
+.card-flip:focus-visible .card-inner { transform: rotateY(180deg); }
+.card-flip.no-flip:hover .card-inner,
+.card-flip.no-flip:focus-visible .card-inner { transform: none; }
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-front {
+  background: var(--bg2);
+  border: 1.5px solid rgba(234,83,41,0.25);
+  transition: border-color 0.3s;
+}
+.card-flip:hover .card-front { border-color: rgba(234,83,41,0.55); }
+.card-back {
+  transform: rotateY(180deg);
+  background: var(--bg2);
+  border: 1.5px solid rgba(234,83,41,0.4);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px;
+}
+.card-back-eyebrow {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+.card-back-eyebrow em { font-style: normal; color: var(--orange); }
+.card-back-bio {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(245,245,240,0.9);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 9;
+  -webkit-box-orient: vertical;
+}
+.card-back-hint {
+  margin-top: auto;
+  font-size: 10px;
+  color: var(--gray);
+  text-align: center;
+  padding-top: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-flip .card-inner { transition: none; }
 }
 
 /* VIDEO THUMBNAIL */
@@ -230,55 +285,58 @@ nav {
   z-index: 2;
 }
 
-/* CARD BODY */
+/* CARD BODY — topic leads, city rides with it, age sits by the name */
 .card-body { padding: 10px 12px 12px; }
-.card-name {
+.card-topic {
   font-family: 'Anton', sans-serif;
   font-size: 15px;
+  line-height: 1.15;
   color: var(--white);
   text-transform: uppercase;
-  letter-spacing: 0.01em;
-  margin-bottom: 3px;
-  white-space: nowrap;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
-.card-passion {
-  font-size: 12px;
-  color: var(--orange);
-  font-weight: 500;
-  margin-bottom: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-style: italic;
-}
-.card-location {
+.card-place {
   font-size: 11px;
   color: var(--gray);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-.card-location::before { content: '📍'; margin-right: 3px; font-size: 10px; }
+.card-place::before { content: '📍'; font-size: 10px; }
+.card-identity {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.card-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(245,245,240,0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-age {
+  font-size: 10.5px;
+  color: var(--gray);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.card-age::before { content: '· '; }
 .card-bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-.card-champion {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--pill-text);
-  background: var(--pill-bg);
-  padding: 3px 8px;
-  border-radius: 100px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  margin-top: 8px;
 }
 .card-number {
   font-size: 10px;
   color: var(--gray);
-  margin-left: auto;
   white-space: nowrap;
 }
 
@@ -356,6 +414,12 @@ nav {
   margin-bottom: 6px;
   font-weight: 500;
 }
+.modal-bio {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.88);
+  margin-bottom: 18px;
+}
 .modal-video-btn {
   display: block;
   width: 100%;
@@ -407,6 +471,10 @@ nav {
     </div>
     <div class="modal-body">
       <div class="modal-location" id="modal-location" style="display:none;"></div>
+      <div id="modal-bio-wrap" style="display:none;">
+        <div class="modal-section-label">About</div>
+        <p class="modal-bio" id="modal-bio"></p>
+      </div>
       <div id="modal-videos"></div>
       <div class="modal-champion" id="modal-champion" style="display:none;"></div>
     </div>
@@ -472,8 +540,10 @@ var allChallengers = [];
   }
 
   function buildCard(c, idx) {
-    var card = document.createElement('div');
-    card.className = 'card';
+    var wrap = document.createElement('div');
+    var hasBio = !!(c.bio && c.bio.trim());
+    wrap.className = 'card-flip' + (hasBio ? '' : ' no-flip');
+    wrap.tabIndex = 0;
 
     var videoId = extractVideoId(c.video_url);
     var hasVideo = !!videoId;
@@ -493,19 +563,25 @@ var allChallengers = [];
 
     var locationParts = [c.city, c.state].filter(Boolean);
     var bodyHtml = '<div class="card-body">';
-    bodyHtml += '<div class="card-name">' + esc(name) + '</div>';
-    if (c.passion) bodyHtml += '<div class="card-passion">' + esc(c.passion) + '</div>';
-    if (locationParts.length) bodyHtml += '<div class="card-location">' + esc(locationParts.join(', ')) + '</div>';
-    bodyHtml += '<div class="card-bottom">';
-    if (c.champion_first_name) {
-      bodyHtml += '<span class="card-champion">w/ ' + esc(c.champion_first_name) + '</span>';
-    }
-    bodyHtml += '<span class="card-number">No. ' + (idx + 1) + '</span>';
-    bodyHtml += '</div></div>';
+    if (c.passion) bodyHtml += '<div class="card-topic">' + esc(c.passion) + '</div>';
+    if (locationParts.length) bodyHtml += '<div class="card-place">' + esc(locationParts.join(', ')) + '</div>';
+    bodyHtml += '<div class="card-identity"><span class="card-name">' + esc(name) + '</span>';
+    if (c.age) bodyHtml += '<span class="card-age">' + esc(String(c.age)) + '</span>';
+    bodyHtml += '</div>';
+    bodyHtml += '<div class="card-bottom"><span class="card-number">No. ' + (idx + 1) + '</span></div>';
+    bodyHtml += '</div>';
 
-    card.innerHTML = videoHtml + bodyHtml;
-    card.addEventListener('click', function () { openModal(c, idx); });
-    return card;
+    var frontHtml = '<div class="card-face card-front">' + videoHtml + bodyHtml + '</div>';
+
+    var backHtml = '<div class="card-face card-back">';
+    backHtml += '<div class="card-back-eyebrow">' + esc(name) + (c.age ? ' <em>&middot; ' + esc(String(c.age)) + '</em>' : '') + '</div>';
+    backHtml += '<div class="card-back-bio">' + esc(hasBio ? c.bio : '') + '</div>';
+    backHtml += '<div class="card-back-hint">Tap for full profile</div>';
+    backHtml += '</div>';
+
+    wrap.innerHTML = '<div class="card-inner">' + frontHtml + (hasBio ? backHtml : '') + '</div>';
+    wrap.addEventListener('click', function () { openModal(c, idx); });
+    return wrap;
   }
 
   window.openModal = function (c, idx) {
@@ -515,11 +591,20 @@ var allChallengers = [];
 
     var locEl = document.getElementById('modal-location');
     var locationParts = [c.city, c.state].filter(Boolean);
+    if (c.age) locationParts.push('Age ' + c.age);
     if (locationParts.length) {
-      locEl.textContent = locationParts.join(', ');
+      locEl.textContent = locationParts.join(' · ');
       locEl.style.display = 'block';
     } else {
       locEl.style.display = 'none';
+    }
+
+    var bioWrapEl = document.getElementById('modal-bio-wrap');
+    if (c.bio && c.bio.trim()) {
+      document.getElementById('modal-bio').textContent = c.bio;
+      bioWrapEl.style.display = 'block';
+    } else {
+      bioWrapEl.style.display = 'none';
     }
 
     var videosEl = document.getElementById('modal-videos');

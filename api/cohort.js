@@ -43,7 +43,7 @@ async function fetchCohort() {
 
   // Fetch only youth whose program status is 'completed'
   const youthQuery = [
-    'select=id,first_name,last_name,city,state,passion,first_drop_url,full_send_url,champion_id,end_of_challenge_completed_at,accepted_at',
+    'select=id,first_name,last_name,birthdate,city,state,passion,bio,first_drop_url,full_send_url,champion_id,end_of_challenge_completed_at,accepted_at',
     'status=eq.completed',
     'order=end_of_challenge_completed_at.asc.nullslast',
   ].join('&');
@@ -73,13 +73,38 @@ async function fetchCohort() {
   return youth.map(row => ({
     first_name: row.first_name,
     last_initial: row.last_name ? row.last_name[0].toUpperCase() : '',
+    age: computeAge(row.birthdate),
     city: row.city || '',
     state: row.state || '',
     passion: row.passion || '',
+    bio: row.bio || null,
     // Prefer the final "full send" video; fall back to intro video
     video_url: row.full_send_url || row.first_drop_url || null,
     first_drop_url: row.first_drop_url || null,
     champion_first_name: championMap[row.champion_id] || null,
     completed_at: row.end_of_challenge_completed_at || null,
   }));
+}
+
+// birthdate is stored as text in MM/DD/YYYY (see api/submit.js). Returns null
+// if it's missing or malformed rather than throwing — a bad birthdate shouldn't
+// take down the whole cohort feed.
+function computeAge(birthdateStr) {
+  if (!birthdateStr) return null;
+  const parts = birthdateStr.split('/');
+  if (parts.length !== 3) return null;
+  const [month, day, year] = parts.map(Number);
+  if (!month || !day || !year) return null;
+
+  const birth = new Date(year, month - 1, day);
+  if (Number.isNaN(birth.getTime())) return null;
+
+  const now = new Date();
+  let age = now.getFullYear() - birth.getFullYear();
+  const hadBirthdayThisYear =
+    now.getMonth() > birth.getMonth() ||
+    (now.getMonth() === birth.getMonth() && now.getDate() >= birth.getDate());
+  if (!hadBirthdayThisYear) age--;
+
+  return age;
 }
