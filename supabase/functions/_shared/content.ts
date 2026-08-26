@@ -98,18 +98,24 @@ export const content = {
   },
 
   grant_pending: {
-    email_subject: "You've unlocked your NYC Learning Challenge funding — action required",
+    email_subject: "You just unlocked your funding, {{first_name}} 🎉",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Big congrats {{first_name}}. You just completed your orientation call with {{champion_first_name}}. NYC Learning Challenge alumni consistently say their Champion was the most valuable part of the whole experience. We think you'll see why.</p>
-<p>You can now officially unlock your funding.</p>
-<p>To release your NYC Learning Challenge funding, you need to sign two documents:</p>
-<p><strong>Your W-9 form</strong> — this is a standard IRS tax form that nonprofits are required to collect before sending any payment. NYC Learning Challenge is a registered 501(c)(3) nonprofit, which means we're legally required to have this on file before we can send you money. It takes 2 minutes to complete.<br>
+<p>Big congrats. You just finished your orientation call with {{champion_first_name}} — and that call unlocked two things at once:</p>
+<p><strong>Your funding.</strong> Your learning stipend is officially in motion.<br>
+<strong>Your invites.</strong> You can now bring people into your cohort.</p>
+<p>Here are your next two steps to release your funding.</p>
+<p><strong>1. Invite your people</strong><br>
+{{invite_paragraph}}</p>
+<p><a href="{{referral_link}}">{{referral_link}}</a></p>
+<p><strong>2. Lock in your funding</strong><br>
+To release your funding, you need to sign two quick documents:</p>
+<p><strong>Your W-9</strong> — the standard tax form nonprofits collect before sending any payment. NYC Learning Challenge is a 501(c)(3), so we're required to have this on file. Takes about 2 minutes.<br>
 <a href="{{w9_link}}">Sign your W-9 →</a></p>
-<p><strong>Your Participation Agreement</strong> — this outlines what you're committing to as a NYC Learning Challenger.<br>
+<p><strong>Your Participation Agreement</strong> — this confirms what you're committing to as a NYC Learning Challenger.<br>
 <a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
-<p>You have 10 days to sign both documents. After that the funding window closes. Your spot in the program is safe either way.</p>
+<p>You have 10 days to sign both. After that, the funding window closes. But if you want, you can continue the Learning Challenge unfunded.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: `Congrats on completing your NYC Learning Challenge orientation call! Now check your email to unlock your funding.`,
+    sms: `Congrats on completing your NYC Learning Challenge orientation call! Check your email to unlock your funding and grab your invite link.`,
   },
 
   grant_review: {

@@ -33,7 +33,7 @@ serve(async (req) => {
     // Load youth record
     const { data: youth, error: fetchError } = await supabase
       .from('youth')
-      .select('id, first_name, last_name, email, phone, program_id, status, champion_id, birthdate')
+      .select('id, first_name, last_name, email, phone, program_id, status, champion_id, birthdate, orientation_responses')
       .eq('id', youth_id)
       .single();
 
@@ -200,13 +200,35 @@ serve(async (req) => {
       championFirstName = champion?.first_name ?? '';
     }
 
+    // Referral link — same format as the one generated later in
+    // on-grant-approved/index.ts. Now surfaced earlier, at grant_pending,
+    // per copy update (referral ask moved up to right after orientation).
+    const referralLink = `${config.BASE_URL}/?ref=${youth.first_name.toLowerCase()}-${youth.last_name.toLowerCase()}`;
+
+    // "Invite your people" paragraph — named branch when the Champion
+    // captured referral names on the orientation call (orientation form
+    // fields referral_1_name / referral_2_name, stored in
+    // youth.orientation_responses), generic fallback when both are blank.
+    // Built here (not in content.ts) because renderContent() only does
+    // flat {{var}} substitution — no conditionals.
+    const orientationResponses = (youth.orientation_responses ?? {}) as Record<string, unknown>;
+    const referralNames = [orientationResponses.referral_1_name, orientationResponses.referral_2_name]
+      .filter((name): name is string => typeof name === 'string' && name.trim().length > 0);
+
+    const inviteParagraph = referralNames.length > 0
+      ? `On your call, you mentioned ${referralNames.join(' and ')} — here's your personal invite link. This is a golden ticket: when your friends register through this link, they get a guaranteed spot. They get to pursue their own passion project, backed with their own funding and mentorship.`
+      : `Here's your personal invite link. This is a golden ticket: anyone who registers through it gets a guaranteed spot. They get to pursue their own passion project, backed with their own funding and mentorship.`;
+
     // Send signing links to youth via dispatcher
-    // vars map to {{w9_link}} and {{agreement_link}} in content.ts grant_pending block
+    // vars map to {{w9_link}}, {{agreement_link}}, {{invite_paragraph}},
+    // {{referral_link}} in content.ts grant_pending block
     await sendNotification('grant_pending', youth, {
       w9_link: w9SigningUrl,
       agreement_link: agreementSigningUrl,
       champion_first_name: championFirstName,
       base_url: config.BASE_URL,
+      invite_paragraph: inviteParagraph,
+      referral_link: referralLink,
     }, { youth_id: youth.id });
 
     console.log(`[send-grant-docs] ${youth.id}: BoldSign requests created, signing links sent to ${youth.email}`);
