@@ -293,6 +293,11 @@ serve(async (req) => {
 
       for (const youth of (youths ?? [])) {
         try {
+          if (nudge.content_key === 'receipt_reminder' && !youth.receipt_token) {
+            console.warn(`[daily-scheduler] receipt_reminder skipped — no receipt_token for youth ${youth.id} (no grant disbursed or token missing)`);
+            continue;
+          }
+
           const { data: existing } = await supabase
             .from('comms_log')
             .select('id')
