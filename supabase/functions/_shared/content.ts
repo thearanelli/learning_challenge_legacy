@@ -138,21 +138,44 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   grant_approved: {
-    email_subject: 'Your NYC Learning Challenge funding is approved — claim it now',
+    email_subject: 'Your \${{grant_amount}} is approved — claim it now',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your \${{grant_amount}} NYC Learning Challenge funding is approved and ready to claim. This money is yours — use it to build something real.</p>
-<p>Click below to claim your funding. You'll choose how you want to receive it on the next screen.</p>
-<p><a href="{{redemption_link}}">Claim your \${{grant_amount}} →</a></p>
-<p><strong>Important: keep your receipts and upload them as you spend!</strong><br>
-<a href="{{receipt_link}}">Upload your receipts here →</a></p>
-<p>You also get to invite two friends into Cohort 01. Because you're a Challenger, anyone you refer gets guaranteed acceptance. They get everything you got: their own Champion, their own funding, their own project.</p>
-<p>Here's your unique referral link: <a href="{{referral_link}}">{{referral_link}}</a></p>
+<p style="font-size:22px;font-weight:600;margin:0 0 14px;">Your \${{grant_amount}} is approved. It's yours.</p>
+<p>Use it to build something real. Click below and choose how you want to receive it.</p>
+<p><a href="{{redemption_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Claim your \${{grant_amount}} →</a></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border:1px solid #EA5329;border-radius:8px;border-collapse:separate;overflow:hidden;">
+<tr><td style="background:#EA5329;padding:12px 22px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td style="font-size:14px;font-weight:700;letter-spacing:0.04em;color:#ffffff;">⏰ CHALLENGER PERK</td>
+<td align="right"><span style="background:#ffffff;color:#D85A30;font-size:12px;font-weight:700;padding:4px 12px;border-radius:12px;">5 DAYS LEFT</span></td>
+</tr></table>
+</td></tr>
+<tr><td style="background:#FFF4EF;padding:18px 22px;">
+<p style="font-size:17px;font-weight:700;color:#4A1B0C;margin:0 0 8px;">Bring 2 friends. They're guaranteed in.</p>
+<p style="font-size:14px;line-height:1.6;color:#712B13;margin:0 0 14px;">Only Challengers can do this. Anyone you invite skips the line: their own Champion, their own \${{grant_amount}}, their own project. After 5 days we offer your spots to other Challengers.</p>
+<p style="font-size:13px;font-weight:700;color:#993C1D;margin:0 0 6px;">Send your friends this text:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;"><tr><td style="background:#ffffff;border:1px solid #F0997B;border-radius:12px;padding:12px 16px;">
+<p style="font-size:14px;line-height:1.5;color:#1a1a1a;margin:0;">Hey! I'm doing the NYC Learning Challenge (you get \${{grant_amount}} + a mentor to build whatever you're passionate about for 6 weeks). I'm in the current cohort and get to invite 2 people. Apply with my link: {{referral_link}}</p>
+</td></tr></table>
+<p style="font-size:13px;line-height:1.5;color:#993C1D;margin:0 0 14px;">Add a line about why you picked them — it works.</p>
+<p style="margin:0;"><a href="{{referral_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Or grab your invite link →</a></p>
+</td></tr></table>
 <p>— The NYC Learning Challenge Team</p>`,
     sms: `NYC Learning Challenge: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
   },
 
+  receipt_reminder: {
+    email_subject: 'Quick one — save your receipts',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>You've had your \${{grant_amount}} for a week — hope it's already turning into something. One piece of homework: <strong>upload your receipts as you spend.</strong> It takes 30 seconds and keeps your funding squeaky clean.</p>
+<p><a href="{{receipt_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Upload receipts →</a></p>
+<p>Snap a photo the moment you buy something and you'll never have to think about it again.</p>
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: `NYC Learning Challenge: quick reminder to upload receipts for anything you've bought with your grant: {{receipt_link}}`,
+  },
+
   referral_sms: {
-    sms: `Hey {{first_name}}, as a Cohort 01 Challenger you can invite two friends and they get guaranteed acceptance. Here's your unique referral link: {{referral_link}}`,
+    sms: `Hey {{first_name}}, 2 days left to send your 2 Challenger invites — your friends get guaranteed acceptance. Your link: {{referral_link}}`,
   },
 
   tremendous_error: {
