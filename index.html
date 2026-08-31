@@ -1345,8 +1345,8 @@ h1 {
         <div class="ch-seg ch-seg-3" id="ch-seg-3"></div>
       </div>
       <div class="ch-meta">
-        <span class="ch-label" id="ch-label">CH 1 · YOU</span>
-        <span class="ch-time">~5 min total</span>
+        <span class="ch-label" id="ch-label">CH 1 · ABOUT YOU</span>
+        <span class="ch-time">~10 min</span>
       </div>
     </div>
   </div>
@@ -1480,13 +1480,13 @@ function wordCount(str) {
 
 // Chapter definitions mapped to step ranges
 const CHAPTERS = [
-  { name: 'YOU',           label: 'CH 1 \u00B7 YOU',           lastStep: 1  },
+  { name: 'ABOUT YOU',     label: 'CH 1 \u00B7 ABOUT YOU',     lastStep: 1  },
   { name: 'YOUR PASSION',  label: 'CH 2 \u00B7 YOUR PASSION',  lastStep: 3  },
   { name: 'LOGISTICS',     label: 'CH 3 \u00B7 LOGISTICS',     lastStep: Infinity },
 ];
 
 const CH_TITLES = [
-  { emoji: '\uD83D\uDC4B', title: 'You',           sub: '2 questions \u2014 the intros' },
+  { emoji: '\uD83D\uDC4B', title: 'About You',      sub: '2 questions \u2014 the intros' },
   { emoji: '\uD83D\uDD25', title: 'Your passion',   sub: 'The big one. Real answers win.' },
   { emoji: '\u2705',        title: 'Logistics',      sub: 'Last chapter. This part is quick.' },
 ];
@@ -1688,7 +1688,7 @@ async function showIntroMessages() {
   showTyping();
   await new Promise(r => setTimeout(r, 400));
   hideTyping();
-  await addAiMsg('It\u2019s <span style="color:#F0997B">3 quick chapters</span>: <span style="color:#F0997B">You</span> (2 questions), <span style="color:#F0997B">Your passion</span> (the one that matters), and <span style="color:#F0997B">Logistics</span> (fast). About 5 minutes total.', null, true);
+  await addAiMsg('Apply in 10 minutes. It\u2019s <span style="color:#F0997B">3 quick chapters</span>: <span style="color:#F0997B">About You</span> (2 questions), <span style="color:#F0997B">Your passion</span> (the one that matters), and <span style="color:#F0997B">Logistics</span> (fast).', null, true);
   await new Promise(r => setTimeout(r, 300));
   injectChapterCard(0);
   await new Promise(r => setTimeout(r, 300));
