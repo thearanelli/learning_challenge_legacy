@@ -28,7 +28,7 @@ serve(async (req) => {
   function formatDeadline(isoDate: string | null | undefined): string {
     if (!isoDate) return 'soon';
     const d = new Date(isoDate);
-    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   }
 
   const supabase = createClient(
@@ -435,9 +435,11 @@ serve(async (req) => {
   try {
     const now = new Date().toISOString();
 
-    for (const nudge_day of [7, 12]) {
+    const fullSendNudgeDays = config.STAGES.final_video_pending.nudge_days;
+    const finalNudgeDay = fullSendNudgeDays[fullSendNudgeDays.length - 1];
+    for (const nudge_day of fullSendNudgeDays) {
       const cutoff = new Date(Date.now() - nudge_day * dayMs).toISOString();
-      const isFinal = nudge_day === 12;
+      const isFinal = nudge_day === finalNudgeDay;
 
       const { data: youths, error } = await supabase
         .from('youth')
@@ -694,21 +696,27 @@ serve(async (req) => {
     content_key: string | null;
     decrement_champion: boolean;
     next_status: string;
+    use_token_expiry?: boolean;
   }> = [
     { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed'       },
     { stage: 'grant_pending',       deadline_days: 11,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
-    { stage: 'final_video_pending', deadline_days: config.STAGES.final_video_pending.deadline_days! + 4, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed'       },
+    { stage: 'final_video_pending', deadline_days: 0, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed', use_token_expiry: true },
   ];
 
   try {
     for (const removal of YOUTH_REMOVAL_STAGES) {
       const cutoff = new Date(Date.now() - removal.deadline_days * dayMs).toISOString();
 
-      const { data: youths, error: youthsErr } = await supabase
+      let removalQuery = supabase
         .from('youth')
         .select('*')
-        .eq('status', removal.stage)
-        .lte('stage_entered_at', cutoff);
+        .eq('status', removal.stage);
+
+      removalQuery = removal.use_token_expiry
+        ? removalQuery.lte('token_expires_at', new Date().toISOString())
+        : removalQuery.lte('stage_entered_at', cutoff);
+
+      const { data: youths, error: youthsErr } = await removalQuery;
 
       if (youthsErr) {
         console.error(`[daily-scheduler] S3 youth removal query error (${removal.stage}):`, youthsErr.message);
@@ -759,7 +767,7 @@ serve(async (req) => {
               email: youth.email,
               phone: youth.phone,
             };
-            await sendNotification(removal.content_key, recipient, { deadline_date: formatDeadline(new Date(Date.now() - removal.deadline_days * dayMs).toISOString()), base_url: config.BASE_URL }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+            await sendNotification(removal.content_key, recipient, { deadline_date: formatDeadline(youth.token_expires_at), base_url: config.BASE_URL }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           }
 
           console.log(`[daily-scheduler] S3 youth ${youth.id} → ${removal.next_status} (from ${removal.stage})`);
@@ -800,7 +808,7 @@ serve(async (req) => {
             continue;
           }
 
-          const tokenData = generateToken(config.STAGES.final_video_pending.deadline_days + 10);
+          const tokenData = generateToken(config.STAGES.final_video_pending.deadline_days);
 
           const { error: advanceError } = await supabase.rpc('advance_status', {
             record_id:               youth.id,
