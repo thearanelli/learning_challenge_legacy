@@ -254,7 +254,6 @@ Note: approve/reject routes not built yet — coming next session.`,
     email_body: `<p>Hey {{first_name}},</p>
 <p>You're in — your spot in the NYC Learning Challenge is reserved. One thing left to lock it: sign your declaration. It takes a couple of minutes, right from your phone.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Lock in my spot →</a></p>
-<p>Your deadline is {{deadline_date}} — but why wait?</p>
 <p>— The NYC Learning Challenge Team</p>`,
     sms: `Hey {{first_name}}, your NYC Learning Challenge spot is reserved — lock it in here (takes 2 min): {{link_sms}}`,
   },
