@@ -250,12 +250,13 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   nudge_declaration_early: {
-    email_subject: 'Your spot is waiting — takes a couple of minutes',
+    email_subject: 'Reminder — your NYC Learning Challenge spot',
     email_body: `<p>Hey {{first_name}},</p>
-<p>You're in — your spot in the NYC Learning Challenge is reserved. One thing left to lock it: sign your declaration. It takes a couple of minutes, right from your phone.</p>
+<p>Quick reminder: you earned a spot in the NYC Learning Challenge, and it's still waiting for you.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Lock in my spot →</a></p>
+<p>Takes 2 minutes, right from your phone. You have 3 days — after that we have to give your spot to someone else.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: `Hey {{first_name}}, your NYC Learning Challenge spot is reserved — lock it in here (takes 2 min): {{link_sms}}`,
+    sms: `Hey {{first_name}}, quick reminder — you earned a NYC Learning Challenge spot and it's still waiting. Takes 2 min to lock in. You have 3 days: {{link_sms}}`,
   },
 
   nudge_first_drop_1: {
