@@ -1693,13 +1693,24 @@ function injectTextareaBlock(id, placeholder, onSubmitFn) {
   el.style.cssText = 'margin:0.5rem 0 0.75rem;padding:0 0 0 calc(36px + 0.85rem);max-width:680px;animation:slideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;';
   const inputId = id.replace('-block', '') + '-input';
   const taStyle = 'width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:16px;font-family:inherit;color:var(--white);resize:vertical;outline:none;transition:border-color 0.2s,box-shadow 0.2s;';
+  const showWordCounter = id === 'passion-block';
   el.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:8px;max-width:calc(680px - 36px - 0.85rem);">
       <textarea id="${inputId}" rows="4" placeholder="${placeholder}" style="${taStyle}"></textarea>
+      ${showWordCounter ? '<div id="passion-wc" style="font-size:0.78rem;color:var(--gray);padding:2px 2px 0;">0 / 40 words</div>' : ''}
       <div id="${id}-error" style="font-size:0.78rem;color:#FF5C5C;display:none;padding:4px 2px;"></div>
       <button onclick="${onSubmitFn}()" style="padding:14px;background:var(--lime);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:1rem;width:100%;cursor:pointer;font-family:inherit;margin-top:0;min-height:44px;">Next \u2192</button>
     </div>`;
   const ta = el.querySelector('textarea');
+  if (showWordCounter) {
+    ta.addEventListener('input', () => {
+      const wc = wordCount(ta.value);
+      const wcEl = document.getElementById('passion-wc');
+      if (!wcEl) return;
+      wcEl.textContent = wc + ' / 40 words';
+      wcEl.style.color = wc >= 40 ? '#A8D020' : 'var(--gray)';
+    });
+  }
   ta.addEventListener('focus', () => {
     ta.style.borderColor = 'rgba(234,83,41,0.5)';
     ta.style.boxShadow = '0 0 0 3px rgba(234,83,41,0.08)';
@@ -1739,10 +1750,14 @@ function submitLastNameBlock() {
 async function submitPassionBlock() {
   const val = document.getElementById('passion-input').value.trim();
   if (!val) return;
-  addUserMsg(val, 'passion');
-  document.getElementById('passion-block').remove();
   const wc = wordCount(val);
   if (wc < 40) {
+    showInlineError('passion-block', "Real talk \u2014 answers under 40 words get rejected. What would you actually make? Add the details.");
+    return;
+  }
+  addUserMsg(val, 'passion');
+  document.getElementById('passion-block').remove();
+  if (false) {
     passionDraft = val;
     showTyping();
     await new Promise(r => setTimeout(r, 1000));
