@@ -456,6 +456,7 @@ Where you're taking it next.</p>
 <p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
 <p>Both need to happen by {{deadline_date}}.</p>
 <p>Pro tip: try to have a draft of your Full Send ready before your End of Challenge call. Showing your Champion what you built makes for a better conversation — and their feedback will make your video better.</p>
+<p>Last call on receipts too — <a href="{{receipt_link}}">upload anything you haven't yet</a>.</p>
 <p>— The NYC Learning Challenge Team</p>`,
     sms: 'Hey {{first_name}}, your Challenge is almost complete. Two things left: your End of Challenge call with {{champion_name}} and your Full Send submission. Submit here: {{link}}',
   },

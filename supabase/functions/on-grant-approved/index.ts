@@ -296,17 +296,19 @@ serve(async (req) => {
     }
 
     // Generate receipt upload token (365-day window, no hard deadline)
-    const { access_token, stage_deadline_at } = generateToken(365);
+    // Stored in dedicated receipt_token column so S4 Full Send dispatch
+    // can overwrite access_token without killing the receipt link.
+    const receiptTokenData = generateToken(365);
     await supabase
       .from('youth')
       .update({
-        access_token:     access_token,
-        token_expires_at: stage_deadline_at,
-        updated_at:       new Date().toISOString(),
+        receipt_token:            receiptTokenData.access_token,
+        receipt_token_expires_at: receiptTokenData.stage_deadline_at,
+        updated_at:               new Date().toISOString(),
       })
       .eq('id', youth.id);
 
-    const receiptLink = `${config.BASE_URL}/receipts?token=${access_token}`;
+    const receiptLink = `${config.BASE_URL}/receipts?token=${receiptTokenData.access_token}`;
     const referralLink = `${config.BASE_URL}/?ref=${youth.first_name.toLowerCase()}-${youth.last_name.toLowerCase()}`;
 
     // Send grant_approved email + SMS to youth with redemption link, receipt upload link, and referral link

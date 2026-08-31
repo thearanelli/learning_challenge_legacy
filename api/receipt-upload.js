@@ -7,9 +7,9 @@
 // Token validation — mirrors isTokenValid in _shared/tokens.ts
 // Cannot import directly — this is a Vercel Node function
 function isTokenValid(youth, token) {
-  if (!youth.access_token || youth.access_token !== token) return false;
-  if (!youth.token_expires_at) return false;
-  return new Date(youth.token_expires_at) > new Date();
+  if (!youth.receipt_token || youth.receipt_token !== token) return false;
+  if (!youth.receipt_token_expires_at) return false;
+  return new Date(youth.receipt_token_expires_at) > new Date();
 }
 
 export default async function handler(req, res) {
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
   try {
     // Look up youth by access_token
     const lookupRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?access_token=eq.${encodeURIComponent(token)}&select=id,first_name,last_name,program_id,access_token,token_expires_at`,
+      `${supabaseUrl}/rest/v1/youth?receipt_token=eq.${encodeURIComponent(token)}&select=id,first_name,last_name,program_id,receipt_token,receipt_token_expires_at`,
       {
         headers: {
           'apikey': supabaseKey,

@@ -344,7 +344,7 @@ serve(async (req) => {
           }
 
           if (nudge.content_key === 'receipt_reminder') {
-            vars.receipt_link = `${config.BASE_URL}/receipts?token=${youth.access_token}`;
+            vars.receipt_link = `${config.BASE_URL}/receipts?token=${youth.receipt_token}`;
             const { data: gr } = await supabase
               .from('grant_requests')
               .select('grant_amount')
@@ -863,7 +863,8 @@ serve(async (req) => {
           const championName  = eocChampion ? `${eocChampion.first_name} ${eocChampion.last_name}` : '';
           const championPhone = eocChampion?.phone ?? '';
 
-          await sendNotification('full_send_link', recipient, { link: fullSendLink, deadline_date: formatDeadline(tokenData.stage_deadline_at), base_url: config.BASE_URL, champion_name: championName, champion_phone: championPhone }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+          const receiptLink = `${config.BASE_URL}/receipts?token=${youth.receipt_token}`;
+          await sendNotification('full_send_link', recipient, { link: fullSendLink, deadline_date: formatDeadline(tokenData.stage_deadline_at), base_url: config.BASE_URL, champion_name: championName, champion_phone: championPhone, receipt_link: receiptLink }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
           // dispatcher writes comms_log with youth_id automatically
 
           console.log(`[daily-scheduler] S4 sent full_send_link to youth ${youth.id}, advanced to final_video_pending`);
