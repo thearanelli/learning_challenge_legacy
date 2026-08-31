@@ -1354,7 +1354,7 @@ h1 {
     <div class="app-logo">The Learning Challenge</div>
     <div class="progress-section">
       <div class="progress-meta">
-        <span class="progress-step" id="step-label">Step 1 of 13</span>
+        <span class="progress-step" id="step-label">Chapter 1 · You</span>
         <span class="progress-pct" id="pct-label">0% there ✨</span>
       </div>
       <div class="progress-track">
@@ -1410,7 +1410,7 @@ window.addEventListener('popstate', function(e) {
   }
 });
 
-function typeMessage(element, text, speed = 28) {
+function typeMessage(element, text, speed = 14) {
   return new Promise(resolve => {
     let i = 0;
     function tick() {
@@ -1490,10 +1490,25 @@ function wordCount(str) {
   return str.trim().split(/\s+/).filter(Boolean).length;
 }
 
+// Chapter definitions mapped to step ranges
+const CHAPTERS = [
+  { name: 'You',           lastStep: 1  },  // first_name (0), last_name (1)
+  { name: 'Your passion',  lastStep: 3  },  // passion (2), why_join (3)
+  { name: 'Logistics',     lastStep: Infinity }, // email, phone, birthdate, address, gender, pronouns, consent
+];
+
+function getChapter(s) {
+  for (let i = 0; i < CHAPTERS.length; i++) {
+    if (s <= CHAPTERS[i].lastStep) return { num: i + 1, name: CHAPTERS[i].name };
+  }
+  return { num: 3, name: 'Logistics' };
+}
+
 function setProgress(s, total) {
   const pct = Math.round((s / total) * 100);
   document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('step-label').textContent = `Step ${Math.min(s + 1, total)} of ${total}`;
+  const ch = getChapter(s);
+  document.getElementById('step-label').textContent = `Chapter ${ch.num} \u00B7 ${ch.name}`;
   const emoji = pct === 100 ? '🎉' : pct > 60 ? '⚡' : pct > 30 ? '🔥' : '✨';
   document.getElementById('pct-label').textContent = `${pct}% there ${emoji}`;
 }
@@ -1597,11 +1612,11 @@ function startApp() {
 
 async function showIntroMessages() {
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   await addAiMsg("You pick the passion. You design the project. We back you with $150, a mentor, community, and 6 weeks to actually make something happen.", null);
   showTyping();
-  await new Promise(r => setTimeout(r, 800));
+  await new Promise(r => setTimeout(r, 400));
   hideTyping();
   await addAiMsg("Let\u2019s start \u2014 what\u2019s your first name?", null);
   injectInlineBlock('first-name-block', `<input id="first-name-input" type="text" placeholder="First name" style="${INLINE_INPUT_STYLE}">`, 'submitFirstNameBlock');
@@ -1609,7 +1624,7 @@ async function showIntroMessages() {
 
 async function askQ(idx) {
   showTyping();
-  const delay = 800 + Math.random() * 500;
+  const delay = 400 + Math.random() * 250;
   await new Promise(r => setTimeout(r, delay));
   hideTyping();
   let text = QUESTIONS[idx].q.replace('{name}', userName || 'you');
@@ -1631,7 +1646,7 @@ async function askQ(idx) {
 async function showPausePassion() {
   setEnabled(false);
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   await addAiMsg(
     `Thanks for sharing, ${userName || 'you'}. We\u2019ve supported so many different passions over the years \u2014 music, coding, fashion, writing, business, art, and everything in between. All that really matters is you\u2019re all in on yours.`,
@@ -1639,7 +1654,7 @@ async function showPausePassion() {
   );
   await new Promise(r => setTimeout(r, 400));
   showTyping();
-  await new Promise(r => setTimeout(r, 800));
+  await new Promise(r => setTimeout(r, 400));
   hideTyping();
   await addAiMsg("Are you all in on this?", null);
   const chat = document.getElementById('chat');
@@ -1780,7 +1795,7 @@ function submitFirstNameBlock() {
   setTimeout(() => askQ(1), 450);
 }
 
-function submitLastNameBlock() {
+async function submitLastNameBlock() {
   const val = document.getElementById('last-name-input').value.trim();
   if (val.length < 2) { showInlineError('last-name-block', 'Please enter at least 2 characters.'); return; }
   if (/\d/.test(val)) { showInlineError('last-name-block', 'Name shouldn\u2019t contain numbers.'); return; }
@@ -1789,7 +1804,11 @@ function submitLastNameBlock() {
   document.getElementById('last-name-block').remove();
   step++;
   setProgress(step, TOTAL_STEPS);
-  setTimeout(() => askQ(STEP_PASSION), 450);
+  showTyping();
+  await new Promise(r => setTimeout(r, 400));
+  hideTyping();
+  await addAiMsg("Chapter 1 done \u2713 Now the big one \u2014 your passion.", null);
+  askQ(STEP_PASSION);
 }
 
 async function submitPassionBlock() {
@@ -1802,7 +1821,7 @@ async function submitPassionBlock() {
   if (false) {
     passionDraft = val;
     showTyping();
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 500));
     hideTyping();
     await addAiMsg(
       "Tell us more \u2014 what specifically about that gets you going?",
@@ -1834,7 +1853,7 @@ async function submitPassionDeepDiveBlock() {
   showPausePassion();
 }
 
-function submitWhyJoinBlock() {
+async function submitWhyJoinBlock() {
   const val = document.getElementById('why-join-input').value.trim();
   if (!val) return;
   answers['why_join'] = val;
@@ -1842,7 +1861,11 @@ function submitWhyJoinBlock() {
   document.getElementById('why-join-block').remove();
   step++;
   setProgress(step, TOTAL_STEPS);
-  setTimeout(() => showEmailBlock(), 450);
+  showTyping();
+  await new Promise(r => setTimeout(r, 400));
+  hideTyping();
+  await addAiMsg("Chapter 2 done \u2713 Last chapter: logistics. This part\u2019s quick.", null);
+  showEmailBlock();
 }
 
 function showInlineError(blockId, msg) {
@@ -1853,7 +1876,7 @@ function showInlineError(blockId, msg) {
 async function showEmailBlock() {
   setEnabled(false);
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   await addAiMsg(`Great ${userName || 'you'}! We\u2019re going to send this over to the NYC Learning Challenge team for review. You\u2019re almost done \u2014 we just need some basic contact information. What\u2019s your email? We\u2019ll send updates about your registration there.`, null);
   injectInlineBlock(
@@ -1878,7 +1901,7 @@ function submitEmailBlock() {
 async function showPhoneBlock() {
   setEnabled(false);
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   await addAiMsg("Phone number? We\u2019ll text you updates.", null);
   injectInlineBlock(
@@ -1907,7 +1930,7 @@ function submitPhoneBlock() {
 async function showBirthdateBlock() {
   setEnabled(false);
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   await addAiMsg("Date of birth? (MM/DD/YYYY)", { type: 'warn', icon: '\u{1F4A1}', text: 'Format: MM/DD/YYYY' });
   injectInlineBlock(
@@ -1944,7 +1967,7 @@ function submitBirthdateBlock() {
 async function showAddressBlock() {
   setEnabled(false);
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   await addAiMsg("Where do you live?", null);
 
@@ -2124,7 +2147,7 @@ function skipOptional(fieldKey, btn) {
 
 async function showPriorGriptapeStep() {
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   setProgress(13, TOTAL_STEPS);
   await addAiMsg(
@@ -2164,7 +2187,7 @@ async function showPriorGriptapeStep() {
 
 async function showHeardAboutStep() {
   showTyping();
-  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => setTimeout(r, 450));
   hideTyping();
   setProgress(14, TOTAL_STEPS);
   await addAiMsg('Last one — how did you hear about the NYC Learning Challenge?', null);
