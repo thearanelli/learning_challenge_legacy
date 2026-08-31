@@ -13,7 +13,7 @@ export const content = {
     email_subject: 'Congratulations, {{first_name}}. You\'re in.',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Congratulations! Your NYC Learning Challenge application made it through. Your passion for {{passion}} stood out.</p>
-<p>You have until {{deadline_date}} to begin.</p>
+<p>You have 5 days to begin. If you don't, we'll have to give your spot to someone else.</p>
 <p><a class="cta" href="{{link}}">Begin your Challenge →</a></p>
 <p>— The NYC Learning Challenge Team</p>`,
     sms: 'Congrats {{first_name}} — your application for the NYC Learning Challenge made it through. Tap below to begin.',
