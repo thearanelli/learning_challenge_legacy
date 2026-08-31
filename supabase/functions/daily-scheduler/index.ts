@@ -148,6 +148,7 @@ serve(async (req) => {
     content_key: string;
     link_field: string | null;
   }> = [
+    { stage: 'declaration_pending', nudge_day: 2,  content_key: 'nudge_declaration_early',  link_field: 'access_token' },
     { stage: 'declaration_pending', nudge_day: 6,  content_key: 'nudge_declaration',  link_field: 'access_token' },
     { stage: 'video_pending',       nudge_day: 5,  content_key: 'nudge_first_drop_1',   link_field: 'access_token' },
     { stage: 'video_pending',       nudge_day: 9,  content_key: 'nudge_first_drop_2',   link_field: 'access_token' },
@@ -203,7 +204,7 @@ serve(async (req) => {
             phone: app.phone,
           };
 
-          const twoPartSmsNudges = ['nudge_declaration', 'nudge_first_drop_1', 'nudge_first_drop_2'];
+          const twoPartSmsNudges = ['nudge_declaration_early', 'nudge_declaration', 'nudge_first_drop_1', 'nudge_first_drop_2'];
           const skipSmsForNudge = twoPartSmsNudges.includes(nudge.content_key) ? true : !app.sms_consent;
           await sendNotification(
             nudge.content_key,
@@ -219,6 +220,14 @@ serve(async (req) => {
             });
             await sendSMS({ to: app.phone, body: smsText });
             await sendSMS({ to: app.phone, body: link_sms });
+          }
+
+          if (nudge.content_key === 'nudge_declaration_early' && app.sms_consent) {
+            const smsText = renderContent((content as Record<string, any>).nudge_declaration_early.sms, {
+              first_name: app.first_name || 'there',
+              link_sms,
+            });
+            await sendSMS({ to: app.phone, body: smsText });
           }
 
           if ((nudge.content_key === 'nudge_first_drop_1' || nudge.content_key === 'nudge_first_drop_2') && app.sms_consent) {
