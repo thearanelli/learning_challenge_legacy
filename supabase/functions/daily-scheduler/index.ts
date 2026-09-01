@@ -265,6 +265,7 @@ serve(async (req) => {
     { stage: 'mentor_pending',      nudge_day: 6,  content_key: 'nudge_orientation_2', notify_champion: false, has_deadline: true  },
     { stage: 'grant_pending',       nudge_day: 5,  content_key: 'nudge_grant',          notify_champion: false, has_deadline: false },
     { stage: 'grant_pending',       nudge_day: 9,  content_key: 'nudge_grant_final',   notify_champion: false, has_deadline: false },
+    { stage: 'grant_approved',      nudge_day: 4,  content_key: 'champion_referral_followup', notify_champion: false, has_deadline: false },
     { stage: 'grant_approved',      nudge_day: 3,  content_key: 'referral_sms',        notify_champion: false, has_deadline: false },
     { stage: 'grant_approved',      nudge_day: 7,  content_key: 'receipt_reminder',   notify_champion: false, has_deadline: false },
   ];
@@ -307,6 +308,59 @@ serve(async (req) => {
 
           if (existing && existing.length > 0) {
             continue; // already sent
+          }
+
+          // ── Champion referral follow-up: two-part SMS to champion ──
+          if (nudge.content_key === 'champion_referral_followup') {
+            if (!youth.champion_id) {
+              console.warn(`[daily-scheduler] champion_referral_followup skipped — no champion_id for youth ${youth.id}`);
+              continue;
+            }
+            const { data: champion } = await supabase
+              .from('champions')
+              .select('id, first_name, phone')
+              .eq('id', youth.champion_id)
+              .single();
+            if (!champion) {
+              console.warn(`[daily-scheduler] champion_referral_followup skipped — champion not found for youth ${youth.id}`);
+              continue;
+            }
+            if (!champion.phone) {
+              console.warn(`[daily-scheduler] champion_referral_followup skipped — champion has no phone for youth ${youth.id}`);
+              continue;
+            }
+            const { data: gr } = await supabase
+              .from('grant_requests')
+              .select('grant_amount')
+              .eq('youth_id', youth.id)
+              .single();
+            if (!gr) {
+              console.warn(`[daily-scheduler] champion_referral_followup skipped — no grant_request for youth ${youth.id}`);
+              continue;
+            }
+            const smsVars = {
+              champion_first_name: champion.first_name,
+              youth_first_name: youth.first_name,
+              youth_phone: youth.phone ?? '',
+              grant_amount: String(gr.grant_amount),
+            };
+            const sms1 = renderContent((content as Record<string, any>).champion_referral_followup.sms, smsVars);
+            const sms2 = (content as Record<string, any>).champion_referral_followup.sms_2;
+            await sendSMS({ to: champion.phone, body: sms1 });
+            await sendSMS({ to: champion.phone, body: sms2 });
+            await supabase.from('comms_log').insert({
+              program_id:      config.PROGRAM_ID,
+              youth_id:        youth.id,
+              champion_id:     champion.id,
+              direction:       'outbound',
+              channel:         'sms',
+              stage_key:       'champion_referral_followup',
+              message_body:    sms1,
+              sent_at:         new Date().toISOString(),
+              delivery_status: 'sent',
+            });
+            console.log(`[daily-scheduler] S2 sent champion_referral_followup to champion ${champion.id} for youth ${youth.id}`);
+            continue;
           }
 
           if (nudge.champion_only) {

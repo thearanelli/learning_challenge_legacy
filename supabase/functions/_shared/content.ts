@@ -174,6 +174,13 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms: `NYC Learning Challenge: quick reminder to upload receipts for anything you've bought with your grant: {{receipt_link}}`,
   },
 
+  champion_referral_followup: {
+    email_subject: null,
+    email_body: null,
+    sms: `Hey {{champion_first_name}} — {{youth_first_name}} got their \${{grant_amount}} approved 🎉 Quick assist: at orientation they named 2 friends to invite, and their invite window closes tomorrow. Their number: {{youth_phone}}. Forward them the next message or write your own! 👇`,
+    sms_2: `Congrats on your grant getting approved!! Excited to see what you do with it. Did you send your invites to the 2 friends you told me about yet? I think the deadline is tomorrow`,
+  },
+
   referral_sms: {
     sms: `Hey {{first_name}}, 2 days left to send your 2 Challenger invites — your friends get guaranteed acceptance. Your link: {{referral_link}}`,
   },
