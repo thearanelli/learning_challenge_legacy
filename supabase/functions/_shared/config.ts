@@ -19,8 +19,8 @@ export const config = {
   STAGES: {
     submitted:           { next: 'screening',           deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
     screening:           { next: 'declaration_pending',  deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
-    declaration_pending: { next: 'video_pending',         deadline_days: 8,    nudge_days: [2,6],  auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: false },
-    video_pending:       { next: 'video_review',          deadline_days: 10,   nudge_days: [5,9],  auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: false },
+    declaration_pending: { next: 'video_pending',         deadline_days: 6,    nudge_days: [2,5],  auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: false },
+    video_pending:       { next: 'video_review',          deadline_days: 7,    nudge_days: [3,6],  auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: false },
     video_review:        { next: 'onboarding',            deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
     onboarding:          { next: 'mentor_pending',        deadline_days: null, nudge_days: [],     auto_remove: false, nudge_email: false, nudge_sms: false, notify_champion: false },
     mentor_pending:      { next: 'grant_pending',         deadline_days: 8,    nudge_days: [3,6],  auto_remove: true,  nudge_email: true,  nudge_sms: true,  notify_champion: true  },

@@ -511,30 +511,30 @@
 
     <!-- Hero copy -->
     <p class="greeting" id="greeting"></p>
-    <p class="main-sub">You're Challenger No. <span id="challenger-number">—</span> in Cohort 01 — part of a community of NYC teens building something real. Here's what your first 10 days look like.</p>
+    <p class="main-sub">You're Challenger No. <span id="challenger-number">—</span> in Cohort 01 — part of a community of NYC teens building something real. Here's what your first 7 days look like.</p>
 
     <div class="steps">
       <div class="step">
         <div class="step-icon">🎯</div>
         <div class="step-content">
           <p class="step-timing">Today</p>
-          <p class="step-desc">Set your 10-day goal. Write something specific you can build, make, or finish. Your mentor will see it.</p>
+          <p class="step-desc">Set your 7-day goal. Write something specific you can build, make, or finish. Your mentor will see it.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-icon">🔨</div>
         <div class="step-content">
-          <p class="step-timing">Days 1–10</p>
-          <p class="step-desc">Work on your passion project. No distractions. Just you and your work.</p>
+          <p class="step-timing">Days 1–6</p>
+          <p class="step-desc">Work on your passion project. Your First Drop link arrives on day 3 — film whenever you're ready.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-icon">🎬</div>
         <div class="step-content">
-          <p class="step-timing">Day 10</p>
-          <p class="step-desc">Film a 90-second video showing what you built. That's your First Drop. You'll see every other Challenger's and they'll see yours.</p>
+          <p class="step-timing">By day 7</p>
+          <p class="step-desc">Submit your First Drop — a 90-second phone video, one take, no editing. It's how your mentor gets to know you. The best ones inspire the next cohort.</p>
         </div>
       </div>
 
@@ -554,7 +554,7 @@
 
     <hr class="divider-slim" />
 
-    <label class="goal-label" for="goal-input">What's your 10-day goal?</label>
+    <label class="goal-label" for="goal-input">What's your 7-day goal?</label>
     <textarea
       id="goal-input"
       class="goal-textarea"
@@ -568,7 +568,7 @@
       <li>Building a working prototype of my app</li>
     </ul>
 
-    <button class="declare-btn" id="declare-btn" disabled>I'm in. Start my 10 days.</button>
+    <button class="declare-btn" id="declare-btn" disabled>I'm in. Start my 7 days.</button>
     <p class="declare-error" id="declare-error" style="display:none;"></p>
 
   </div>
@@ -735,17 +735,17 @@
           '<div class="page"><div class="success-wrap">' +
           '<img class="success-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="NYC Learning Challenge" />' +
           '<h1 class="success-heading">You\'re in. Go build something.</h1>' +
-          '<p class="success-sub">Your goal has been received. Your 10 days start now. We\'ll send your First Drop submission link on day 5 — until then, get to work.</p>' +
+          '<p class="success-sub">Your goal has been received. Your 7 days start now. We\'ll send your First Drop link on day 3 — until then, get to work.</p>' +
           '</div></div>';
       } else {
         declareBtn.disabled = false;
-        declareBtn.textContent = 'I\'m in. Start my 10 days.';
+        declareBtn.textContent = 'I\'m in. Start my 7 days.';
         errEl.textContent = 'Something went wrong — please try again or email hello@griptape.org';
         errEl.style.display = 'block';
       }
     } catch (e) {
       declareBtn.disabled = false;
-      declareBtn.textContent = 'I\'m in. Start my 10 days.';
+      declareBtn.textContent = 'I\'m in. Start my 7 days.';
       errEl.textContent = 'Something went wrong — please try again or email hello@griptape.org';
       errEl.style.display = 'block';
     }

@@ -144,27 +144,34 @@ serve(async (req) => {
   // Application nudges: declaration_pending, video_pending
   const APP_NUDGES: Array<{
     stage: string;
-    nudge_day: number;
+    nudge_day?: number;                 // entry-anchored: fires N days after stage_entered_at
+    deadline_window_hours?: number;     // deadline-anchored: fires once stage_deadline_at is within N hours (true "tomorrow" for any token length)
     content_key: string;
     link_field: string | null;
   }> = [
     { stage: 'declaration_pending', nudge_day: 2,  content_key: 'nudge_declaration_early',  link_field: 'access_token' },
-    { stage: 'declaration_pending', nudge_day: 6,  content_key: 'nudge_declaration',  link_field: 'access_token' },
-    { stage: 'video_pending',       nudge_day: 5,  content_key: 'nudge_first_drop_1',   link_field: 'access_token' },
-    { stage: 'video_pending',       nudge_day: 9,  content_key: 'nudge_first_drop_2',   link_field: 'access_token' },
+    { stage: 'declaration_pending', deadline_window_hours: 38, content_key: 'nudge_declaration',  link_field: 'access_token' },
+    { stage: 'video_pending',       nudge_day: 3,  content_key: 'nudge_first_drop_1',   link_field: 'access_token' },
+    { stage: 'video_pending',       deadline_window_hours: 38, content_key: 'nudge_first_drop_2',   link_field: 'access_token' },
   ];
 
   try {
     for (const nudge of APP_NUDGES) {
-      const cutoff = new Date(Date.now() - nudge.nudge_day * dayMs).toISOString();
       const now = new Date().toISOString();
 
-      const { data: apps, error: appsErr } = await supabase
+      let nudgeQuery = supabase
         .from('applications')
         .select('*')
         .eq('screening_status', nudge.stage)
-        .lte('stage_entered_at', cutoff)
         .gt('stage_deadline_at', now);
+
+      if (nudge.deadline_window_hours) {
+        nudgeQuery = nudgeQuery.lte('stage_deadline_at', new Date(Date.now() + nudge.deadline_window_hours * 3600000).toISOString());
+      } else {
+        nudgeQuery = nudgeQuery.lte('stage_entered_at', new Date(Date.now() - (nudge.nudge_day ?? 0) * dayMs).toISOString());
+      }
+
+      const { data: apps, error: appsErr } = await nudgeQuery;
 
       if (appsErr) {
         console.error(`[daily-scheduler] S2 app nudge query error (${nudge.content_key}):`, appsErr.message);

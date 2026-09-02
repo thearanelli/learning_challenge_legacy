@@ -20,11 +20,13 @@ export const content = {
     sms_link: '{{link_sms}}',
   },
   declaration_confirmed: {
-    email_subject: 'Your 10 days start now, {{first_name}}.',
+    email_subject: 'Your first official 7 days',
     email_body: `<p>Hey {{first_name}},</p>
-<p>You're in. Your first 10 days have started — now go work on your goal.</p>
-<p>We'll send you your First Drop submission link in 5 days. Until then, head down and build.</p>
-<p>We're so excited to have you in Cohort 01. You're building alongside a group of NYC teens who earned their spot just like you did. We can't wait to see what you make.</p>
+<p>You're in — your challenge starts now. Here's the whole plan:</p>
+<p><strong>Days 1–3:</strong> Work on your passion project. Maybe you're writing your first song or sketching your first design. Just start!</p>
+<p><strong>Day 3:</strong> We send your First Drop submission link. The First Drop is just a 90-second phone video where you tell us about you and your progress so far. It's not a test. It's how your mentor gets to know you before you meet — and your introduction to the NYC Learning Challenge community.</p>
+<p><strong>By day 7:</strong> Submit. Film it whenever you're ready! It doesn't have to be perfect — just make sure it's in by day 7.</p>
+<p>After you submit, you get matched with your mentor. Your orientation call then unlocks your grant funding. It's all on the other side of this video.</p>
 <p>— The NYC Learning Challenge Team</p>`,
   },
   rejected: {
@@ -267,28 +269,27 @@ Note: approve/reject routes not built yet — coming next session.`,
   },
 
   nudge_first_drop_1: {
-    email_subject: 'Time to film your First Drop, {{first_name}} — here\'s your link.',
+    email_subject: 'Your First Drop video submission link',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Five days in. Time to show what you've been building.</p>
-<p>Your First Drop is a 90-second video. Keep it real, keep it simple. Cover three things:</p>
-<p>Who you are and what your passion is.<br>
-What you've accomplished so far.<br>
-Where you're taking it next.</p>
-<p>Shoot vertical. Show your work. No script needed — just be honest.</p>
-<p><a class="cta" href="{{link}}">Submit your First Drop →</a></p>
-<p>You have until {{deadline_date}}.</p>
+<p>Time for your First Drop — the 90-second video your future mentor watches to get to know you. It's due {{deadline_date}}.</p>
+<p>It's simple. One take on your phone, covering three things:</p>
+<p>1) Who you are and what your passion is<br>
+2) Your progress so far — showing beats telling: your drawings, your music, your website, whatever you've worked on<br>
+3) What's next — your future goals</p>
+<p><a class="cta" href="{{link}}">Record my First Drop →</a></p>
+<p>Your mentor and grant funds are on the other side.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, time to film your NYC Learning Challenge First Drop. Show us what you\'ve built so far and submit before {{deadline_date}}.',
+    sms: 'Hey {{first_name}}, your First Drop video link is here. 90 sec on your phone — you, your passion, your progress so far. It\'s how your mentor gets to know you. Due {{deadline_date}}.',
     sms_link: '{{link_sms}}',
   },
 
   nudge_first_drop_2: {
     email_subject: 'Last chance, {{first_name}}. First Drop due tomorrow.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your First Drop deadline is tomorrow — {{deadline_date}}. Don't let 10 days of work go to waste. Submit your video now.</p>
-<p><a class="cta" href="{{link}}">Submit your First Drop →</a></p>
+<p>Your First Drop video is due tomorrow — {{deadline_date}}. Don't let your spot go: your mentor match starts once you submit. 90 seconds, one take, now.</p>
+<p><a class="cta" href="{{link}}">Submit my First Drop →</a></p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, your First Drop is due tomorrow. Submit now before your spot is released.',
+    sms: 'Hey {{first_name}}, your First Drop video is due tomorrow. Submit now before your spot in the NYC Learning Challenge is released.',
     sms_link: '{{link_sms}}',
   },
 
