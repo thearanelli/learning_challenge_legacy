@@ -353,6 +353,89 @@ serve(async (req) => {
       });
     } catch (_) { /* agent_log insert is best-effort */ }
 
+    // ── Airtable Grants sync (non-blocking, reporting mirror) ────────────────
+    // Note: Legal Name, Challenge Topic, Grant Coding, and Staff Approved are
+    // computed on the Airtable side (lookups/formulas from Youth) — never write them.
+    if (!isTestEmail) {
+      try {
+        const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
+        if (!airtableApiKey) throw new Error('AIRTABLE_API_KEY not set');
+
+        const atBaseId = 'apprXwArE9tAzGFnp';
+        const atYouthTableId = 'tblgtDO4PbNHcDuZi';
+        const atGrantsTableId = 'tblQLbf3gqLslLAf1';
+        const atHeaders = {
+          Authorization: `Bearer ${airtableApiKey}`,
+          'Content-Type': 'application/json',
+        };
+
+        // Idempotency — skip if this grant already exists in Airtable
+        const grantSearchRes = await fetch(
+          `https://api.airtable.com/v0/${atBaseId}/${atGrantsTableId}?filterByFormula=${encodeURIComponent(`{Grant ID}="${record.id}"`)}`,
+          { headers: atHeaders }
+        );
+        const grantSearch = await grantSearchRes.json();
+        if (grantSearch.records && grantSearch.records.length > 0) {
+          console.log(`[on-grant-approved] Airtable grant record already exists for ${record.id} — skipping`);
+        } else {
+          // Look up the youth's Airtable record ID for the linked field (created by S6 at orientation)
+          const youthSearchRes = await fetch(
+            `https://api.airtable.com/v0/${atBaseId}/${atYouthTableId}?filterByFormula=${encodeURIComponent(`{Youth ID}="${youth.id}"`)}`,
+            { headers: atHeaders }
+          );
+          const youthSearch = await youthSearchRes.json();
+          const youthRecId = youthSearch.records?.[0]?.id;
+
+          if (!youthRecId) {
+            throw new Error(`Youth ${youth.id} not found in Airtable Youth table — S6 may not have synced yet. Add the grant record manually or re-approve after the next scheduler cycle.`);
+          }
+
+          const GRANT_FORMAT_MAP: Record<string, string> = {
+            'ACH (direct deposit)':      'ACH',
+            'Physical Visa debit card':  'Physical Visa',
+            'Virtual Visa debit card':   'Virtual Visa',
+            'Venmo':                     'Venmo',
+            'ACH':                       'ACH',
+          };
+          const mappedFormat = GRANT_FORMAT_MAP[record.grant_format ?? ''];
+
+          const atFields: Record<string, unknown> = {
+            'Grant ID':            record.id,
+            'Youth':               [youthRecId],
+            'Grant Amount':        Number(record.grant_amount),
+            'Grant Status':        'Ordered from Tremendous',
+            'Staff Approved Date': new Date().toISOString().slice(0, 10),
+          };
+          if (mappedFormat) atFields['Grant Format'] = mappedFormat;
+          if (record.w9_signed_at) atFields['W-9 Signed Date'] = record.w9_signed_at.slice(0, 10);
+          if (record.agreement_signed_at) atFields['Agreement Signed Date'] = record.agreement_signed_at.slice(0, 10);
+
+          const atCreateRes = await fetch(
+            `https://api.airtable.com/v0/${atBaseId}/${atGrantsTableId}`,
+            { method: 'POST', headers: atHeaders, body: JSON.stringify({ fields: atFields }) }
+          );
+
+          if (!atCreateRes.ok) {
+            const errText = await atCreateRes.text();
+            throw new Error(`Airtable create failed: ${errText}`);
+          }
+          console.log(`[on-grant-approved] Airtable grant record created for ${record.id}`);
+        }
+      } catch (atErr) {
+        console.error(`[on-grant-approved] Airtable grants sync failed for ${record.id}:`, atErr);
+        const staffEmail = Deno.env.get('STAFF_EMAIL');
+        if (staffEmail) {
+          await sendEmail({
+            to: [staffEmail],
+            subject: `Airtable grant sync failed — ${youth.first_name} ${youth.last_name}`,
+            html: `<p>The grant was approved and processed successfully, but the Airtable Grants record was NOT created.</p><p><strong>youth_id:</strong> ${youth.id}<br><strong>grant_request_id:</strong> ${record.id}</p><p><strong>Error:</strong> ${atErr instanceof Error ? atErr.message : String(atErr)}</p><p>Add the record manually in the Grants table of the reporting base.</p>`,
+          });
+        }
+      }
+    } else {
+      console.log(`[on-grant-approved] test email — skipping Airtable grants sync`);
+    }
+
     console.log(`[on-grant-approved] ${youth.id}: Tremendous order created, advanced to grant_approved, redemption link sent to ${youth.email}`);
 
     return new Response('ok', { status: 200 });
