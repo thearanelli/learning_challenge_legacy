@@ -1109,6 +1109,7 @@ serve(async (req) => {
 
         for (const y of pendingYouth) {
           const challengeTopic = (y.orientation_responses as Record<string, string>)?.challenge_topic ?? '';
+          const legalName = (y.orientation_responses as Record<string, string>)?.legal_name ?? '';
 
           try {
             const searchRes = await fetch(
@@ -1147,6 +1148,7 @@ serve(async (req) => {
                     'Gender/Pronouns': y.pronouns ?? '',
                     'First Drop URL':  y.first_drop_url ?? '',
                     'LC Topic':        challengeTopic,
+                    'Legal Name':      legalName,
                     'Status':          'Launched',
                   },
                 }),
