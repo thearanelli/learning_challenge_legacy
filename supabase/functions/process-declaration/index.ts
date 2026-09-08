@@ -10,6 +10,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendNotification } from '../_shared/dispatcher.ts';
+import { content, renderContent } from '../_shared/content.ts';
+import { sendSMS } from '../_shared/sms.ts';
 import { config } from '../_shared/config.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
@@ -85,6 +87,18 @@ serve(async (req) => {
       profile_link: profileLink,
       base_url: config.BASE_URL,
     }, { application_id: application.id });
+
+    if (application.sms_consent) {
+      const deadlineDate = tokenData.stage_deadline_at
+        ? new Date(tokenData.stage_deadline_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })
+        : 'day 7';
+      const smsText = renderContent(content.declaration_confirmed.sms, {
+        first_name: application.first_name || 'there',
+        deadline_date: deadlineDate,
+      });
+      await sendSMS({ to: application.phone, body: smsText });
+      await sendSMS({ to: application.phone, body: content.declaration_confirmed.sms_link });
+    }
 
     console.log(`[PROCESS-DECLARATION] ${application.id}: video link sent`);
 

@@ -28,6 +28,8 @@ export const content = {
 <p><strong>By day 7:</strong> Submit. Film it whenever you're ready! It doesn't have to be perfect — just make sure it's in by day 7.</p>
 <p>After you submit, you get matched with your mentor. Your orientation call then unlocks your grant funding. It's all on the other side of this video.</p>
 <p>— The NYC Learning Challenge Team</p>`,
+    sms: `You're in, {{first_name}} — your challenge starts now. Start working toward your goals and filming your progress. By {{deadline_date}} you'll need to submit your First Drop video. We'll send you the link to submit in a few days. In the meantime, here's an example of a First Drop:`,
+    sms_link: 'https://www.youtube.com/shorts/6PDZfb7kuNE',
   },
   rejected: {
     email_subject: 'Your NYC Learning Challenge registration',
