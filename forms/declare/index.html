@@ -309,6 +309,42 @@
       margin: 0 auto;
     }
 
+    .success-steps {
+      text-align: left;
+      max-width: 360px;
+      margin: 28px auto 0;
+    }
+    .success-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .success-step:last-child { margin-bottom: 0; }
+    .success-step-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .success-step-text {
+      color: var(--white);
+      font-size: 0.95rem;
+      line-height: 1.55;
+      margin: 2px 0 0;
+    }
+    .success-step-text a {
+      color: var(--orange);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
     .community-label {
       font-family: 'Anton', sans-serif;
       font-size: 1.8rem;
@@ -534,7 +570,7 @@
         <div class="step-icon">🎬</div>
         <div class="step-content">
           <p class="step-timing">By day 7</p>
-          <p class="step-desc">Submit your First Drop — a 90-second phone video, one take, no editing. It's how your mentor gets to know you. The best ones inspire the next cohort.</p>
+          <p class="step-desc">Submit your First Drop video — 90 seconds on your phone introducing yourself and showing the progress you've made on your passion project. It's how your mentor gets to know you. The best ones inspire the next cohort.</p>
         </div>
       </div>
 
@@ -735,7 +771,13 @@
           '<div class="page"><div class="success-wrap">' +
           '<img class="success-logo" src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b06fda43c9cdfce2ddd1c_Griptape_wordmark.png" alt="NYC Learning Challenge" />' +
           '<h1 class="success-heading">You\'re in. Go build something.</h1>' +
-          '<p class="success-sub">Your goal has been received. Your 7 days start now. We\'ll send your First Drop link on day 3 — until then, get to work.</p>' +
+          '<p class="success-sub">Your 7 days start now. Here\'s the plan:</p>' +
+          '<div class="success-steps">' +
+          '<div class="success-step"><div class="success-step-num">1</div><p class="success-step-text">Work on your passion project</p></div>' +
+          '<div class="success-step"><div class="success-step-num">2</div><p class="success-step-text">Film your First Drop video — 90 seconds introducing yourself, the progress you\'ve made, and your future goals. It\'s how your mentor gets to know you. Want an example? <a href="https://www.youtube.com/shorts/6PDZfb7kuNE" target="_blank" rel="noopener">Watch Eduardo\'s →</a></p></div>' +
+          '<div class="success-step"><div class="success-step-num">3</div><p class="success-step-text">Submit by day 7 — we\'ll send you the submission link soon</p></div>' +
+          '<div class="success-step"><div class="success-step-num">4</div><p class="success-step-text">Get matched with your mentor and unlock your funding</p></div>' +
+          '</div>' +
           '</div></div>';
       } else {
         declareBtn.disabled = false;
