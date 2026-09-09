@@ -295,6 +295,11 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms_link: '{{link_sms}}',
   },
 
+  nudge_first_drop_3: {
+    sms: 'Hey {{first_name}}, your NYC Learning Challenge First Drop video is due TODAY. Submit it and you\'ll get matched with a mentor + unlock $150 for your passion project. If you don\'t, your spot will be released. Submit here:',
+    sms_link: '{{link_sms}}',
+  },
+
   nudge_orientation_1: {
     email_subject: 'Have you scheduled your orientation call yet?',
     email_body: `<p>Hey {{first_name}},</p>

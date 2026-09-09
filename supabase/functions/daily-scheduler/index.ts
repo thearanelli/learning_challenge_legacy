@@ -153,6 +153,7 @@ serve(async (req) => {
     { stage: 'declaration_pending', deadline_window_hours: 38, content_key: 'nudge_declaration',  link_field: 'access_token' },
     { stage: 'video_pending',       nudge_day: 3,  content_key: 'nudge_first_drop_1',   link_field: 'access_token' },
     { stage: 'video_pending',       deadline_window_hours: 38, content_key: 'nudge_first_drop_2',   link_field: 'access_token' },
+    { stage: 'video_pending',       deadline_window_hours: 15, content_key: 'nudge_first_drop_3',   link_field: 'access_token' },
   ];
 
   try {
@@ -194,6 +195,10 @@ serve(async (req) => {
           if ((nudge.stage === 'declaration_pending' || nudge.stage === 'video_pending') && app.notify_after && app.notify_after > now) {
             console.log(`[daily-scheduler] S2 skip ${nudge.content_key} — notify_after not yet reached for app ${app.id}`);
             continue;
+          }
+
+          if (nudge.content_key === 'nudge_first_drop_3' && !app.sms_consent) {
+            continue; // SMS-only nudge — nothing to send without consent
           }
 
           const baseLink = nudge.link_field === 'access_token' && nudge.stage === 'declaration_pending'
@@ -245,6 +250,10 @@ serve(async (req) => {
               deadline_date: formatDeadline(app.stage_deadline_at),
             });
             await sendSMS({ to: app.phone, body: smsText });
+            await sendSMS({ to: app.phone, body: link_sms });
+          }
+
+          if (nudge.content_key === 'nudge_first_drop_3' && app.sms_consent) {
             await sendSMS({ to: app.phone, body: link_sms });
           }
 
