@@ -402,11 +402,23 @@
         </label>
       </div>
 
-      <div class="script-callout" style="margin-bottom:24px;">
-        <p>Before you hang up: Tell them you're proud of them. Mean it — they made it somewhere most people don't.</p>
-        <p>Let them know you can't wait to see what they actually do with this. Be specific if you can — reference something they said on the call about their project.</p>
-        <p>They'll get an email with their grant paperwork almost immediately after this call. They have 10 days to complete it — tell them to do it today while they're still fired up.</p>
-        <p style="margin-bottom:0;">Make sure they have your number and you have theirs. You're their person for the next 6 weeks.</p>
+      <div id="deadline-panel" style="display:none;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:24px;">
+        <div style="font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;color:var(--amber);margin-bottom:8px;">Before you hang up</div>
+        <div style="font-size:0.9rem;color:var(--white);line-height:1.5;margin-bottom:12px;">Make sure <span id="dl-youth-name"></span> knows these two dates. Encourage them to write these down.</div>
+        <div id="dl-grant-row" style="padding:8px 0;border-top:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-size:0.9rem;color:var(--gray);">Grant documents due</span>
+            <span id="dl-grant-date" style="font-size:0.95rem;color:var(--white);"></span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--muted);line-height:1.5;margin-top:4px;">The documents to sign will be sent right after this call — they should complete them ASAP.</div>
+        </div>
+        <div id="dl-end-row" style="padding:8px 0;border-top:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-size:0.9rem;color:var(--gray);">Challenge ends</span>
+            <span id="dl-end-date" style="font-size:0.95rem;color:var(--white);"></span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--muted);line-height:1.5;margin-top:4px;">This is when you'll stop meeting. Their Full Send video and End of Challenge call must both happen by this date — reminders and guidelines will be sent before the deadline.</div>
+        </div>
       </div>
 
       <button type="submit" id="submit-btn" class="submit-btn">Submit Orientation</button>
@@ -586,6 +598,38 @@
           opt.value = y.id;
           opt.textContent = y.first_name + ' ' + y.last_name;
           select.appendChild(opt);
+        });
+
+        var youthById = {};
+        youthData.youth.forEach(function(y) { youthById[y.id] = y; });
+
+        function fmtDate(iso) {
+          return new Date(iso).toLocaleDateString('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric',
+            timeZone: 'America/New_York'
+          });
+        }
+
+        select.addEventListener('change', function() {
+          var y = youthById[select.value];
+          var panel = document.getElementById('deadline-panel');
+          if (!y) { panel.style.display = 'none'; return; }
+          document.getElementById('dl-youth-name').textContent = y.first_name;
+          var grantRow = document.getElementById('dl-grant-row');
+          if (y.grant_due_date) {
+            grantRow.style.display = 'block';
+            document.getElementById('dl-grant-date').textContent = fmtDate(y.grant_due_date);
+          } else {
+            grantRow.style.display = 'none';
+          }
+          var endRow = document.getElementById('dl-end-row');
+          if (y.challenge_end_date) {
+            endRow.style.display = 'block';
+            document.getElementById('dl-end-date').textContent = fmtDate(y.challenge_end_date);
+          } else {
+            endRow.style.display = 'none';
+          }
+          panel.style.display = (y.grant_due_date || y.challenge_end_date) ? 'block' : 'none';
         });
 
         buildQuestions();

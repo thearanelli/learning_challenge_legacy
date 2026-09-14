@@ -13,6 +13,26 @@ const STAGE_PRIORITY = {
   full_send_review: 6,
 };
 
+// Deadline constants — keep in sync with supabase/functions/_shared/config.ts
+const GRANT_DEADLINE_DAYS = 11;        // STAGES.grant_pending.deadline_days
+const FULL_SEND_TRIGGER_DAYS = 28;     // config.FULL_SEND_TRIGGER_DAYS
+const FULL_SEND_DEADLINE_DAYS = 14;    // STAGES.final_video_pending.deadline_days
+
+// Returns 23:59:59 America/New_York on the given date's NY calendar day.
+// Mirrors endOfDayEastern in supabase/functions/_shared/tokens.ts.
+function endOfDayEastern(d) {
+  const ymd = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(d);
+  const [y, m, day] = ymd.split('-').map(Number);
+  const guess = new Date(Date.UTC(y, m - 1, day + 1, 4, 59, 59));
+  const hourInNY = Number(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', hour: '2-digit', hour12: false,
+  }).format(guess));
+  if (hourInNY !== 23) guess.setUTCHours(guess.getUTCHours() - 1);
+  return guess;
+}
+
 export default async function handler(req, res) {
   const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://thelearningchallenge.org', 'https://learning-challenge-legacy.vercel.app'];
   const origin = req.headers.origin;
@@ -63,7 +83,7 @@ export default async function handler(req, res) {
 
     // Load active youth for this champion — excluding terminal statuses
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(removed,completed)&end_of_challenge_completed_at=is.null&select=id,first_name,last_name,status,stage_entered_at,accepted_at,first_drop_url,application_id,full_send_url,end_of_challenge_completed_at`,
+      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(removed,completed)&end_of_challenge_completed_at=is.null&select=id,first_name,last_name,status,stage_entered_at,accepted_at,first_drop_url,application_id,full_send_url,end_of_challenge_completed_at,token_expires_at`,
       { headers }
     );
 
@@ -112,6 +132,17 @@ export default async function handler(req, res) {
       ...y,
       passion: (y.application_id && passionByAppId[y.application_id]) || null,
       checkins: checkinsByYouth[y.id] || [],
+      grant_due_date:
+        y.status === 'mentor_pending'
+          ? endOfDayEastern(new Date(Date.now() + GRANT_DEADLINE_DAYS * 86400000)).toISOString()
+          : y.status === 'grant_pending'
+            ? y.token_expires_at
+            : null,
+      challenge_end_date:
+        y.accepted_at
+          ? endOfDayEastern(new Date(new Date(y.accepted_at).getTime() +
+            (FULL_SEND_TRIGGER_DAYS + FULL_SEND_DEADLINE_DAYS) * 86400000)).toISOString()
+          : null,
     }));
 
     enriched.sort((a, b) => {
