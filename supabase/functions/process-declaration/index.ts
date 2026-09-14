@@ -86,7 +86,7 @@ serve(async (req) => {
       video_link: videoLink,
       profile_link: profileLink,
       base_url: config.BASE_URL,
-    }, { application_id: application.id });
+    }, { application_id: application.id }, { skipSms: true });
 
     if (application.sms_consent) {
       const deadlineDate = tokenData.stage_deadline_at
