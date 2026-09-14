@@ -433,6 +433,16 @@ Note: approve/reject routes not built yet — coming next session.`,
     sms: 'Hey {{first_name}}, last chance — {{youth_name}} EOC call due {{deadline_date}}. Form: {{eoc_link}}',
   },
 
+  challenge_midpoint: {
+    email_subject: 'NYC Challenge Check In',
+    email_body: `<p>Hey {{first_name}},</p>
+<p>Just a reminder: your NYC Learning Challenge ends <strong>{{challenge_end_date}}</strong>.</p>
+<p>So here's a question worth asking yourself today: am I on track to finish what I said I'd do? If yes, keep pushing. If not, you still have time to fix it — but only if you start now.</p>
+<p>You've got this.</p>
+<p>— The NYC Learning Challenge Team</p>`,
+    sms: `Hey {{first_name}} — just a reminder: your NYC Learning Challenge ends {{challenge_end_date}}. Still time to do everything you wanted, but not unlimited time. This week counts. Get after it.`,
+  },
+
   // ── Removals ──────────────────────────────────────────────────────────────
 
   removed_declaration: {
