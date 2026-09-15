@@ -1,7 +1,7 @@
 // api/champion-youth-list-eoc.js
 // Returns youth assigned to the authenticated champion who are eligible for EOC.
 // Called by forms/end-of-challenge/index.html on page load to populate the youth dropdown.
-// Filters to EOC-eligible statuses only: grant_approved, grant_expired, final_video_pending.
+// Shows all of this champion's youth who have not yet had an EOC submitted (rejected excluded).
 
 export default async function handler(req, res) {
   const ALLOWED_ORIGINS = ['http://localhost:8080', 'https://thelearningchallenge.org', 'https://learning-challenge-legacy.vercel.app'];
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
     // Load EOC-eligible youth for this champion
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&accepted_at=gte.${new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()}&status=not.in.(rejected)&end_of_challenge_completed_at=is.null&select=id,first_name,last_name,passion`,
+      `${supabaseUrl}/rest/v1/youth?champion_id=eq.${champion_id}&status=not.in.(rejected)&end_of_challenge_completed_at=is.null&select=id,first_name,last_name,passion`,
       {
         headers: {
           'apikey': supabaseKey,

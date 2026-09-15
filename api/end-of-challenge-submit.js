@@ -54,7 +54,7 @@ export default async function handler(req, res) {
 
     // Validate youth belongs to this champion
     const youthRes = await fetch(
-      `${supabaseUrl}/rest/v1/youth?id=eq.${youth_id}&champion_id=eq.${champion_id}&select=id,status,end_of_challenge_completed_at,token_expires_at`,
+      `${supabaseUrl}/rest/v1/youth?id=eq.${youth_id}&champion_id=eq.${champion_id}&select=id,status,end_of_challenge_completed_at`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -79,12 +79,6 @@ export default async function handler(req, res) {
         success: false,
         error: 'already_submitted',
         message: 'It looks like an End of Challenge form has already been submitted for this challenger. If you selected the wrong person from the dropdown, or if you think this is an error, please screenshot your completed form and email thea@griptape.org and we will sort it out.',
-      });
-    } else if (!youth.token_expires_at || new Date(youth.token_expires_at) < new Date()) {
-      return res.status(200).json({
-        success: false,
-        error: 'deadline_passed',
-        message: "The deadline for this challenger's End of Challenge has passed.",
       });
     }
 
