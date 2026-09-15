@@ -696,6 +696,12 @@
       profileRow.className = 'profile-row';
       var passionText = y.passion ? y.passion : 'Not available';
       var profileHtml = '<strong>Passion:</strong> ' + escapeHtml(passionText);
+      if (y.email) {
+        profileHtml += '<br><strong>Email:</strong> <a href="mailto:' + escapeHtml(y.email) + '">' + escapeHtml(y.email) + '</a>';
+      }
+      if (y.phone) {
+        profileHtml += '<br><strong>Cell:</strong> <a href="sms:' + escapeHtml(y.phone) + '">' + escapeHtml(y.phone) + '</a>';
+      }
       if (y.first_drop_url) {
         profileHtml += '<br><a href="' + escapeHtml(y.first_drop_url) + '" target="_blank">Watch First Drop →</a>';
       }
