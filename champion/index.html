@@ -609,6 +609,18 @@
       return ((first || '')[0] || '') + ((last || '')[0] || '');
     }
 
+    // Days until End of Challenge deadline — mirrors buildDeadlineChips math.
+    // Backend already excludes youth with end_of_challenge_completed_at set.
+    function eocDaysLeft(y) {
+      if (y.status === 'grant_approved' || y.status === 'grant_expired') {
+        return daysLeft(y.accepted_at, 42);
+      }
+      if (y.status === 'final_video_pending') {
+        return daysLeft(y.stage_entered_at, 14);
+      }
+      return null;
+    }
+
     function buildDeadlineChips(y) {
       var chips = [];
       if (y.status === 'mentor_pending') {
@@ -634,6 +646,8 @@
 
     function renderCard(y) {
       var isUrgent = y.status === 'mentor_pending';
+      var eocDl = eocDaysLeft(y);
+      var isEocUrgent = eocDl !== null && eocDl <= 10;
       var fullName = (y.first_name || '') + ' ' + (y.last_name || '');
       var checkins = (y.checkins || []).filter(function(c) { return c.type === 'checkin'; });
       var orientationCheckin = (y.checkins || []).find(function(c) { return c.type === 'orientation_scheduled'; });
@@ -641,7 +655,7 @@
       var chips = buildDeadlineChips(y);
 
       var card = document.createElement('div');
-      card.className = 'card' + (isUrgent ? ' urgent' : '');
+      card.className = 'card' + (isUrgent || isEocUrgent ? ' urgent' : '');
 
       // Banner
       if (isUrgent) {
@@ -650,6 +664,11 @@
         banner.className = 'card-banner';
         banner.textContent = 'Orientation not yet scheduled — ' + (dl !== null && dl > 0 ? dl + ' day' + (dl !== 1 ? 's' : '') + ' left' : 'overdue');
         card.appendChild(banner);
+      } else if (isEocUrgent) {
+        var eocBanner = document.createElement('div');
+        eocBanner.className = 'card-banner';
+        eocBanner.textContent = 'End of Challenge not yet completed — ' + (eocDl > 0 ? eocDl + ' day' + (eocDl !== 1 ? 's' : '') + ' left' : 'overdue');
+        card.appendChild(eocBanner);
       }
 
       // Header
@@ -657,7 +676,7 @@
       header.className = 'card-header';
 
       var avatar = document.createElement('div');
-      avatar.className = 'avatar' + (isUrgent ? ' urgent' : '');
+      avatar.className = 'avatar' + (isUrgent || isEocUrgent ? ' urgent' : '');
       avatar.textContent = getInitials(y.first_name, y.last_name);
 
       var nameSpan = document.createElement('span');
@@ -1068,7 +1087,11 @@
 
         // Stats
         var youth = youthData.youth || [];
-        var needsAttention = youth.filter(function(y) { return y.status === 'mentor_pending'; }).length;
+        var needsAttention = youth.filter(function(y) {
+          if (y.status === 'mentor_pending') return true;
+          var dl = eocDaysLeft(y);
+          return dl !== null && dl <= 10;
+        }).length;
         var statRow = document.getElementById('stat-row');
 
         var totalChip = document.createElement('div');
