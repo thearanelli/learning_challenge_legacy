@@ -216,8 +216,8 @@ serve(async (req) => {
       .filter((name): name is string => typeof name === 'string' && name.trim().length > 0);
 
     const inviteParagraph = referralNames.length > 0
-      ? `On your call, you mentioned ${referralNames.join(' and ')} — here's your personal invite link. This is a golden ticket: when your friends register through this link, they get a guaranteed spot. They get to pursue their own passion project, backed with their own funding and mentorship.`
-      : `Here's your personal invite link. This is a golden ticket: anyone who registers through it gets a guaranteed spot. They get to pursue their own passion project, backed with their own funding and mentorship.`;
+      ? `On your call, you mentioned ${referralNames.join(' and ')} — sounds like the perfect first invite.`
+      : `Think about who'd be great at this — who you'd actually want in your cohort with you.`;
 
     // Send signing links to youth via dispatcher
     // vars map to {{w9_link}}, {{agreement_link}}, {{invite_paragraph}},

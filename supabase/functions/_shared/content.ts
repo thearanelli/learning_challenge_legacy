@@ -104,20 +104,29 @@ export const content = {
   grant_pending: {
     email_subject: "You just unlocked your funding, {{first_name}} 🎉",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Big congrats. You just finished your orientation call with {{champion_first_name}} — and that call unlocked two things at once:</p>
+<p>Big congrats — your orientation call with {{champion_first_name}} is done, and it unlocked two things at once:</p>
 <p><strong>Your funding.</strong> Your learning stipend is officially in motion.<br>
-<strong>Your invites.</strong> You can now bring people into your cohort.</p>
-<p>Here are your next two steps to release your funding.</p>
-<p><strong>1. Invite your people</strong><br>
-{{invite_paragraph}}</p>
-<p><a href="{{referral_link}}">{{referral_link}}</a></p>
-<p><strong>2. Lock in your funding</strong><br>
-To release your funding, you need to sign two quick documents:</p>
-<p><strong>Your W-9</strong> — the standard tax form nonprofits collect before sending any payment. NYC Learning Challenge is a 501(c)(3), so we're required to have this on file. Takes about 2 minutes.<br>
-<a href="{{w9_link}}">Sign your W-9 →</a></p>
-<p><strong>Your Participation Agreement</strong> — this confirms what you're committing to as a NYC Learning Challenger.<br>
-<a href="{{agreement_link}}">Sign your Participation Agreement →</a></p>
-<p>You have 10 days to sign both. After that, the funding window closes. But if you want, you can continue the Learning Challenge unfunded.</p>
+<strong>Your invites.</strong> You get 2 spots to bring friends into your cohort with you.</p>
+<h2 style="margin:28px 0 12px;font-size:18px;font-weight:bold;color:#001722;font-family:Arial,Helvetica,sans-serif;">First: release your funding</h2>
+<p>Two quick signatures and your stipend is on its way:</p>
+<p><strong>Your W-9</strong> — the standard tax form nonprofits collect before sending any payment. We're a 501(c)(3), so we're required to have it on file. Takes about 2 minutes.</p>
+<a class="cta" href="{{w9_link}}">Sign your W-9 →</a>
+<p><strong>Your Participation Agreement</strong> — confirms what you're committing to as a NYC Learning Challenger.</p>
+<a class="cta" href="{{agreement_link}}">Sign your Participation Agreement →</a>
+<div class="notice">You have <strong>10 days</strong> to sign both. After that, the funding window closes. (You could continue the Challenge unfunded — but sign the forms.)</div>
+<h2 style="margin:28px 0 12px;font-size:18px;font-weight:bold;color:#001722;font-family:Arial,Helvetica,sans-serif;">Then: bring your friends into your cohort</h2>
+<p>Honestly, the Challenge is more fun with your people in it — trading ideas, hyping each other's videos, finishing together. You've got <strong>2 invites</strong>, and anyone you invite is guaranteed a spot: their own project, their own funding, their own Champion.</p>
+<p>{{invite_paragraph}}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border:1px solid #EA5329;border-radius:8px;border-collapse:separate;overflow:hidden;">
+<tr><td style="background:#FFF4EF;padding:18px 22px;">
+<p style="font-size:13px;font-weight:700;color:#993C1D;margin:0 0 6px;">Send them this text:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;"><tr><td style="background:#ffffff;border:1px solid #F0997B;border-radius:12px;padding:12px 16px;">
+<p style="font-size:14px;line-height:1.5;color:#1a1a1a;margin:0;">Hey! I'm doing the NYC Learning Challenge — you get funding + a mentor to build whatever you're passionate about. I get to invite 2 people into my cohort and I picked you. Grab your spot with my link: {{referral_link}}</p>
+</td></tr></table>
+<p style="font-size:13px;line-height:1.5;color:#993C1D;margin:0 0 14px;">Add a line about why you picked them — it works.</p>
+<p style="margin:0;"><a href="{{referral_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Or grab your invite link →</a></p>
+</td></tr></table>
+<p>We'll text you the moment they're in.</p>
 <p>— The NYC Learning Challenge Team</p>`,
     sms: `Congrats on completing your NYC Learning Challenge orientation call! Check your email to unlock your funding and grab your invite link.`,
   },
