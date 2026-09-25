@@ -284,6 +284,8 @@ serve(async (req) => {
     { stage: 'grant_approved',      nudge_day: 4,  content_key: 'champion_referral_followup', notify_champion: false, has_deadline: false },
     { stage: 'grant_approved',      nudge_day: 3,  content_key: 'referral_sms',        notify_champion: false, has_deadline: false },
     { stage: 'grant_approved',      nudge_day: 7,  content_key: 'receipt_reminder',   notify_champion: false, has_deadline: false },
+    { stage: 'grant_approved',      nudge_day: 14, content_key: 'challenge_midpoint', notify_champion: false, has_deadline: false },
+    { stage: 'grant_expired',       nudge_day: 14, content_key: 'challenge_midpoint', notify_champion: false, has_deadline: false },
   ];
 
   try {
@@ -435,6 +437,11 @@ serve(async (req) => {
               .eq('youth_id', youth.id)
               .single();
             vars.grant_amount = gr?.grant_amount ? String(gr.grant_amount) : '150';
+          }
+
+          if (nudge.content_key === 'challenge_midpoint') {
+            const challengeEnd = new Date(new Date(youth.stage_entered_at).getTime() + config.FULL_SEND_TRIGGER_DAYS * dayMs);
+            vars.challenge_end_date = formatDeadline(challengeEnd.toISOString());
           }
 
           if (nudge.stage === 'final_video_pending' && youth.champion_id) {
