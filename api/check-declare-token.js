@@ -101,7 +101,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/applications?access_token=eq.${encodeURIComponent(token)}&select=id,first_name,last_name,passion,city,state,screening_status,access_token,stage_deadline_at`,
+      `${supabaseUrl}/rest/v1/applications?access_token=eq.${encodeURIComponent(token)}&select=id,first_name,last_name,passion,city,state,screening_status,access_token,stage_deadline_at,goal_chips`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -157,7 +157,7 @@ export default async function handler(req, res) {
     }
 
     await logEvent(supabaseUrl, supabaseKey, application.id, application.first_name, { page: 'declare', check_result: 'valid', src, channel }, userAgent);
-    return res.status(200).json({ valid: true, first_name: application.first_name, passion: application.passion, challenger_number: challengerNumber, last_initial: application.last_name ? application.last_name.charAt(0).toUpperCase() : '', city: application.city || '', state: application.state || '', application_id: application.id });
+    return res.status(200).json({ valid: true, first_name: application.first_name, passion: application.passion, challenger_number: challengerNumber, last_initial: application.last_name ? application.last_name.charAt(0).toUpperCase() : '', city: application.city || '', state: application.state || '', application_id: application.id, goal_chips: application.goal_chips || null });
 
   } catch (err) {
     console.error('[check-token] error:', err);

@@ -504,6 +504,59 @@
       font-family: 'Anton', sans-serif;
     }
 
+    /* Goal chips */
+    .goal-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .goal-chip {
+      width: 100%;
+      min-height: 44px;
+      background: var(--bg2);
+      border: 1.5px solid rgba(234,83,41,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .goal-chip:hover {
+      border-color: rgba(234,83,41,0.5);
+    }
+    .goal-chip.active {
+      border-color: var(--orange);
+      background: rgba(234,83,41,0.08);
+    }
+    .goal-chip-category {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--orange);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .goal-chip-text {
+      font-size: 0.9rem;
+      color: var(--white);
+      line-height: 1.45;
+    }
+    .goal-chip.write-own {
+      border-style: dashed;
+      border-color: rgba(234,83,41,0.35);
+      background: transparent;
+    }
+    .goal-chip.write-own .goal-chip-text {
+      color: var(--gray);
+    }
+    .goal-below-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: -8px 0 16px;
+    }
+
     @media (max-width: 480px) {
       .main-heading { font-size: 1.4rem; }
     }
@@ -558,7 +611,7 @@
         <div class="step-icon">🎯</div>
         <div class="step-content">
           <p class="step-timing">Today</p>
-          <p class="step-desc">Set your 7-day goal. Write something specific you can build, make, or finish. Your mentor will see it.</p>
+          <p class="step-desc">Set your 7-day goal. Write something specific you can build, make, or finish. Pick one below or write your own.</p>
         </div>
       </div>
 
@@ -594,19 +647,17 @@
 
     <hr class="divider-slim" />
 
-    <label class="goal-label" for="goal-input">What's your 7-day goal?</label>
+    <label class="goal-label" for="goal-input">Pick your 7-day goal</label>
+    <p class="goal-hint" id="goal-hint"></p>
+
+    <div class="goal-chips" id="goal-chips"></div>
+
     <textarea
       id="goal-input"
       class="goal-textarea"
-      placeholder="e.g. I'm going to record and produce my first original song. By day 10 I'll have a finished track I filmed myself performing."
+      placeholder="e.g. I'm going to record and produce my first original song. By day 7 I'll have a finished track I filmed myself performing."
     ></textarea>
-
-    <p class="section-label">Other Challengers have committed to things like</p>
-    <ul style="color:rgba(255,255,255,0.5);font-size:0.88rem;line-height:1.8;padding-left:1.2rem;margin:0 0 24px;">
-      <li>Finishing the first three chapters of my novel</li>
-      <li>Recording and producing my first original song</li>
-      <li>Building a working prototype of my app</li>
-    </ul>
+    <p class="goal-below-hint">Edit it however you want — it's yours now.</p>
 
     <button class="declare-btn" id="declare-btn" disabled>I'm in. Start my 7 days.</button>
     <p class="declare-error" id="declare-error" style="display:none;"></p>
@@ -656,6 +707,71 @@
         document.getElementById('challenger-number').textContent = data.challenger_number;
       }
       window._applicationId = data.application_id || null;
+
+      // Goal chips
+      var fallbackChips = [
+        "Make one real thing this week — small and unfinished totally counts.",
+        "Spend 3 days learning one skill for my project, using only free stuff online.",
+        "Show one thing I made to one person and get their honest reaction."
+      ];
+      var chipCategories = ['MAKE', 'LEARN', 'SHARE'];
+      var rawChips = data.goal_chips;
+      var useChips = false;
+      if (Array.isArray(rawChips) && rawChips.length === 3) {
+        useChips = rawChips.every(function(c) { return typeof c === 'string' && c.trim().length > 0 && c.trim().length < 200; });
+      }
+      var chips = useChips ? rawChips.map(function(c) { return c.trim(); }) : fallbackChips;
+
+      var chipsContainer = document.getElementById('goal-chips');
+      var goalTextarea = document.getElementById('goal-input');
+      chips.forEach(function(chipText, i) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'goal-chip';
+        var catSpan = document.createElement('span');
+        catSpan.className = 'goal-chip-category';
+        catSpan.textContent = chipCategories[i];
+        var textSpan = document.createElement('span');
+        textSpan.className = 'goal-chip-text';
+        textSpan.textContent = chipText;
+        chip.appendChild(catSpan);
+        chip.appendChild(textSpan);
+        chip.addEventListener('click', function() {
+          chipsContainer.querySelectorAll('.goal-chip').forEach(function(c) { c.classList.remove('active'); });
+          chip.classList.add('active');
+          goalTextarea.value = chipText;
+          goalTextarea.dispatchEvent(new Event('input'));
+        });
+        chipsContainer.appendChild(chip);
+      });
+      // "Write my own" chip
+      var writeOwn = document.createElement('button');
+      writeOwn.type = 'button';
+      writeOwn.className = 'goal-chip write-own';
+      var writeText = document.createElement('span');
+      writeText.className = 'goal-chip-text';
+      writeText.textContent = '\u270D\uFE0F Write my own';
+      writeOwn.appendChild(writeText);
+      writeOwn.addEventListener('click', function() {
+        chipsContainer.querySelectorAll('.goal-chip').forEach(function(c) { c.classList.remove('active'); });
+        writeOwn.classList.add('active');
+        goalTextarea.value = '';
+        goalTextarea.dispatchEvent(new Event('input'));
+        goalTextarea.focus();
+      });
+      chipsContainer.appendChild(writeOwn);
+
+      // Goal hint with passion
+      var hintEl = document.getElementById('goal-hint');
+      var passionStr = (data.passion || '').trim();
+      if (passionStr) {
+        if (passionStr.length > 60) passionStr = passionStr.slice(0, 60) + '\u2026';
+        hintEl.innerHTML = 'You said you\u2019re into <b>' + escHtml(passionStr) + '</b> \u2014 here are three ways to start. Tap one, make it yours, or write your own. Rough is fine: this is a starting line, not a contract.';
+      } else {
+        hintEl.innerHTML = 'Here are three ways to start. Tap one, make it yours, or write your own. Rough is fine: this is a starting line, not a contract.';
+      }
+      hintEl.style.cssText = 'font-size:0.9rem;color:rgba(255,255,255,0.55);line-height:1.6;margin:0 0 16px;';
+
       window._viewerData = {
         first_name: data.first_name || '',
         last_initial: data.last_initial || '',
