@@ -1204,6 +1204,74 @@ serve(async (req) => {
     }
   }
 
+  // ── S7 — Sync receipts to Airtable youth Receipts attachments ───────────────
+  {
+    const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
+    const baseId = 'apprXwArE9tAzGFnp';
+    const youthTableId = 'tblgtDO4PbNHcDuZi';
+
+    if (!airtableApiKey) {
+      console.error('[S7] AIRTABLE_API_KEY not set — skipping');
+    } else {
+      const { data: pendingReceipts, error: rErr } = await supabase
+        .from('receipts')
+        .select('id, youth_id, first_name, last_name, file_url, uploaded_at')
+        .is('airtable_synced_at', null)
+        .order('uploaded_at', { ascending: true });
+
+      if (rErr) {
+        console.error('[S7] Error fetching pending receipts:', rErr.message);
+      } else if (pendingReceipts && pendingReceipts.length > 0) {
+        for (const r of pendingReceipts) {
+          try {
+            // find the youth's Airtable record
+            const searchRes = await fetch(
+              `https://api.airtable.com/v0/${baseId}/${youthTableId}?filterByFormula=${encodeURIComponent(`{Youth ID}="${r.youth_id}"`)}`,
+              { headers: { Authorization: `Bearer ${airtableApiKey}` } }
+            );
+            const searchData = await searchRes.json();
+            const rec = searchData.records?.[0];
+
+            if (!rec) {
+              // youth not in Airtable yet (S6 syncs them post-orientation) — retry next run
+              console.log(`[S7] youth ${r.youth_id} not in Airtable yet — will retry`);
+              continue;
+            }
+
+            // signed URL so Airtable can ingest from the private bucket
+            const storagePath = r.file_url.split('/storage/v1/object/receipts/')[1] ?? '';
+            const { data: signed, error: signErr } = await supabase.storage
+              .from('receipts')
+              .createSignedUrl(storagePath, 60 * 60 * 24 * 7);
+            if (signErr || !signed?.signedUrl) {
+              console.error(`[S7] could not sign URL for receipt ${r.id}:`, signErr?.message);
+              continue;
+            }
+
+            // append to existing attachments (PATCH replaces the array, so re-send existing ids)
+            const existing = (rec.fields?.['Receipts'] ?? []).map((a: { id: string }) => ({ id: a.id }));
+            const filename = `receipt-${r.first_name.toLowerCase()}-${(r.uploaded_at ?? '').slice(0, 10)}-${r.id.slice(0, 8)}${storagePath.includes('.') ? storagePath.slice(storagePath.lastIndexOf('.')) : ''}`;
+
+            const patchRes = await fetch(`https://api.airtable.com/v0/${baseId}/${youthTableId}/${rec.id}`, {
+              method: 'PATCH',
+              headers: { Authorization: `Bearer ${airtableApiKey}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ fields: { 'Receipts': [...existing, { url: signed.signedUrl, filename }] } }),
+            });
+
+            if (patchRes.ok) {
+              await supabase.from('receipts').update({ airtable_synced_at: new Date().toISOString() }).eq('id', r.id);
+              console.log(`[S7] attached receipt ${r.id} to youth ${r.youth_id}`);
+            } else {
+              console.error(`[S7] Airtable PATCH failed for receipt ${r.id}:`, await patchRes.text());
+            }
+          } catch (err) {
+            console.error(`[S7] error syncing receipt ${r.id}:`, err);
+          }
+        }
+      }
+    }
+  }
+
   console.log('[daily-scheduler] run complete');
 
   return new Response(JSON.stringify({ ok: true }), {
