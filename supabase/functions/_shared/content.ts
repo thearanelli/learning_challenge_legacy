@@ -174,7 +174,7 @@ Note: approve/reject routes not built yet — coming next session.`,
 <p style="margin:0;"><a href="{{referral_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Or grab your invite link →</a></p>
 </td></tr></table>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: `NYC Learning Challenge: Your \${{grant_amount}} grant is approved! Claim it here: {{redemption_link}}`,
+    sms: `NYC Learning Challenge: your \${{grant_amount}} grant + 2 friend invites are approved! check your email to claim. can't find it? thelearningchallenge.org/help`,
   },
 
   receipt_reminder: {
