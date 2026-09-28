@@ -45,14 +45,37 @@ serve(async (req) => {
       });
     }
 
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('DB_SERVICE_KEY')!,
+    );
+
     // Assemble application content (same approach as screen-application)
     const responses = (record.application_responses as Record<string, string>) || {};
-    const passion = responses.passion || '';
-    const whyJoin = responses.why_join || '';
-    const content = [passion, whyJoin].filter(Boolean).join('\n\n');
+    let content = [responses.passion || '', responses.why_join || ''].filter(Boolean).join('\n\n');
+
+    // If payload content is thin (empty responses, backfill invocation), re-query the row
+    if (!content || content.trim().length < 20) {
+      console.log(`[generate-goal-chips] payload content thin for ${record.id} (${content.trim().length} chars) — re-querying`);
+      const { data: app, error: fetchErr } = await supabase
+        .from('applications')
+        .select('passion, application_responses')
+        .eq('id', record.id)
+        .single();
+      if (fetchErr || !app) {
+        console.log(`[generate-goal-chips] re-query failed for ${record.id}: ${fetchErr?.message} — skipping`);
+        return new Response(JSON.stringify({ skipped: 'thin content' }), {
+          headers: { 'Content-Type': 'application/json' }, status: 200,
+        });
+      }
+      const dbResponses = (app.application_responses as Record<string, string>) || {};
+      const parts = [app.passion || '', dbResponses.passion || '', dbResponses.why_join || ''];
+      const unique = [...new Set(parts.map((p: string) => p.trim()).filter(Boolean))];
+      content = unique.join('\n\n');
+    }
 
     if (!content || content.trim().length < 20) {
-      console.log(`[generate-goal-chips] content too thin for ${record.id} (${content.trim().length} chars) — skipping`);
+      console.log(`[generate-goal-chips] content too thin for ${record.id} after re-query (${content.trim().length} chars) — skipping`);
       return new Response(JSON.stringify({ skipped: 'thin content' }), {
         headers: { 'Content-Type': 'application/json' }, status: 200,
       });
@@ -130,11 +153,6 @@ serve(async (req) => {
     }
 
     // Write with race guard
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('DB_SERVICE_KEY')!,
-    );
-
     const { error: updateErr } = await supabase
       .from('applications')
       .update({ goal_chips: chips })
