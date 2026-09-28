@@ -530,7 +530,7 @@
       .then(function(challengers) {
         var carousel = document.getElementById('community-carousel');
         if (!carousel || !challengers.length) return;
-        challengers.forEach(function(c) {
+        challengers.slice(-5).forEach(function(c) {
           var videoId = extractVideoId(c.first_drop_url);
           var card = document.createElement('div');
           card.className = 'c-card';
