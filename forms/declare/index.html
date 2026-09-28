@@ -689,7 +689,7 @@
           ghostCard.innerHTML = ghostVideoHtml + ghostBodyHtml;
           carousel.insertBefore(ghostCard, carousel.firstChild);
 
-          challengers.forEach(function(c, idx) {
+          challengers.slice(-5).forEach(function(c, idx) {
             var videoId = extractVideoId(c.first_drop_url);
             var card = document.createElement('div');
             card.className = 'c-card';
