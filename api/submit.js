@@ -52,7 +52,7 @@ async function writeToSupabase(fields) {
     phone:                 String(fields.phone).trim(),
     gender:                    fields.gender                    ?? null,
     pronouns:                  fields.pronouns                  ?? null,
-    prior_griptape_experience: fields.prior_griptape_experience ?? null,
+    school:                    fields.school                    ?? null,
     heard_about:               fields.application_responses?.heard_about || null,
     referred_by:               fields.referred_by || null,
     sms_consent:               fields.sms_consent === true,
