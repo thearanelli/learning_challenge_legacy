@@ -114,9 +114,9 @@ export const content = {
 <p><strong>Your Participation Agreement</strong> — confirms what you're committing to as a NYC Learning Challenger.</p>
 <a class="cta" href="{{agreement_link}}">Sign your Participation Agreement →</a>
 <div class="notice">You have <strong>10 days</strong> to sign both. After that, the funding window closes. (You could continue the Challenge unfunded — but sign the forms.)</div>
-<h2 style="margin:28px 0 12px;font-size:18px;font-weight:bold;color:#001722;font-family:Arial,Helvetica,sans-serif;">Then: bring your friends into your cohort</h2>
+<h2 style="margin:28px 0 12px;font-size:18px;font-weight:bold;color:#001722;font-family:Arial,Helvetica,sans-serif;">Then: bring {{invite_header_names}} into your cohort</h2>
 <p>Honestly, the Challenge is more fun with your people in it — trading ideas, hyping each other's videos, finishing together. You've got <strong>2 invites</strong>, and anyone you invite is guaranteed a spot: their own project, their own funding, their own Champion.</p>
-<p>{{invite_paragraph}}</p>
+<p>{{invite_called_line}}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border:1px solid #EA5329;border-radius:8px;border-collapse:separate;overflow:hidden;">
 <tr><td style="background:#FFF4EF;padding:18px 22px;">
 <p style="font-size:13px;font-weight:700;color:#993C1D;margin:0 0 6px;">Send them this text:</p>
@@ -124,7 +124,7 @@ export const content = {
 <p style="font-size:14px;line-height:1.5;color:#1a1a1a;margin:0;">Hey! I'm doing the NYC Learning Challenge — you get funding + a mentor to build whatever you're passionate about. I get to invite 2 people into my cohort and I picked you. Grab your spot with my link: {{referral_link}}</p>
 </td></tr></table>
 <p style="font-size:13px;line-height:1.5;color:#993C1D;margin:0 0 14px;">Add a line about why you picked them — it works.</p>
-<p style="margin:0;"><a href="{{referral_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Or grab your invite link →</a></p>
+<p style="margin:0;"><a href="{{sms_invite_href}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Text your invite →</a></p>
 </td></tr></table>
 <p>We'll text you the moment they're in.</p>
 <p>— The NYC Learning Challenge Team</p>`,
@@ -164,17 +164,23 @@ Note: approve/reject routes not built yet — coming next session.`,
 </tr></table>
 </td></tr>
 <tr><td style="background:#FFF4EF;padding:18px 22px;">
-<p style="font-size:17px;font-weight:700;color:#4A1B0C;margin:0 0 8px;">Bring 2 friends. They're guaranteed in.</p>
-<p style="font-size:14px;line-height:1.6;color:#712B13;margin:0 0 14px;">Only Challengers can do this. Anyone you invite skips the line: their own Champion, their own \${{grant_amount}}, their own project. After 5 days we offer your spots to other Challengers.</p>
+<p style="font-size:17px;font-weight:700;color:#4A1B0C;margin:0 0 8px;">{{perk_title}}</p>
+<p style="font-size:14px;line-height:1.6;color:#712B13;margin:0 0 14px;">Only Challengers can do this. Anyone you invite skips the line: their own Champion, their own \${{grant_amount}}, their own project. {{perk_picks_line}} After 5 days we offer your spots to other Challengers.</p>
 <p style="font-size:13px;font-weight:700;color:#993C1D;margin:0 0 6px;">Send your friends this text:</p>
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;"><tr><td style="background:#ffffff;border:1px solid #F0997B;border-radius:12px;padding:12px 16px;">
-<p style="font-size:14px;line-height:1.5;color:#1a1a1a;margin:0;">Hey! I'm doing the NYC Learning Challenge (you get \${{grant_amount}} + a mentor to build whatever you're passionate about for 6 weeks). I'm in the current cohort and get to invite 2 people. Apply with my link: {{referral_link}}</p>
+<p style="font-size:14px;line-height:1.5;color:#1a1a1a;margin:0;">Hey! I'm doing the NYC Learning Challenge (\${{grant_amount}} + a mentor to build whatever you're into for 6 weeks). I get to invite 2 people and I picked you. Grab your spot: {{referral_link}}</p>
 </td></tr></table>
 <p style="font-size:13px;line-height:1.5;color:#993C1D;margin:0 0 14px;">Add a line about why you picked them — it works.</p>
-<p style="margin:0;"><a href="{{referral_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Or grab your invite link →</a></p>
+<p style="margin:0;"><a href="{{sms_invite_href}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:700;padding:12px 26px;border-radius:6px;text-decoration:none;">Text your invite →</a></p>
 </td></tr></table>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: `NYC Learning Challenge: your \${{grant_amount}} grant + 2 friend invites are approved! check your email to claim. can't find it? thelearningchallenge.org/help`,
+    sms: `Your NYC Learning Challenge funding is approved 🎉 Check your email to claim it (can't find it? thelearningchallenge.org/help). One more thing: your 2 invites are live — {{invites_clause}} for 5 more days. Forward them the next text 👇`,
+  },
+
+  grant_approved_invite_sms: {
+    email_subject: null,
+    email_body: null,
+    sms: `Hey! I'm doing the NYC Learning Challenge (\${{grant_amount}} + a mentor to build whatever you're into for 6 weeks). I get to invite 2 people and I picked you. Grab your spot: {{referral_link}}`,
   },
 
   receipt_reminder: {
@@ -562,4 +568,52 @@ export function renderContent(template: string, vars: Record<string, string>): s
     (str, [key, val]) => str.replaceAll(`{{${key}}}`, val ?? ''),
     template
   );
+}
+
+// Personalized invite variables from the two referral names captured on the
+// orientation call (youth.orientation_responses.referral_1_name / _2_name).
+// All name-fallback copy lives here so it stays in one place. Every key always
+// has a complete generic fallback — blank names can never block a send.
+export function inviteNameVars(orientationResponses: Record<string, unknown>): Record<string, string> {
+  const names = [orientationResponses?.referral_1_name, orientationResponses?.referral_2_name]
+    .filter((n): n is string => typeof n === 'string' && n.trim().length > 0)
+    .map((n) => n.trim());
+  const [n1, n2] = names;
+  return {
+    invite_header_names: n2 ? `${n1} and ${n2}` : (n1 ?? 'your friends'),
+    invite_called_line: n2
+      ? `You already called it on your orientation call — ${n1} and ${n2}. All that's left is actually sending it.`
+      : n1
+        ? `You already called it on your orientation call — ${n1}. All that's left is actually sending it.`
+        : `Your Champion's probably already asked you who you'd pick. All that's left is actually sending it.`,
+    perk_title: n2
+      ? `Bring 2 friends (${n1} and ${n2}). They're guaranteed in.`
+      : n1
+        ? `Bring 2 friends (${n1} + 1 more). They're guaranteed in.`
+        : `Bring 2 friends. They're guaranteed in.`,
+    perk_picks_line: n2
+      ? `${n1} and ${n2} were your picks on the call — but it's your invite, so if someone else comes to mind, send it to them instead.`
+      : n1
+        ? `${n1} was your pick on the call — but they're your invites, so if someone else comes to mind, send it to them instead.`
+        : `It's your invite — whoever comes to mind, send it to them.`,
+    invites_clause: n2
+      ? `${n1} and ${n2} (or whoever you pick) are guaranteed in`
+      : n1
+        ? `${n1} (or whoever you pick) is guaranteed in`
+        : `your friends are guaranteed in`,
+  };
+}
+
+// Safe defaults so a missing PERSONALIZATION var degrades the message to its
+// generic version instead of blocking the send. Functional vars (w9_link,
+// agreement_link, redemption_link, receipt_link, grant_amount, etc.) are
+// deliberately NOT defaulted — a send with a broken link should still block
+// and alert staff rather than fire.
+export function withCommsDefaults(vars: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = { ...inviteNameVars({}), ...vars };
+  if (!out.sms_invite_href && out.referral_link) {
+    const genericInvite = `Hey! I'm doing the NYC Learning Challenge — you get funding + a mentor to build whatever you're passionate about. Grab a spot with my link: ${out.referral_link}`;
+    out.sms_invite_href = `sms:?&body=${encodeURIComponent(genericInvite)}`;
+  }
+  return out;
 }

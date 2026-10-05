@@ -16,7 +16,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendNotification, sendStaffNotification } from '../_shared/dispatcher.ts';
 import { sendEmail } from '../_shared/email.ts';
-import { renderContent, content } from '../_shared/content.ts';
+import { renderContent, content, inviteNameVars } from '../_shared/content.ts';
 import { config } from '../_shared/config.ts';
 import { generateToken } from '../_shared/tokens.ts';
 
@@ -311,6 +311,11 @@ serve(async (req) => {
     const receiptLink = `${config.BASE_URL}/receipts?token=${receiptTokenData.access_token}`;
     const referralLink = `${config.BASE_URL}/?ref=${youth.first_name.toLowerCase()}-${youth.last_name.toLowerCase()}`;
 
+    const orientationResponses = (youth.orientation_responses ?? {}) as Record<string, unknown>;
+    const inviteVars = inviteNameVars(orientationResponses);
+    const inviteText = `Hey! I'm doing the NYC Learning Challenge ($${grantRequest.grant_amount} + a mentor to build whatever you're into for 6 weeks). I get to invite 2 people and I picked you. Grab your spot: ${referralLink}`;
+    const smsInviteHref = `sms:?&body=${encodeURIComponent(inviteText)}`;
+
     // Send grant_approved email + SMS to youth with redemption link, receipt upload link, and referral link
     await sendNotification('grant_approved', youth, {
       redemption_link: redemptionLink,
@@ -318,7 +323,19 @@ serve(async (req) => {
       receipt_link:    receiptLink,
       referral_link:   referralLink,
       base_url:        config.BASE_URL,
+      ...inviteVars,
+      sms_invite_href: smsInviteHref,
     }, { youth_id: youth.id }, { skipSms: !youth.sms_consent });
+
+    // Part 2 of the two-part SMS: the forwardable invite, ~2s later as its
+    // own clean bubble so the youth can long-press -> forward it.
+    if (youth.sms_consent) {
+      await new Promise((r) => setTimeout(r, 2000));
+      await sendNotification('grant_approved_invite_sms', youth, {
+        grant_amount:  String(grantRequest.grant_amount),
+        referral_link: referralLink,
+      }, { youth_id: youth.id });
+    }
 
     // Send disbursement notification to Ryan
     const ryanEmail = config.RYAN_EMAIL;

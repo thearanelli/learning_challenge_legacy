@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail } from './email.ts';
 import { sendSMS } from './sms.ts';
-import { content, renderContent } from './content.ts';
+import { content, renderContent, withCommsDefaults } from './content.ts';
 import { config } from './config.ts';
 
 const supabase = createClient(
@@ -48,11 +48,11 @@ export async function sendNotification(
     return;
   }
   const b = block as Record<string, string>;
-  const allVars = {
+  const allVars = withCommsDefaults({
     first_name: recipient.first_name,
     last_name: recipient.last_name ?? '',
     ...vars,
-  };
+  });
   if (b.email_subject && b.email_body) {
     const subject = renderContent(b.email_subject, allVars);
     const renderedBody = renderContent(b.email_body, allVars);

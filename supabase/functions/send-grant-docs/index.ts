@@ -16,6 +16,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendNotification } from '../_shared/dispatcher.ts';
 import { config } from '../_shared/config.ts';
+import { inviteNameVars } from '../_shared/content.ts';
 
 serve(async (req) => {
   try {
@@ -212,23 +213,23 @@ serve(async (req) => {
     // Built here (not in content.ts) because renderContent() only does
     // flat {{var}} substitution — no conditionals.
     const orientationResponses = (youth.orientation_responses ?? {}) as Record<string, unknown>;
-    const referralNames = [orientationResponses.referral_1_name, orientationResponses.referral_2_name]
-      .filter((name): name is string => typeof name === 'string' && name.trim().length > 0);
+    const inviteVars = inviteNameVars(orientationResponses);
 
-    const inviteParagraph = referralNames.length > 0
-      ? `On your call, you mentioned ${referralNames.join(' and ')} — sounds like the perfect first invite.`
-      : `Think about who'd be great at this — who you'd actually want in your cohort with you.`;
+    // sms: deep link — opens the youth's Messages app with the invite pre-filled
+    const inviteText = `Hey! I'm doing the NYC Learning Challenge — you get funding + a mentor to build whatever you're passionate about. I get to invite 2 people into my cohort and I picked you. Grab your spot with my link: ${referralLink}`;
+    const smsInviteHref = `sms:?&body=${encodeURIComponent(inviteText)}`;
 
     // Send signing links to youth via dispatcher
-    // vars map to {{w9_link}}, {{agreement_link}}, {{invite_paragraph}},
-    // {{referral_link}} in content.ts grant_pending block
+    // vars map to {{w9_link}}, {{agreement_link}}, {{invite_header_names}},
+    // {{invite_called_line}}, {{referral_link}}, {{sms_invite_href}} in content.ts
     await sendNotification('grant_pending', youth, {
       w9_link: w9SigningUrl,
       agreement_link: agreementSigningUrl,
       champion_first_name: championFirstName,
       base_url: config.BASE_URL,
-      invite_paragraph: inviteParagraph,
+      ...inviteVars,
       referral_link: referralLink,
+      sms_invite_href: smsInviteHref,
     }, { youth_id: youth.id });
 
     console.log(`[send-grant-docs] ${youth.id}: BoldSign requests created, signing links sent to ${youth.email}`);
