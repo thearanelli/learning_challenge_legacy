@@ -1272,6 +1272,42 @@ serve(async (req) => {
     }
   }
 
+  // ── S8: Reconcile champion active_youth_count ─────────────────────────
+  // active_youth_count is incremented by match-champion and decremented by
+  // S3 removals, but completion and manual status changes bypass both.
+  // Recompute from youth every run so the counter can never drift more
+  // than one cycle from truth. Active = any status except
+  // completed / removed / rejected.
+  {
+    const { data: champs, error: champErr } = await supabase
+      .from('champions')
+      .select('id, active_youth_count');
+    const { data: activeYouth, error: ayErr } = await supabase
+      .from('youth')
+      .select('champion_id, status')
+      .not('champion_id', 'is', null)
+      .not('status', 'in', '("completed","removed","rejected")');
+
+    if (champErr || ayErr) {
+      console.error(`[daily-scheduler] S8 reconcile load failed: ${champErr?.message ?? ayErr?.message}`);
+    } else {
+      const counts = new Map<string, number>();
+      for (const y of activeYouth ?? []) {
+        counts.set(y.champion_id, (counts.get(y.champion_id) ?? 0) + 1);
+      }
+      for (const ch of champs ?? []) {
+        const actual = counts.get(ch.id) ?? 0;
+        if (ch.active_youth_count !== actual) {
+          await supabase
+            .from('champions')
+            .update({ active_youth_count: actual })
+            .eq('id', ch.id);
+          console.log(`[daily-scheduler] S8 champion ${ch.id} count ${ch.active_youth_count} → ${actual}`);
+        }
+      }
+    }
+  }
+
   console.log('[daily-scheduler] run complete');
 
   return new Response(JSON.stringify({ ok: true }), {
