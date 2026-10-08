@@ -5,3 +5,13 @@ test-runner.html.save
 test-runner.txt
 .mcp.json
 images/.DS_Store
+client_secret_*.json
+*.log
+youth_rows*.csv
+*.csv
+get_token.py
+second_chance_sms.sh
+test-referral-sms.sh
+images/lc-nights/rollerskating/
+node_modules/
+supabase/.temp/
