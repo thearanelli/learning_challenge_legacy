@@ -5,9 +5,11 @@ const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER') ?? '';
 export async function sendSMS({
   to,
   body,
+  mediaUrl,
 }: {
   to: string;
   body: string;
+  mediaUrl?: string;
 }): Promise<{ success: boolean; sid?: string; error?: string }> {
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
     console.error('[SMS] Missing Twilio credentials — SMS not sent');
@@ -25,17 +27,22 @@ export async function sendSMS({
   try {
     const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
+    const params: Record<string, string> = {
+      From: TWILIO_PHONE_NUMBER,
+      To: normalizedTo,
+      Body: body,
+    };
+    if (mediaUrl) {
+      params.MediaUrl = mediaUrl;
+    }
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`)}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        From: TWILIO_PHONE_NUMBER,
-        To: normalizedTo,
-        Body: body,
-      }).toString(),
+      body: new URLSearchParams(params).toString(),
     });
 
     const data = await response.json();
