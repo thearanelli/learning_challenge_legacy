@@ -9,6 +9,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendStaffNotification } from '../_shared/dispatcher.ts';
 import { sendEmail } from '../_shared/email.ts';
 import { config } from '../_shared/config.ts';
+import { driveFileName, driveViewUrl, fetchGrantPdf, toBase64 } from '../_shared/gdrive.ts';
 
 serve(async (req) => {
   let youth_id: string | null = null;
@@ -77,24 +78,49 @@ serve(async (req) => {
       throw new Error(`advance_status error: ${updateError.message}`);
     }
 
+    // Review email: PDFs sourced from Drive (BoldSign fallback), Approve button.
+    const approveLink = `${Deno.env.get('SUPABASE_URL')}/functions/v1/grant-review?gr=${grantRequest.id}&t=${grantRequest.review_token}&action=approve`;
+    const docs = [
+      { label: 'W9' as const, display: 'W-9', driveId: grantRequest.w9_drive_file_id, bsId: grantRequest.boldsign_w9_id },
+      { label: 'Agreement' as const, display: 'Agreement', driveId: grantRequest.agreement_drive_file_id, bsId: grantRequest.boldsign_agreement_id },
+    ];
+    const attachments: Array<{ filename: string; content: string; content_type: string }> = [];
+    const driveLinks: string[] = [];
+    const missingDocs: string[] = [];
+    for (const d of docs) {
+      const fileName = driveFileName(youth.first_name, youth.last_name, d.label);
+      const got = await fetchGrantPdf({ driveFileId: d.driveId, fileName, boldsignDocumentId: d.bsId });
+      if (got) {
+        attachments.push({ filename: fileName, content: toBase64(got.bytes), content_type: 'application/pdf' });
+        if (got.driveFileId) driveLinks.push(`<a href="${driveViewUrl(got.driveFileId)}">${d.display}</a>`);
+      } else {
+        missingDocs.push(d.display);
+      }
+    }
+    const driveLine = driveLinks.length
+      ? `filed in Drive: ${driveLinks.join(' · ')}`
+      : `<strong>Drive filing failed — will retry on approve.</strong>`;
+    const missingLine = missingDocs.length
+      ? `<p><strong>Could not attach: ${missingDocs.join(', ')} — check BoldSign.</strong></p>`
+      : '';
     await sendEmail({
-      to: ['team@griptape.org'],
-      subject: `Grant docs ready for review — ${youth.first_name} ${youth.last_name}`,
-      html: `<p>Grant paperwork has been submitted and signed by <strong>${youth.first_name} ${youth.last_name}</strong>.</p><p>Please review in Supabase and toggle <code>staff_approved</code> on the grant_requests row when ready. Download the signed PDFs from BoldSign on the same day and save to <a href="https://drive.google.com/drive/folders/13Lu0W7Dn3ltv2r5KYPmYvnKsI9qugJPI">Google Drive</a>.</p>`,
+      to: [...new Set([config.STAFF_EMAIL, 'team@griptape.org'].filter(Boolean))],
+      subject: `Grant review — ${youth.first_name} ${youth.last_name} ($${grantRequest.grant_amount})`,
+      html: `<p><strong>${youth.first_name} ${youth.last_name}</strong> signed both grant documents.</p>
+<p>Amount: <strong>$${grantRequest.grant_amount}</strong> · Topic: ${grantRequest.challenge_topic ?? '—'}<br>
+Legal name on file: ${grantRequest.legal_name ?? '—'} · Age: ${grantRequest.age ?? '—'}</p>
+<p>Signed PDFs attached, and ${driveLine}</p>
+${missingLine}
+<a class="cta" href="${approveLink}">Approve &amp; notify Catherine</a>
+<div class="notice"><strong>Signed something wrong?</strong> Fix manually: 1) delete the doc in BoldSign and re-send it from the template, 2) once re-signed, replace the Drive file via Manage versions &rarr; Upload new version (don't delete + re-upload), 3) click Approve above &mdash; Catherine receives whatever's in Drive.</div>`,
+      attachments: attachments.length ? attachments : undefined,
     });
 
-    // Notify staff via dispatcher (email + SMS)
-    // Uses grant_review content block: staff_email_subject, staff_email_body, staff_sms
+    // Staff SMS ping (grant_review content block is now SMS-only)
     await sendStaffNotification('grant_review', {
       first_name: youth.first_name,
       last_name: youth.last_name,
-      email: youth.email,
-      phone: youth.phone,
-      w9_doc_url: grantRequest.w9_doc_url ?? '',
-      agreement_doc_url: grantRequest.agreement_doc_url ?? '',
-      base_url: config.BASE_URL,
-      youth_id: youth.id,
-    });
+    }, { youth_id: youth.id });
 
     console.log(`[process-grant-signed] ${youth.id}: advanced to grant_review, staff notified`);
 
