@@ -12,6 +12,7 @@
     { "src": "/privacy", "dest": "/forms/privacy/index.html" },
     { "src": "/terms", "dest": "/forms/terms/index.html" },
     { "src": "/receipts", "dest": "/forms/receipts/index.html" },
+    { "src": "/grant-review", "dest": "/forms/grant-review/index.html" },
     { "src": "/final-video/?", "dest": "/forms/final-video/index.html" },
     { "src": "/images/(.*)", "dest": "/images/$1" },
     { "src": "/end-of-challenge", "dest": "/forms/end-of-challenge/index.html" },

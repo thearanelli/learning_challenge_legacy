@@ -25,12 +25,14 @@ async function getAccessToken(): Promise<string> {
   const iat = Math.floor(Date.now() / 1000);
   const enc = new TextEncoder();
   const header = b64url(enc.encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
+  const impersonate = Deno.env.get('GOOGLE_SA_IMPERSONATE');
   const claims = b64url(enc.encode(JSON.stringify({
     iss: email,
     scope: 'https://www.googleapis.com/auth/drive',
     aud: 'https://oauth2.googleapis.com/token',
     iat,
     exp: iat + 3600,
+    ...(impersonate ? { sub: impersonate } : {}),
   })));
   const sig = new Uint8Array(
     await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(`${header}.${claims}`)),

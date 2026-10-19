@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grant approval — NYC Learning Challenge</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+  body{margin:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif}
+  .card{max-width:480px;margin:60px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .hdr{background:#001722;padding:20px;text-align:center}
+  .hdr img{height:32px}
+  .body{padding:28px;color:#222;font-size:15px;line-height:1.6}
+  button{display:block;width:100%;background:#EA5329;color:#fff;border:none;padding:13px 24px;border-radius:6px;font-weight:bold;font-size:15px;cursor:pointer;margin-top:16px}
+  button:disabled{opacity:.6;cursor:default}
+  .body strong{color:#EA5329}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="hdr"><img src="https://cdn.prod.website-files.com/640b7fef2e2b16effc0a7b1e/644b0baddf9bc8c57b2514ca_GripTape_wordmark_white.png" alt="NYC Learning Challenge"></div>
+  <div class="body" id="content"><p>Loading…</p></div>
+</div>
+<script>
+const FN_URL = 'https://bqysrqjywxdmvcmxxrui.supabase.co/functions/v1/grant-review';
+const params = new URLSearchParams(location.search);
+const gr = params.get('gr'), t = params.get('t'), action = params.get('action');
+const el = document.getElementById('content');
+function esc(s){ const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+function show(html){ el.innerHTML = html; }
+function render(data){
+  const name = esc(data.name), amt = esc(data.amount);
+  switch (data.state) {
+    case 'confirm':
+      if (action === 'staff_approve') {
+        show(`<p>Approve <strong>${name}</strong>'s <strong>$${amt}</strong> grant? This sends their funds via Tremendous.</p><button id="go">Approve grant</button>`);
+      } else {
+        show(`<p>Approve the <strong>$${amt}</strong> grant for <strong>${name}</strong> and notify Catherine?</p><button id="go">Approve &amp; notify Catherine</button>`);
+      }
+      break;
+    case 'resend':
+      show(`<p>You already approved this grant. Resend Catherine's approval email?</p><button id="go">Resend to Catherine</button>`);
+      break;
+    case 'already_approved':
+      show(`<p>This grant was approved${data.approved_on ? ' on ' + esc(data.approved_on) : ''} — nothing to do.</p>`);
+      break;
+    case 'waiting_signature':
+      show(`<p>A document for ${name} is pending a signature. You'll get a fresh review email once it's in.</p>`);
+      break;
+    case 'not_ready':
+      show(`<p>This grant hasn't completed Thea's review yet. Check with Thea before approving.</p>`);
+      break;
+    default:
+      show(`<p>Invalid or expired link.</p>`);
+  }
+  const btn = document.getElementById('go');
+  if (btn) btn.onclick = async () => {
+    btn.disabled = true; btn.textContent = 'Working…';
+    try {
+      const res = await fetch(FN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gr, t, action }),
+      });
+      const out = await res.json();
+      show(`<p>${esc(out.message ?? (out.state === 'done' ? 'Done.' : 'Something went wrong — this action was not completed.'))}</p>`);
+    } catch (e) {
+      show('<p>Something went wrong — this action was not completed. Refresh the page to try again.</p>');
+    }
+  };
+}
+if (!gr || !t || !action) {
+  show('<p>Invalid link.</p>');
+} else {
+  fetch(`${FN_URL}?gr=${encodeURIComponent(gr)}&t=${encodeURIComponent(t)}&action=${encodeURIComponent(action)}&format=json`)
+    .then((r) => r.json())
+    .then(render)
+    .catch(() => show('<p>Could not load — refresh to try again.</p>'));
+}
+</script>
+</body>
+</html>

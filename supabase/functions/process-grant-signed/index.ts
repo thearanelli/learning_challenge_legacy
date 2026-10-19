@@ -79,7 +79,7 @@ serve(async (req) => {
     }
 
     // Review email: PDFs sourced from Drive (BoldSign fallback), Approve button.
-    const approveLink = `${Deno.env.get('SUPABASE_URL')}/functions/v1/grant-review?gr=${grantRequest.id}&t=${grantRequest.review_token}&action=approve`;
+    const approveLink = `${config.BASE_URL}/grant-review?gr=${grantRequest.id}&t=${grantRequest.review_token}&action=approve`;
     const docs = [
       { label: 'W9' as const, display: 'W-9', driveId: grantRequest.w9_drive_file_id, bsId: grantRequest.boldsign_w9_id },
       { label: 'Agreement' as const, display: 'Agreement', driveId: grantRequest.agreement_drive_file_id, bsId: grantRequest.boldsign_agreement_id },
