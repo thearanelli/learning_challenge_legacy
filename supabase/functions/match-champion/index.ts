@@ -23,6 +23,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
 import { sendStaffNotification } from '../_shared/dispatcher.ts';
+import { endOfDayEastern } from '../_shared/tokens.ts';
 import { systemPrompt, buildUserPrompt } from '../../../prompts/matchChampion.ts';
 
 // next stage: config.STAGES.onboarding.next = 'mentor_pending'
@@ -165,9 +166,12 @@ serve(async (req) => {
     // Step 4 — Advance status: onboarding -> mentor_pending
     const deadlineDays = config.STAGES.mentor_pending.deadline_days!;
     const bufferHours  = config.TOKEN_BUFFER_HOURS;
-    const expiresAt    = new Date(
+    // The youth gets ALL of the printed deadline date: snap expiry to
+    // 23:59:59 ET of the day it lands on, so the displayed date, the
+    // link's validity, and S3 removal share one instant.
+    const expiresAt    = endOfDayEastern(new Date(
       Date.now() + (deadlineDays * 24 + bufferHours) * 60 * 60 * 1000,
-    ).toISOString();
+    )).toISOString();
     const accessToken = crypto.randomUUID();
 
     const { error: advanceError } = await supabase.rpc('advance_status', {

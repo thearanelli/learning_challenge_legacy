@@ -16,7 +16,7 @@ export function generateToken(durationDays: number | null): {
 
 // Returns the instant of 23:59:59 America/New_York on the given date's
 // New York calendar day. Handles EST/EDT automatically via Intl.
-function endOfDayEastern(d: Date): Date {
+export function endOfDayEastern(d: Date): Date {
   const ymd = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
   }).format(d);

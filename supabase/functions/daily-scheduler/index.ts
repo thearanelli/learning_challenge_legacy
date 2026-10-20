@@ -800,7 +800,7 @@ serve(async (req) => {
     next_status: string;
     use_token_expiry?: boolean;
   }> = [
-    { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed'       },
+    { stage: 'mentor_pending',      deadline_days: config.STAGES.mentor_pending.deadline_days!,      content_key: 'removed_orientation', decrement_champion: true,  next_status: 'removed', use_token_expiry: true },
     { stage: 'grant_pending',       deadline_days: 11,                                                content_key: null,                  decrement_champion: false, next_status: 'grant_expired' },
     { stage: 'final_video_pending', deadline_days: 0, content_key: 'removed_full_send',   decrement_champion: false, next_status: 'removed', use_token_expiry: true },
   ];
