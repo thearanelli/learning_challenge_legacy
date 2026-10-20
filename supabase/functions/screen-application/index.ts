@@ -104,12 +104,13 @@ serve(async (req) => {
         },
       });
       await sendStaffNotification(
-        'application_flagged',
+        'flagged',
         {
           first_name: application.first_name as string,
           last_name: application.last_name as string,
-          email: application.email as string,
+          ai_decision: 'flagged',
           reasoning: 'Past GripTape participant — matched by name in Airtable.',
+          failed_criteria: 'n/a — past participant name match',
         },
         { application_id: application.id },
       );

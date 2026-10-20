@@ -1308,6 +1308,40 @@ serve(async (req) => {
     }
   }
 
+  // ── S9 — stale screening digest (daily, 14:00 UTC cycle) ─────────────────
+  const s9Now = new Date();
+  if (s9Now.getUTCHours() === 14 && s9Now.getUTCMinutes() === 0) {
+    const { data: flaggedApps } = await supabase
+      .from('applications')
+      .select('id, first_name, last_name, ai_reasoning, stage_entered_at')
+      .eq('screening_status', 'flagged');
+    const { data: stuckApps } = await supabase
+      .from('applications')
+      .select('id, first_name, last_name, created_at')
+      .eq('screening_status', 'submitted')
+      .lt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+    const stale = [
+      ...(flaggedApps ?? []).map(a => {
+        const days = a.stage_entered_at ? Math.floor((Date.now() - new Date(a.stage_entered_at).getTime()) / 86400000) : null;
+        return `<li><strong>${a.first_name} ${a.last_name}</strong> — flagged${days !== null ? ` ${days} day(s) ago` : ''}: ${a.ai_reasoning ?? ''}</li>`;
+      }),
+      ...(stuckApps ?? []).map(a =>
+        `<li><strong>${a.first_name} ${a.last_name}</strong> — stuck at submitted since ${new Date(a.created_at).toLocaleDateString('en-US')}; screening never completed</li>`),
+    ];
+
+    if (stale.length > 0) {
+      await sendEmail({
+        to: [config.STAFF_EMAIL, 'team@griptape.org'].filter(Boolean),
+        subject: `Screening needs attention — ${stale.length} application(s) waiting`,
+        html: `<p>These applications are sitting in screening and need a human decision:</p><ul>${stale.join('')}</ul><p>Review in Supabase and update <code>screening_status</code> (pair with <code>notify_after = now()</code> so the decision email sends).</p>`,
+      });
+      console.log(`[S9] Stale screening digest sent for ${stale.length} application(s)`);
+    } else {
+      console.log('[S9] No stale screening applications');
+    }
+  }
+
   console.log('[daily-scheduler] run complete');
 
   return new Response(JSON.stringify({ ok: true }), {

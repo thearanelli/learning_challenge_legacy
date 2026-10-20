@@ -45,6 +45,14 @@ export async function sendNotification(
   const block = (content as Record<string, unknown>)[stageKey];
   if (!block) {
     console.error(`[dispatcher] No content block for stage: ${stageKey}`);
+    const alertEmail = config.STAFF_EMAIL;
+    if (alertEmail) {
+      await sendEmail({
+        to: [alertEmail, 'team@griptape.org'],
+        subject: `Dispatcher misconfig — no content block for "${stageKey}"`,
+        html: `<p>A notification was requested for stage key <code>${stageKey}</code> but no content block exists in content.ts, so nothing was sent. Someone may be waiting on this notification.</p>`,
+      });
+    }
     return;
   }
   const b = block as Record<string, string>;
@@ -102,6 +110,14 @@ export async function sendStaffNotification(
   const block = (content as Record<string, unknown>)[stageKey];
   if (!block) {
     console.error(`[dispatcher] No content block for stage: ${stageKey}`);
+    const alertEmail = config.STAFF_EMAIL;
+    if (alertEmail) {
+      await sendEmail({
+        to: [alertEmail, 'team@griptape.org'],
+        subject: `Dispatcher misconfig — no content block for "${stageKey}"`,
+        html: `<p>A notification was requested for stage key <code>${stageKey}</code> but no content block exists in content.ts, so nothing was sent. Someone may be waiting on this notification.</p>`,
+      });
+    }
     return;
   }
   const b = block as Record<string, string>;
