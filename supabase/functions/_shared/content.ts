@@ -80,7 +80,7 @@ export const content = {
 <p>Reach out to {{champion_first_name}} to schedule that call as soon as possible. Their number is {{champion_phone}} and their email is {{champion_email}}.</p>
 <p>You have 7 days to complete your orientation. After that we have to give your spot to someone else.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: "Congrats {{first_name}}, you're officially a NYC Learning Challenger! Check your email for next steps ASAP.",
+    sms: "Great news {{first_name}}: your NYC Learning Challenge video is approved. You've been matched with your Champion (your mentor for the Challenge)! Check your email ASAP for next steps.",
   },
 
   champion_intro: {
