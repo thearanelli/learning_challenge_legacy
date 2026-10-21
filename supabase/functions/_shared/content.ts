@@ -222,6 +222,7 @@ export const content = {
     staff_email_subject: 'First Drop ready for review — {{first_name}} {{last_name}}',
     staff_email_body: `<p>{{first_name}} {{last_name}} submitted their First Drop video.</p>
 <p><strong>Video:</strong> <a href="{{video_url}}">{{video_url}}</a><br>
+<strong>Age:</strong> {{age}}<br>
 <strong>Passion:</strong> {{passion}}<br>
 <strong>Email:</strong> {{email}}<br>
 <strong>Application ID:</strong> {{application_id}}</p>

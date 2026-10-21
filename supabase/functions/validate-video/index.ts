@@ -11,6 +11,18 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { config } from '../_shared/config.ts';
 import { sendStaffNotification } from '../_shared/dispatcher.ts';
 
+// applications.birthdate is text, stored as MM/DD/YYYY. Returns whole years, or 'Unknown'.
+function ageFromBirthdate(birthdate: string | null | undefined): string {
+  if (!birthdate) return 'Unknown';
+  const m = birthdate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return 'Unknown';
+  const [, mm, dd, yyyy] = m;
+  const now = new Date();
+  let age = now.getFullYear() - Number(yyyy);
+  if (now.getMonth() + 1 < Number(mm) || (now.getMonth() + 1 === Number(mm) && now.getDate() < Number(dd))) age--;
+  return age >= 0 && age < 120 ? String(age) : 'Unknown';
+}
+
 serve(async (req) => {
   try {
     const payload = await req.json();
@@ -69,6 +81,7 @@ serve(async (req) => {
       email: record.email,
       video_url: record.video_url,
       passion: record.passion ?? '',
+      age: ageFromBirthdate(record.birthdate),
       application_id: record.id,
     });
 
