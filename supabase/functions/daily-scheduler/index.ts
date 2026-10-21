@@ -1204,6 +1204,138 @@ serve(async (req) => {
     }
   }
 
+  // ── S6b — Champion sync: Champions table + Youth.Champion link ──────────────
+  // Idempotent and self-healing: compares Supabase to Airtable every cycle, so no
+  // new columns or sync timestamps are needed. Supabase is source of truth for the
+  // Youth.Champion link. Champion rows are create-only (hand edits in Airtable stay).
+  {
+    const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
+    const baseId = 'apprXwArE9tAzGFnp';
+    const youthTableId = 'tblgtDO4PbNHcDuZi';
+    const champTableId = 'tbl76mPIjEx31Bv1E';
+
+    if (!airtableApiKey) {
+      console.error('[S6b] AIRTABLE_API_KEY not set — skipping');
+    } else {
+      const s6bErrors: string[] = [];
+      const atFetch = (path: string, init: RequestInit = {}) =>
+        fetch(`https://api.airtable.com/v0/${baseId}/${path}`, {
+          ...init,
+          headers: {
+            Authorization: `Bearer ${airtableApiKey}`,
+            'Content-Type': 'application/json',
+            ...(init.headers ?? {}),
+          },
+        });
+
+      // Fetch every record of a table (paginated), only the requested fields.
+      const atListAll = async (tableId: string, fields: string[]) => {
+        const out: Array<{ id: string; fields: Record<string, unknown> }> = [];
+        let offset: string | undefined;
+        do {
+          const qs = fields.map(f => `fields%5B%5D=${encodeURIComponent(f)}`).join('&')
+            + (offset ? `&offset=${encodeURIComponent(offset)}` : '');
+          const res = await atFetch(`${tableId}?${qs}`);
+          if (!res.ok) throw new Error(`list ${tableId} failed: ${await res.text()}`);
+          const json = await res.json();
+          out.push(...(json.records ?? []));
+          offset = json.offset;
+        } while (offset);
+        return out;
+      };
+
+      try {
+        // 1) Champions: create any that Airtable doesn't have yet
+        const { data: dbChamps, error: champErr } = await supabase
+          .from('champions')
+          .select('id, first_name, last_name, email, phone, bio, created_at');
+        if (champErr) throw new Error(`champions query failed: ${champErr.message}`);
+
+        const atChamps = await atListAll(champTableId, ['Champion ID']);
+        // Champion ID (Supabase uuid) -> Airtable record id
+        const champRecByDbId = new Map<string, string>();
+        for (const r of atChamps) {
+          const cid = r.fields['Champion ID'];
+          if (typeof cid === 'string' && cid) champRecByDbId.set(cid, r.id);
+        }
+
+        for (const c of dbChamps ?? []) {
+          if (champRecByDbId.has(c.id)) continue;
+          const fields: Record<string, unknown> = { 'Champion ID': c.id };
+          if (c.first_name) fields['First Name'] = c.first_name;
+          if (c.last_name) fields['Last Name'] = c.last_name;
+          if (c.email) fields['Email'] = c.email;
+          if (c.phone) fields['Phone'] = c.phone;
+          if (c.bio) fields['Bio'] = c.bio;
+          if (c.created_at) fields['Registration Date'] = String(c.created_at).slice(0, 10);
+
+          const res = await atFetch(champTableId, { method: 'POST', body: JSON.stringify({ fields }) });
+          if (!res.ok) {
+            const msg = `champion ${c.first_name} ${c.last_name} (${c.id}) create failed: ${await res.text()}`;
+            console.error(`[S6b] ${msg}`);
+            s6bErrors.push(msg);
+          } else {
+            const created = await res.json();
+            champRecByDbId.set(c.id, created.id);
+            console.log(`[S6b] Airtable champion created: ${c.first_name} ${c.last_name}`);
+          }
+        }
+
+        // 2) Youth: set the Champion link where Airtable differs from Supabase
+        const { data: dbYouth, error: youthErr } = await supabase
+          .from('youth')
+          .select('id, first_name, last_name, champion_id')
+          .not('champion_id', 'is', null);
+        if (youthErr) throw new Error(`youth query failed: ${youthErr.message}`);
+
+        const atYouth = await atListAll(youthTableId, ['Youth ID', 'Champion']);
+        const atYouthByDbId = new Map<string, { id: string; fields: Record<string, unknown> }>();
+        for (const r of atYouth) {
+          const yid = r.fields['Youth ID'];
+          if (typeof yid === 'string' && yid) atYouthByDbId.set(yid, r);
+        }
+
+        const patches: Array<{ id: string; fields: { Champion: string[] } }> = [];
+        for (const y of dbYouth ?? []) {
+          const rec = atYouthByDbId.get(y.id);
+          if (!rec) continue; // youth not in Airtable yet — S6 creates them post-orientation; picked up next cycle
+          const wantChampRec = champRecByDbId.get(y.champion_id as string);
+          if (!wantChampRec) continue; // champion create failed above — retry next cycle
+          const current = (rec.fields['Champion'] as string[] | undefined) ?? [];
+          if (current.length === 1 && current[0] === wantChampRec) continue; // already correct
+          patches.push({ id: rec.id, fields: { Champion: [wantChampRec] } });
+        }
+
+        for (let i = 0; i < patches.length; i += 10) {
+          const batch = patches.slice(i, i + 10);
+          const res = await atFetch(youthTableId, { method: 'PATCH', body: JSON.stringify({ records: batch }) });
+          if (!res.ok) {
+            const msg = `youth Champion link PATCH failed (batch starting ${i}): ${await res.text()}`;
+            console.error(`[S6b] ${msg}`);
+            s6bErrors.push(msg);
+          }
+        }
+        if (patches.length > 0) console.log(`[S6b] Champion link set/corrected on ${patches.length} youth record(s)`);
+        else console.log('[S6b] Champion links already in sync');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error('[S6b] sync error:', msg);
+        s6bErrors.push(msg);
+      }
+
+      if (s6bErrors.length > 0) {
+        const staffEmail = Deno.env.get('STAFF_EMAIL');
+        if (staffEmail) {
+          await sendEmail({
+            to: [staffEmail],
+            subject: 'Airtable champion sync failed',
+            html: `<p>The champion sync to Airtable hit ${s6bErrors.length} error(s). It retries on the next 30-minute cycle.</p><ul>${s6bErrors.map(e => `<li>${e}</li>`).join('')}</ul>`,
+          });
+        }
+      }
+    }
+  }
+
   // ── S7 — Sync receipts to Airtable youth Receipts attachments ───────────────
   {
     const airtableApiKey = Deno.env.get('AIRTABLE_API_KEY');
