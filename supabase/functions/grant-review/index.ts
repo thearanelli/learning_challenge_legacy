@@ -11,7 +11,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail } from '../_shared/email.ts';
 import { config } from '../_shared/config.ts';
-import { driveFileName, fetchGrantPdf, toBase64, uploadPdf } from '../_shared/gdrive.ts';
+import { driveFileName, driveViewUrl, fetchGrantPdf, toBase64, uploadPdf } from '../_shared/gdrive.ts';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -106,6 +106,7 @@ serve(async (req) => {
       const attachments: Array<{ filename: string; content: string; content_type: string }> = [];
       const heal: Record<string, string> = {};
       const missingDocs: string[] = [];
+      const driveLinks: string[] = [];
       for (const d of docs) {
         const fileName = driveFileName(youth?.first_name ?? 'Unknown', youth?.last_name ?? '', d.label);
         const got = await fetchGrantPdf({ driveFileId: d.driveId, fileName, boldsignDocumentId: d.bsId });
@@ -117,6 +118,7 @@ serve(async (req) => {
         }
         if (driveId && driveId !== d.driveId) heal[d.col] = driveId;
         attachments.push({ filename: fileName, content: toBase64(got.bytes), content_type: 'application/pdf' });
+        if (driveId) driveLinks.push(`<a href="${driveViewUrl(driveId)}">${d.label === 'W9' ? 'W-9' : 'Agreement'}</a>`);
       }
       if (Object.keys(heal).length) {
         await supabase.from('grant_requests').update(heal).eq('id', grant.id);
@@ -127,16 +129,19 @@ serve(async (req) => {
         return json({ state: 'error', message: 'Approved, but CATHERINE_EMAIL is not set in Supabase secrets, so her email could not be sent. Set it and click Approve again to resend.' });
       }
       const staffApproveLink = `${config.BASE_URL}/grant-review?gr=${grant.id}&t=${grant.review_token}&action=staff_approve`;
-      const folderLink = `https://drive.google.com/drive/folders/${Deno.env.get('GDRIVE_GRANT_FOLDER_ID')}`;
+      const driveLine = driveLinks.length
+        ? `filed in Drive: ${driveLinks.join(' · ')}`
+        : `<strong>Drive links unavailable — PDFs attached.</strong>`;
       const missingLine = missingDocs.length
         ? `<p><strong>Note: ${missingDocs.join(', ')} could not be attached — check with Thea before approving.</strong></p>`
         : '';
       await sendEmail({
         to: catherineEmail,
         subject: `Grant approval needed — ${name} ($${grant.grant_amount})`,
-        html: `<p>Thea reviewed and approved grant paperwork for <strong>${name}</strong>.</p>
-<p>Amount: <strong>$${grant.grant_amount}</strong> · Topic: ${grant.challenge_topic ?? '—'} · Legal name: ${grant.legal_name ?? '—'}</p>
-<p>Signed W-9 and Participation Agreement attached (also in <a href="${folderLink}">Drive</a>).</p>
+        html: `<p><strong>${name}</strong> signed both grant documents. Reviewed and approved by Thea.</p>
+<p>Amount: <strong>$${grant.grant_amount}</strong> · Topic: ${grant.challenge_topic ?? '—'}<br>
+Legal name on file: ${grant.legal_name ?? '—'} · Age: ${grant.age ?? '—'}</p>
+<p>Signed PDFs attached, and ${driveLine}</p>
 ${missingLine}
 <a class="cta" href="${staffApproveLink}">Approve grant</a>
 <p>Approving releases the $${grant.grant_amount} grant to ${youth?.first_name ?? name} via Tremendous. Questions? Reach Thea directly.</p>`,
