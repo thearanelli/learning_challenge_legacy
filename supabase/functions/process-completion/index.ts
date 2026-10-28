@@ -64,7 +64,10 @@ serve(async (req) => {
         email: youth.email,
         phone: youth.phone,
       },
-      { base_url: config.BASE_URL },
+      {
+        base_url: config.BASE_URL,
+        referral_link: `${config.BASE_URL}/?ref=${youth.first_name.toLowerCase()}-${youth.last_name.toLowerCase()}`,
+      },
       { youth_id: youth.id },
       { skipSms: !youth.sms_consent },
     );

@@ -233,15 +233,17 @@ export const content = {
   },
 
   full_send_submitted: {
-    email_subject: "You did it. Welcome to the NYC Learning Challenge Alumni family.",
+    email_subject: "Welcome to GripTape, {{first_name}}. You're a Member.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your Full Send is approved. You are officially a NYC Learning Challenge Alum.</p>
-<p>Six weeks ago you made a commitment. You showed up, did the work, and finished something real. That is not nothing. Most people never do.</p>
-<p>Now pay it forward.</p>
-<p>Know someone who has a passion and the drive to do something with it? Send them to the NYC Learning Challenge. One registration could change everything for them the way this Challenge changed things for you.</p>
-<p>Share this link with them: <a href="{{base_url}}">{{base_url}}</a></p>
-<p>Welcome to the community. We are proud of you.</p>
+<p>You did it. Your final call is done and your Full Send is in, which means you finished your Challenge. That makes you a GripTape Member for life.</p>
+<p>You showed up, did the work, and built something real. Most people never do. Here's what you've unlocked:</p>
+<p><strong>Opportunities for paid internships.</strong> When one opens, Members hear first. GripTape has paid 90+ young people for real work.</p>
+<p><strong>Free NYC events every month.</strong> Roller skating, escape rooms, pasta making, and more. Bring a friend.</p>
+<p><strong>Unlimited invites for your friends.</strong> Your own link fast-tracks their application: <a href="{{referral_link}}">{{referral_link}}</a></p>
+<p><strong>A seat as a volunteer mentor.</strong> Our Champions are Members who came back to mentor the next Challengers. When you're ready, there's one for you.</p>
+<p>Welcome to the club. We're proud of you.</p>
 <p>— The NYC Learning Challenge Team</p>`,
+    sms: "Hey {{first_name}}, you finished your Challenge. You're officially a GripTape Member for life! Paid internship opportunities and free NYC events are yours. Share your invite link with friends: {{referral_link}}",
   },
 
   // ── Nudges ────────────────────────────────────────────────────────────────
@@ -465,12 +467,11 @@ export const content = {
   },
 
   removed_full_send: {
-    email_subject: 'Your NYC Learning Challenge has ended',
+    email_subject: "Your Challenge window closed. The door's still open.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>We never received your Full Send video by {{deadline_date}} so you won't be joining the official NYC Learning Challenge Alumni community — but that doesn't take away from what you did.</p>
-<p>You showed up. You committed. You spent weeks working on something you care about. That's real — and most people never do it.</p>
-<p>We hope you keep going. Whatever you built, keep building it.</p>
-<p>If you think we missed something, email <a href="mailto:thea@griptape.org">thea@griptape.org</a>.</p>
+<p>We didn't get your Full Send by {{deadline_date}}, so your Challenge window has closed. That's okay. Life happens.</p>
+<p>You showed up, committed, and spent weeks on something you care about. That's real.</p>
+<p>And the door isn't shut. Email <a href="mailto:thea@griptape.org">thea@griptape.org</a> and we'll walk you through the steps for a second chance at your GripTape membership: opportunities for paid internships, free NYC events, and unlimited invites for your friends.</p>
 <p>— The NYC Learning Challenge Team</p>`,
   },
 
