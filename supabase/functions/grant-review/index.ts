@@ -11,7 +11,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail } from '../_shared/email.ts';
 import { config } from '../_shared/config.ts';
-import { driveFileName, driveViewUrl, fetchGrantPdf, toBase64, uploadPdf } from '../_shared/gdrive.ts';
+import { driveFileName, driveViewUrl, fetchGrantPdf, uploadPdf } from '../_shared/gdrive.ts';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -103,7 +103,6 @@ serve(async (req) => {
         { label: 'W9' as const, driveId: grant.w9_drive_file_id, bsId: grant.boldsign_w9_id, col: 'w9_drive_file_id' },
         { label: 'Agreement' as const, driveId: grant.agreement_drive_file_id, bsId: grant.boldsign_agreement_id, col: 'agreement_drive_file_id' },
       ];
-      const attachments: Array<{ filename: string; content: string; content_type: string }> = [];
       const heal: Record<string, string> = {};
       const missingDocs: string[] = [];
       const driveLinks: string[] = [];
@@ -117,7 +116,6 @@ serve(async (req) => {
           catch (e) { console.error('[grant-review] Drive heal failed (non-fatal):', e); }
         }
         if (driveId && driveId !== d.driveId) heal[d.col] = driveId;
-        attachments.push({ filename: fileName, content: toBase64(got.bytes), content_type: 'application/pdf' });
         if (driveId) driveLinks.push(`<a href="${driveViewUrl(driveId)}">${d.label === 'W9' ? 'W-9' : 'Agreement'}</a>`);
       }
       if (Object.keys(heal).length) {
@@ -130,10 +128,10 @@ serve(async (req) => {
       }
       const staffApproveLink = `${config.BASE_URL}/grant-review?gr=${grant.id}&t=${grant.review_token}&action=staff_approve`;
       const driveLine = driveLinks.length
-        ? `filed in Drive: ${driveLinks.join(' · ')}`
-        : `<strong>Drive links unavailable — PDFs attached.</strong>`;
+        ? `Signed docs in Drive: ${driveLinks.join(' · ')}`
+        : `<strong>Drive links unavailable — check with Thea before approving.</strong>`;
       const missingLine = missingDocs.length
-        ? `<p><strong>Note: ${missingDocs.join(', ')} could not be attached — check with Thea before approving.</strong></p>`
+        ? `<p><strong>Note: ${missingDocs.join(', ')} could not be located — check with Thea before approving.</strong></p>`
         : '';
       await sendEmail({
         to: catherineEmail,
@@ -141,11 +139,10 @@ serve(async (req) => {
         html: `<p><strong>${name}</strong> signed both grant documents. Reviewed and approved by Thea.</p>
 <p>Amount: <strong>$${grant.grant_amount}</strong> · Topic: ${grant.challenge_topic ?? '—'}<br>
 Legal name on file: ${grant.legal_name ?? '—'} · Age: ${grant.age ?? '—'}</p>
-<p>Signed PDFs attached, and ${driveLine}</p>
+<p>${driveLine}</p>
 ${missingLine}
 <a class="cta" href="${staffApproveLink}">Approve grant</a>
 <p>Approving releases the $${grant.grant_amount} grant to ${youth?.first_name ?? name} via Tremendous. Questions? Reach Thea directly.</p>`,
-        attachments: attachments.length ? attachments : undefined,
       });
       console.log(`[grant-review] thea approved grant ${grant.id}, Catherine notified`);
       return json({ state: 'done', message: 'Approved — Catherine has been notified.' });
