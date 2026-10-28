@@ -345,88 +345,87 @@ export const content = {
   },
 
   nudge_full_send_neither: {
-    email_subject: 'Two things left to complete your Challenge',
+    email_subject: 'One week left to finish your Challenge',
     email_body: `<p>Hey {{first_name}},</p>
-<p>You have until {{deadline_date}} to finish your Challenge. Two things still need to happen.</p>
-<p>Submit your Full Send video — your 90-second video showing what you built, what you learned, and where you are headed next.</p>
-<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
-<p>Schedule your End of Challenge call with {{champion_name}}. Reach out today: {{champion_phone}}.</p>
-<p>Both need to happen to become a NYC Learning Challenge Alum.</p>
+<p>You have until the end of the day on <strong>{{deadline_date}}</strong> to finish your Challenge, and your GripTape membership is waiting on the other side. Two things to do:</p>
+<p><strong>1. Make your Full Send.</strong> A simple 90-second video sharing what you accomplished.</p>
+<p><strong>2. Book your final call with {{champion_name}}.</strong> Reach out today: {{champion_phone}}. Bring your Full Send with you.</p>
+<a class="cta" href="{{link}}">Submit your Full Send →</a>
+<p>Finish both and you're a GripTape Member for life: opportunities for paid internships, free NYC events, and unlimited invites for your friends.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, two things left before {{deadline_date}}: your Full Send {{link}} and your EOC call with {{champion_name}} ({{champion_phone}}).',
+    sms: 'Hey {{first_name}}, one week left to finish your Challenge and earn your GripTape membership: paid internship opportunities + free NYC events. Make your 90-sec Full Send, book your call with {{champion_name}} ({{champion_phone}}), upload by {{deadline_date}}: {{link}}',
   },
 
   nudge_full_send_neither_final: {
-    email_subject: 'Last chance. Two things still needed.',
+    email_subject: 'Two days left, {{first_name}}',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Two days left. Neither your Full Send nor your End of Challenge call has happened yet.</p>
-<p>Submit your Full Send now:</p>
-<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
-<p>And reach out to {{champion_name}} today to schedule your call: {{champion_phone}}.</p>
-<p>Both need to happen by {{deadline_date}}. Do not let this slip.</p>
+<p>Two days left, and your Full Send and your final call are both still open.</p>
+<p>Record your video today. A rough phone video counts, and nobody grades the editing. Then text {{champion_name}} ({{champion_phone}}) to get your call booked, and bring your Full Send with you.</p>
+<a class="cta" href="{{link}}">Submit your Full Send →</a>
+<p>Both done by the end of the day on <strong>{{deadline_date}}</strong> and you finish, and you're a GripTape Member for life.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, last chance — two things due {{deadline_date}}: Full Send {{link}} and EOC call with {{champion_name}} ({{champion_phone}}).',
+    sms: 'Hey {{first_name}}, 2 days left to lock in your GripTape membership: paid internship opportunities and free NYC events for life. Record your Full Send, book your call with {{champion_name}} ({{champion_phone}}), upload by {{deadline_date}}: {{link}}',
   },
 
   nudge_full_send_no_video: {
-    email_subject: 'Your EOC call is done. One thing left.',
+    email_subject: 'Your call is done. Your membership is one upload away.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your End of Challenge call is complete. Nice work.</p>
-<p>One thing left — submit your Full Send video before {{deadline_date}}. That is what officially makes you a NYC Learning Challenge Alum.</p>
-<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>Your final call is done. Nice work.</p>
+<p>One thing left: upload your Full Send by the end of the day on <strong>{{deadline_date}}</strong> and you're officially a GripTape Member for life. That means:</p>
+<p>• Opportunities for paid internships (GripTape has paid 90+ young people for real work)<br>• Free NYC events every month — roller skating, escape rooms, pasta making, and more<br>• Unlimited invites for your friends</p>
+<p>Your Full Send is just a simple 90-second video of what you accomplished. Rough phone video is perfect.</p>
+<a class="cta" href="{{link}}">Submit your Full Send →</a>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, EOC call done. One thing left — submit your Full Send before {{deadline_date}}: {{link}}',
+    sms: "Hey {{first_name}}, your call is done! Upload your Full Send by {{deadline_date}} and you're a GripTape Member: opportunities for paid internships, free NYC events, and more. {{link}}",
   },
 
   nudge_full_send_no_video_final: {
-    email_subject: 'Last chance. Submit your Full Send today.',
+    email_subject: 'Two days left. Your membership is waiting.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your End of Challenge call is done. The only thing standing between you and becoming a NYC Learning Challenge Alum is your Full Send video.</p>
-<p>Submit it before {{deadline_date}}. You are this close.</p>
-<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
+<p>Your final call is done. Your Full Send is the only thing between you and your GripTape membership: opportunities for paid internships, free NYC events every month, and unlimited invites for your friends.</p>
+<p>Upload it by the end of the day on <strong>{{deadline_date}}</strong>. A rough phone video counts. You're this close.</p>
+<a class="cta" href="{{link}}">Submit your Full Send →</a>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, last chance — submit your Full Send before {{deadline_date}}: {{link}}',
+    sms: 'Hey {{first_name}}, 2 days left. Upload your Full Send by {{deadline_date}} to claim your GripTape membership: paid internship opportunities, free NYC events for life. {{link}}',
   },
 
   nudge_full_send_no_eoc: {
-    email_subject: 'One more thing — your End of Challenge call',
+    email_subject: 'Your Full Send is in. One call left.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your Full Send is in. One thing left before you officially complete your Challenge.</p>
-<p>Schedule your End of Challenge call with {{champion_name}}. Reach out today: {{champion_phone}}.</p>
-<p>That call is the last step to becoming a NYC Learning Challenge Alum.</p>
+<p>Your Full Send is in. One thing left: your final call with {{champion_name}}.</p>
+<p>Reach out today to get it booked: {{champion_phone}}. Finish the call by the end of the day on <strong>{{deadline_date}}</strong> and you're a GripTape Member for life.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, Full Send received. One thing left — schedule your EOC call with {{champion_name}}: {{champion_phone}}',
+    sms: "Hey {{first_name}}, your Full Send is in! Book your final call with {{champion_name}} ({{champion_phone}}) by {{deadline_date}} and you're a GripTape Member: paid internship opportunities, free NYC events, and more.",
   },
 
   nudge_full_send_no_eoc_final: {
-    email_subject: 'Last chance. Schedule your EOC call today.',
+    email_subject: 'Two days left. Book your final call.',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your Full Send is submitted. You are almost done.</p>
-<p>Reach out to {{champion_name}} right now to schedule your End of Challenge call: {{champion_phone}}.</p>
-<p>This needs to happen by {{deadline_date}}. It is the last step.</p>
+<p>Your Full Send is in. You're almost a GripTape Member.</p>
+<p>Reach out to {{champion_name}} today to get your final call on the calendar: {{champion_phone}}. It has to happen by the end of the day on <strong>{{deadline_date}}</strong>.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, last chance — schedule your EOC call with {{champion_name}} ({{champion_phone}}) by {{deadline_date}}.',
+    sms: 'Hey {{first_name}}, 2 days left. Book your final call with {{champion_name}} ({{champion_phone}}) by {{deadline_date}} to lock in your GripTape membership: paid internship opportunities + free NYC events.',
   },
 
   nudge_full_send_champion_no_eoc: {
     email_subject: '{{youth_name}} still needs their End of Challenge call',
     email_body: `<p>Hey {{first_name}},</p>
-<p>{{youth_name}} has not completed their End of Challenge call yet. Their deadline is {{deadline_date}}.</p>
-<p>Reach out to them and get it scheduled. Use the form below to guide the call.</p>
+<p>{{youth_name}} has not completed their End of Challenge call yet. Their deadline is the end of the day on {{deadline_date}}.</p>
+<p>Reach out to them and get it scheduled. Ask them to bring their Full Send so you can watch it together. Use the form below to guide the call.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, {{youth_name}} still needs their EOC call. Reach out and submit the form: {{eoc_link}}',
+    sms: "Hey {{first_name}}, {{youth_name}} still needs their EOC call. Ask them to bring their Full Send so you can watch it together. Form: {{eoc_link}}",
   },
 
   nudge_full_send_champion_no_eoc_final: {
-    email_subject: 'Last chance — {{youth_name}} EOC call',
+    email_subject: 'Two days left — {{youth_name}} EOC call',
     email_body: `<p>Hey {{first_name}},</p>
 <p>Two days left. {{youth_name}} has not completed their End of Challenge call.</p>
-<p>Reach out today: {{youth_phone}}.</p>
+<p>Reach out today: {{youth_phone}}. Ask them to bring their Full Send so you can watch it together.</p>
 <p>Submit the form during or after your call.</p>
 <p><a href="{{eoc_link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Open End of Challenge Form</a></p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, last chance — {{youth_name}} EOC call due {{deadline_date}}. Form: {{eoc_link}}',
+    sms: "Hey {{first_name}}, 2 days left — {{youth_name}}'s EOC call is due {{deadline_date}}. Ask them to bring their Full Send to watch together. Form: {{eoc_link}}",
   },
 
   challenge_midpoint: {
@@ -478,18 +477,28 @@ export const content = {
   // ── Full Send link dispatch ───────────────────────────────────────────────
 
   full_send_link: {
-    email_subject: "Your Challenge is almost complete",
+    email_subject: "The Challenge ends. The membership doesn't.",
     email_body: `<p>Hey {{first_name}},</p>
-<p>Six weeks ago you committed to building something real. You showed up, did the work, and didn't quit. You're almost done.</p>
-<p>Two things left to officially complete your Challenge:</p>
-<p><strong>1. Schedule your End of Challenge call with {{champion_name}}</strong> — a 30-45 minute conversation to reflect on everything you built and celebrate how far you've come. Reach out to {{champion_name}} to get it on the calendar: {{champion_phone}}.</p>
-<p><strong>2. Submit your Full Send video</strong> — a 90-second video showing your work, your growth, and where you're headed next.</p>
-<p><a href="{{link}}" style="display:inline-block;background:#EA5329;color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;padding:14px 32px;border-radius:6px;text-decoration:none;">Submit your Full Send</a></p>
-<p>Both need to happen by {{deadline_date}}.</p>
-<p>Pro tip: try to have a draft of your Full Send ready before your End of Challenge call. Showing your Champion what you built makes for a better conversation — and their feedback will make your video better.</p>
-<p>Last call on receipts too — <a href="{{receipt_link}}">upload anything you haven't yet</a>.</p>
+<p>You're in the home stretch. Finishing is what this whole Challenge has been building to: share what you accomplished, talk it through with {{champion_name}}, and you've done it.</p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:0 0 22px"><tr><td style="background:#fff4ef;border-left:4px solid #EA5329;padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222222"><span style="font-size:11px;font-weight:bold;letter-spacing:1px;color:#EA5329;text-transform:uppercase">Your deadline</span><br><span style="font-size:17px;font-weight:bold;color:#001722">End of day, {{deadline_date}}</span></td></tr></table>
+<p style="margin:0 0 6px;font-size:15px;line-height:1.65;color:#222222"><strong style="color:#001722">Finishing gets you a GripTape membership. For life.</strong></p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:0 0 26px;background:#001722;border-radius:10px">
+<tr><td style="padding:24px 24px 6px;font-family:Arial,Helvetica,sans-serif"><span style="font-size:11px;font-weight:bold;letter-spacing:1.5px;color:#F79227;text-transform:uppercase">What your membership includes</span></td></tr>
+<tr><td style="padding:10px 24px 0;font-family:Arial,Helvetica,sans-serif"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="border-top:1px solid rgba(255,255,255,0.12);padding:14px 0 0"><span style="font-size:15px;font-weight:bold;color:#EA5329">Opportunities for paid internships.</span><br><span style="font-size:14px;line-height:1.55;color:rgba(255,255,255,0.88)">GripTape has paid 90+ young people for real work — photography, video, social media, event hosting, consulting. When a paid internship opens, Members hear first.</span></td></tr></table></td></tr>
+<tr><td style="padding:14px 24px 0;font-family:Arial,Helvetica,sans-serif"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="border-top:1px solid rgba(255,255,255,0.12);padding:14px 0 0"><span style="font-size:15px;font-weight:bold;color:#EA5329">GripTape Members succeed.</span><br><span style="font-size:14px;line-height:1.7;color:rgba(255,255,255,0.88)"><strong style="color:#ffffff">Leah</strong> — <a href="https://www.instagram.com/littlesbyleah" style="color:#F79227;text-decoration:underline">brand deals and her own online store</a><br><strong style="color:#ffffff">Alphina</strong> — <a href="https://www.youtube.com/watch?v=ETOqLrfGnnI" style="color:#F79227;text-decoration:underline">produced a TED talk</a><br><strong style="color:#ffffff">Nana</strong> — <a href="https://www.youtube.com/shorts/k_a6-73ub2k" style="color:#F79227;text-decoration:underline">a clothing line with H&amp;M</a></span></td></tr></table></td></tr>
+<tr><td style="padding:14px 24px 0;font-family:Arial,Helvetica,sans-serif"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="border-top:1px solid rgba(255,255,255,0.12);padding:14px 0 0"><span style="font-size:15px;font-weight:bold;color:#EA5329">Free NYC events every month.</span><br><span style="font-size:14px;line-height:1.55;color:rgba(255,255,255,0.88)">Roller skating, escape rooms, pasta making, and more. Bring a friend.</span></td></tr></table></td></tr>
+<tr><td style="padding:14px 24px 24px;font-family:Arial,Helvetica,sans-serif"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="border-top:1px solid rgba(255,255,255,0.12);padding:14px 0 0"><span style="font-size:15px;font-weight:bold;color:#EA5329">Unlimited invites for your friends.</span><br><span style="font-size:14px;line-height:1.55;color:rgba(255,255,255,0.88)">Your own invite link fast-tracks their application.</span></td></tr></table></td></tr>
+</table>
+<p style="margin:0 0 12px;font-size:18px;font-weight:bold;color:#001722;font-family:Arial,Helvetica,sans-serif">Here's how to finish</p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:0 0 6px">
+<tr><td width="44" valign="top" style="padding:0 0 16px"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="32" height="32" align="center" valign="middle" style="background:#EA5329;border-radius:16px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;line-height:32px">1</td></tr></table></td><td valign="top" style="padding:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#222222"><strong style="color:#001722">Finish your Full Send video.</strong><br>Similar to your first video — a simple 90-second video sharing what you accomplished this Challenge.</td></tr>
+<tr><td width="44" valign="top" style="padding:0 0 16px"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="32" height="32" align="center" valign="middle" style="background:#EA5329;border-radius:16px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;line-height:32px">2</td></tr></table></td><td valign="top" style="padding:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#222222"><strong style="color:#001722">Book your final call with {{champion_name}}.</strong><br>30–45 minutes to look back at what you built. Reach out this week: <strong style="color:#EA5329">{{champion_phone}}</strong></td></tr>
+<tr><td width="44" valign="top" style="padding:0 0 4px"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="32" height="32" align="center" valign="middle" style="background:#EA5329;border-radius:16px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;line-height:32px">3</td></tr></table></td><td valign="top" style="padding:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#222222"><strong style="color:#001722">Show up with your Full Send ready.</strong><br>Play it for {{champion_name}} on the call, then upload it below.</td></tr>
+</table>
+<a class="cta" href="{{link}}">Submit your Full Send →</a>
+<p>Call done and video in by the end of the day on <strong>{{deadline_date}}</strong> means you finished, and you're a Member. Every time. Nobody grades the editing.</p>
 <p>— The NYC Learning Challenge Team</p>`,
-    sms: 'Hey {{first_name}}, your Challenge is almost complete. Two things left: your End of Challenge call with {{champion_name}} and your Full Send submission. Submit here: {{link}}',
+    sms: "Hey {{first_name}}, time to finish your Challenge. Make a simple 90-second Full Send, bring it to your call with {{champion_name}}, then upload by {{deadline_date}}: {{link}} Finishing gets you a GripTape membership for life: paid internship opportunities, free NYC events, and more.",
   },
 
   // ── End of Challenge ─────────────────────────────────────────────────────
