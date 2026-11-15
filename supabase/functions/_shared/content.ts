@@ -309,7 +309,7 @@ export const content = {
   nudge_orientation_2: {
     email_subject: 'Your orientation deadline is almost here',
     email_body: `<p>Hey {{first_name}},</p>
-<p>Your orientation call must be completed by {{deadline_date}} — that's tomorrow.</p>
+<p>Your orientation call must be completed by {{deadline_date}}.</p>
 <p>If you haven't connected with {{champion_name}} yet, reach out right now. Their number is {{champion_phone}}. After the deadline we have to give your spot to someone else.</p>`,
     sms: 'Hey {{first_name}}, your orientation call is due soon — connect with {{champion_name}} today.',
   },
